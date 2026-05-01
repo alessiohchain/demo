@@ -18,6 +18,8 @@ import za.co.csnx.demo.common.BaseEntity;
 @NoArgsConstructor
 public class Customer extends BaseEntity {
 
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
