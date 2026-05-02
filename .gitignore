@@ -49,6 +49,12 @@ coverage/
 Thumbs.db
 desktop.ini
 
+# Claude Code — keep team config (.claude/settings.json, .mcp.json, CLAUDE.md),
+# ignore personal overrides
+.claude/settings.local.json
+.claude/.session*
+.claude/projects/
+
 # Logs
 *.log
 logs/
