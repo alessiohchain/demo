@@ -125,6 +125,13 @@ JSON Schema for forms + TanStack Table for grids, served from
 stay hand-coded for now — keep business logic out of them so they're easy to
 replace later.
 
+## Why these conventions — read before you change them
+
+`docs/decisions.md` captures the rationale behind every choice on this page —
+what was on the table, what was rejected, and why. Read it before proposing a
+stack change (e.g. "should we add Lombok back?", "switch to Logback?", "use
+H2 for tests?"). Each section is short.
+
 ## Plan / ticket
 
 Origin plan: `docs/plans/CSNX-13935-plan.md` in the CSnx repo (branch
