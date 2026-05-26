@@ -48,8 +48,9 @@ app:
       issuer: demo-backend
       access-token-ttl: PT1H
       refresh-token-ttl: P7D
-      # Override in env: APP_SECURITY_JWT_SECRET (>= 32 bytes when base64-decoded)
-      secret: ${APP_SECURITY_JWT_SECRET:dGhpcy1pcy1hLWRldi1zZWNyZXQtcmVwbGFjZS1pbi1wcm9kdWN0aW9uLW9rPw==}
+      # Required env var: APP_SECURITY_JWT_SECRET (>= 32 bytes when base64-decoded).
+      # No default — startup fails fast if unset (CSNX-14045 / VULN-2026-001).
+      secret: ${APP_SECURITY_JWT_SECRET}
     cors:
       allowed-origins:
         - http://localhost:5173
