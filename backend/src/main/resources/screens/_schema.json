@@ -1,0 +1,219 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://csnx.demo/screen-metadata.json",
+    "title": "Screen MetadataHolder",
+    "description": "One workflow's UI engine metadata, served from GET /api/metadata. Loaded into screen_metadata.payload by ScreenMetadataSeeder.",
+    "type": "object",
+    "required": ["name", "metadataList"],
+    "additionalProperties": false,
+    "properties": {
+        "$schema":         { "type": "string", "description": "Local schema reference for IDE help." },
+        "name":            { "type": "string", "description": "Workflow id (e.g. reportText.maintenance)." },
+        "shortName":       { "type": "string", "description": "4-letter fastpath code (e.g. RPTM)." },
+        "language":        { "type": "string", "description": "ISO language (e.g. EN)." },
+        "version":         { "type": "integer", "minimum": 0, "description": "Cache-bust counter. Optional; the seeder lets DB @Version drive this." },
+        "autoRefreshTime": { "type": "integer", "minimum": 0, "description": "Polling interval in ms; 0 disables." },
+        "action":          { "type": "string", "description": "Default action verb on first load (e.g. enable_edit)." },
+        "metadataList":    {
+            "type": "array",
+            "minItems": 1,
+            "description": "Ordered list of one or more metadata items rendered top-to-bottom.",
+            "items":      { "$ref": "#/definitions/metadataItem" }
+        }
+    },
+    "definitions": {
+        "metadataItem": {
+            "oneOf": [
+                { "$ref": "#/definitions/formMetadata" },
+                { "$ref": "#/definitions/gridMetadata" },
+                { "$ref": "#/definitions/searchMetadata" },
+                { "$ref": "#/definitions/filterMetadata" },
+                { "$ref": "#/definitions/toolbarMetadata" }
+            ]
+        },
+        "abstractMetadata": {
+            "type": "object",
+            "required": ["kind", "name"],
+            "properties": {
+                "kind":                 { "type": "string", "enum": ["form", "grid", "search", "filter", "toolbar"] },
+                "name":                 { "type": "string" },
+                "workflow":             { "type": "string" },
+                "defaultVisibleState":  { "type": "boolean" },
+                "defaultEditableState": { "type": "boolean" }
+            }
+        },
+        "formMetadata": {
+            "allOf": [
+                { "$ref": "#/definitions/abstractMetadata" },
+                {
+                    "properties": {
+                        "kind":             { "const": "form" },
+                        "fieldList":        { "type": "array", "items": { "$ref": "#/definitions/fieldMetadata" } },
+                        "mainSectionName":  { "type": "string" },
+                        "columns":          { "type": "integer", "minimum": 1 },
+                        "header":           { "type": "string" },
+                        "headerAlignment":  { "type": "string" },
+                        "footer":           { "type": "string" },
+                        "footerAlignment":  { "type": "string" },
+                        "toolbarMetadata":  { "$ref": "#/definitions/toolbarMetadata" },
+                        "fieldNamesNoRights": { "type": "array", "items": { "type": "string" } },
+                        "stateVisibleMap":  { "type": "object" },
+                        "stateEditableMap": { "type": "object" }
+                    }
+                }
+            ]
+        },
+        "gridMetadata": {
+            "allOf": [
+                { "$ref": "#/definitions/abstractMetadata" },
+                {
+                    "properties": {
+                        "kind":              { "const": "grid" },
+                        "fieldList":         { "type": "array", "items": { "$ref": "#/definitions/fieldMetadata" } },
+                        "title":             { "type": "string" },
+                        "rows":              { "type": "integer", "minimum": 1 },
+                        "overrideState":     { "type": "boolean" },
+                        "toolbarMetadata":   { "$ref": "#/definitions/toolbarMetadata" },
+                        "searchMetadata":    { "$ref": "#/definitions/formMetadata" },
+                        "checkboxSelection": { "type": "boolean" },
+                        "preferences":       { "type": "string" },
+                        "inlineEdit":        { "type": "boolean" }
+                    }
+                }
+            ]
+        },
+        "searchMetadata": {
+            "allOf": [
+                { "$ref": "#/definitions/abstractMetadata" },
+                {
+                    "properties": {
+                        "kind":         { "const": "search" },
+                        "formMetadata": { "$ref": "#/definitions/formMetadata" },
+                        "gridMetadata": { "$ref": "#/definitions/gridMetadata" },
+                        "workflow":     { "type": "string" },
+                        "rows":         { "type": "integer", "minimum": 1 }
+                    }
+                }
+            ]
+        },
+        "filterMetadata": {
+            "allOf": [
+                { "$ref": "#/definitions/abstractMetadata" },
+                {
+                    "properties": {
+                        "kind":            { "const": "filter" },
+                        "fieldList":       { "type": "array", "items": { "$ref": "#/definitions/fieldMetadata" } },
+                        "toolbarMetadata": { "$ref": "#/definitions/toolbarMetadata" }
+                    }
+                }
+            ]
+        },
+        "toolbarMetadata": {
+            "allOf": [
+                { "$ref": "#/definitions/abstractMetadata" },
+                {
+                    "properties": {
+                        "kind":              { "const": "toolbar" },
+                        "actionButtons":     { "type": "array", "items": { "$ref": "#/definitions/buttonMetadata" } },
+                        "navigationButtons": { "type": "array", "items": { "$ref": "#/definitions/buttonMetadata" } },
+                        "large":             { "type": "boolean" }
+                    }
+                }
+            ]
+        },
+        "fieldMetadata": {
+            "type": "object",
+            "required": ["name"],
+            "description": "One form field or grid column.",
+            "properties": {
+                "id":              { "type": ["string", "integer"] },
+                "name":            { "type": "string" },
+                "label":           { "type": "string" },
+                "type":            { "type": "string", "description": "Java-type wire string (java.lang.String, java.util.Date, etc.)." },
+                "uiType":          { "type": "string" },
+                "format":          { "type": "string" },
+                "lookupDataKey":   { "type": "string" },
+                "defaultValue":    {},
+                "nullable":        { "type": "boolean" },
+                "caseSensitive":   { "type": "boolean" },
+                "validators":      { "type": "array", "items": { "type": "string" } },
+                "min":             { "type": ["string", "number"] },
+                "max":             { "type": ["string", "number"] },
+                "maxlength":       { "type": "integer", "minimum": 0 },
+                "length":          { "type": "integer", "minimum": 0 },
+                "decimals":        { "type": "integer", "minimum": 0 },
+                "regexExpression": { "type": "string" },
+                "regexErrorMessage": { "type": "string" },
+                "multiSelect":     { "type": "boolean" },
+                "grouping":        { "type": "boolean" },
+                "align":           { "type": "string", "enum": ["left", "right", "center"] },
+                "sectionName":     { "type": "string" },
+                "summaryFunctionName": { "type": "string" },
+                "relatedFields":   { "type": "array", "items": { "type": "string" } },
+                "clickForDetail":  { "type": "boolean" },
+                "emptyRow":        { "type": "boolean" },
+                "searchNullable":  { "type": "boolean" },
+                "focus":           { "type": "boolean" },
+                "linkedButton":    { "type": "string" },
+                "fixedValue":      {},
+                "styleValueMap":   { "type": "object" },
+                "keyPressFilter":  { "type": "string" },
+                "lookupdata":      { "type": "object" },
+                "viewFieldMetadata": { "$ref": "#/definitions/fieldMetadata" },
+                "stateVisibleMap":     { "type": "object" },
+                "stateEditableMap":    { "type": "object" },
+                "defaultVisibleState": { "type": "boolean" },
+                "defaultEditableState": { "type": "boolean" },
+                "right":           { "type": "string" },
+                "tooltip":         { "type": "string" },
+                "menuItems":       { "type": "array" },
+                "linkItem":        { "type": "object" },
+                "imageWidth":      { "type": "integer" },
+                "imageHeight":     { "type": "integer" },
+                "imagePath":       { "type": "string" },
+                "imageExtension":  { "type": "string" }
+            }
+        },
+        "buttonMetadata": {
+            "type": "object",
+            "required": ["name"],
+            "description": "Toolbar / navigation button. modelType drives the /api/process payload shape; see docs/engine.md §6.",
+            "properties": {
+                "id":              { "type": ["string", "integer"] },
+                "name":            { "type": "string" },
+                "value":           { "type": "string", "description": "Display text (SWET stores button labels here, not in label)." },
+                "label":           { "type": "string" },
+                "command":         { "type": "string" },
+                "accessKey":       { "type": "string", "maxLength": 1 },
+                "workflow":        { "type": "string" },
+                "tooltip":         { "type": "string" },
+                "right":           { "type": "string", "enum": ["N", "R", "Y", "", "y", "n", "r"] },
+                "rights":          { "type": "string" },
+                "local":           { "type": "boolean" },
+                "validate":        { "type": "boolean" },
+                "forwardTo":       { "type": "string" },
+                "modelType":       {
+                    "type": "string",
+                    "enum": [
+                        "none", "single", "selected", "all", "forms", "grids",
+                        "form_selected", "form_single",
+                        "entire_grid", "form_entire_grid",
+                        "entire_selected_grid", "form_entire_selected_grid"
+                    ]
+                },
+                "allData":             { "type": "boolean" },
+                "authenticate":        { "type": "boolean" },
+                "parentData":          { "type": "boolean" },
+                "returnErrorCodes":    { "type": "boolean" },
+                "previousModel":       { "type": "boolean" },
+                "clearCacheType":      { "type": "string", "enum": ["LOOKUP", "METADATA", "MENU"] },
+                "excludeFields":       { "type": "array", "items": { "type": "string" } },
+                "defaultFields":       { "type": "array", "items": { "type": "string" } },
+                "defaultVisibleState": { "type": "boolean" },
+                "defaultEditableState": { "type": "boolean" },
+                "stateVisibleMap":     { "type": "object" },
+                "stateEditableMap":    { "type": "object" }
+            }
+        }
+    }
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "code": "reports",
+    "label": "Reports",
+    "fastpath": null,
+    "workflow": null,
+    "parentCode": null,
+    "sortOrder": 10
+  },
+  {
+    "code": "report-text",
+    "label": "Report Text",
+    "fastpath": "RPTM",
+    "workflow": "reportText.maintenance",
+    "parentCode": "reports",
+    "sortOrder": 10
+  },
+  {
+    "code": "corporate",
+    "label": "Corporate",
+    "fastpath": null,
+    "workflow": null,
+    "parentCode": null,
+    "sortOrder": 20
+  },
+  {
+    "code": "COSF",
+    "label": "Corporate Shipment Flows",
+    "fastpath": "COSF",
+    "workflow": "corporateShipmentFlows",
+    "parentCode": "corporate",
+    "sortOrder": 10
+  },
+  {
+    "code": "admin",
+    "label": "Admin",
+    "fastpath": null,
+    "workflow": null,
+    "parentCode": null,
+    "sortOrder": 30
+  },
+  {
+    "code": "WSPM",
+    "label": "System Parameters",
+    "fastpath": "WSPM",
+    "workflow": "sysParameters.maintenance",
+    "parentCode": "admin",
+    "sortOrder": 10
+  }
+]

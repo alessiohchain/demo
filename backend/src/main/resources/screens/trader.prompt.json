@@ -1,0 +1,159 @@
+{
+    "$schema": "./_schema.json",
+    "name": "trader.prompt",
+    "action": "enable_edit",
+    "version": 1,
+    "language": "EN",
+    "shortName": "TRDP",
+    "metadataList": [
+        {
+            "kind": "search",
+            "name": "trader.prompt",
+            "rows": 50,
+            "workflow": "trader.prompt",
+            "formMetadata": {
+                "kind": "form",
+                "name": "trader.prompt",
+                "columns": 1,
+                "workflow": "trader.prompt",
+                "fieldList": [
+                    {
+                        "id": "6301",
+                        "name": "traderType",
+                        "type": "String",
+                        "label": "Trader Type",
+                        "length": 10,
+                        "uiType": "ComboBox",
+                        "emptyRow": true,
+                        "nullable": true,
+                        "caseSensitive": false,
+                        "lookupDataKey": "TraderType",
+                        "searchNullable": true,
+                        "defaultVisibleState": true,
+                        "defaultEditableState": true
+                    },
+                    {
+                        "id": "6302",
+                        "name": "traderCode",
+                        "type": "String",
+                        "label": "Trader",
+                        "length": 15,
+                        "emptyRow": true,
+                        "nullable": true,
+                        "maxlength": 45,
+                        "caseSensitive": true,
+                        "searchNullable": true,
+                        "defaultVisibleState": true,
+                        "defaultEditableState": true
+                    },
+                    {
+                        "id": "6303",
+                        "name": "traderName",
+                        "type": "String",
+                        "label": "Trader Name",
+                        "length": 30,
+                        "emptyRow": true,
+                        "nullable": true,
+                        "maxlength": 100,
+                        "caseSensitive": true,
+                        "searchNullable": true,
+                        "defaultVisibleState": true,
+                        "defaultEditableState": true
+                    }
+                ],
+                "footerAlignment": "left",
+                "headerAlignment": "left",
+                "fieldNamesNoRights": [],
+                "defaultVisibleState": true,
+                "defaultEditableState": true
+            },
+            "gridMetadata": {
+                "kind": "grid",
+                "name": "trader.prompt",
+                "rows": 50,
+                "title": "Pick a trader",
+                "workflow": "trader.prompt",
+                "fieldList": [
+                    {
+                        "id": "6302",
+                        "name": "traderCode",
+                        "type": "String",
+                        "label": "Trader",
+                        "length": 15,
+                        "emptyRow": true,
+                        "nullable": false,
+                        "maxlength": 45,
+                        "caseSensitive": true,
+                        "defaultVisibleState": true,
+                        "defaultEditableState": false
+                    },
+                    {
+                        "id": "6301",
+                        "name": "traderType",
+                        "type": "String",
+                        "label": "Trader Type",
+                        "length": 10,
+                        "uiType": "ComboBox",
+                        "emptyRow": true,
+                        "nullable": false,
+                        "caseSensitive": false,
+                        "lookupDataKey": "TraderType",
+                        "defaultVisibleState": true,
+                        "defaultEditableState": false
+                    },
+                    {
+                        "id": "6303",
+                        "name": "traderName",
+                        "type": "String",
+                        "label": "Trader Name",
+                        "length": 30,
+                        "emptyRow": true,
+                        "nullable": false,
+                        "maxlength": 100,
+                        "caseSensitive": true,
+                        "defaultVisibleState": true,
+                        "defaultEditableState": false
+                    }
+                ],
+                "overrideState": false,
+                "toolbarMetadata": {
+                    "kind": "toolbar",
+                    "large": false,
+                    "actionButtons": [],
+                    "navigationButtons": [
+                        {
+                            "id": "6310",
+                            "name": "cmd_search",
+                            "local": true,
+                            "value": "Search",
+                            "command": "cmd_search",
+                            "validate": false,
+                            "accessKey": "S",
+                            "modelType": "none"
+                        },
+                        {
+                            "id": "6311",
+                            "name": "cmd_close",
+                            "local": true,
+                            "value": "Close",
+                            "command": "cmd_close",
+                            "validate": false,
+                            "accessKey": "X",
+                            "modelType": "selected"
+                        }
+                    ],
+                    "defaultVisibleState": true,
+                    "defaultEditableState": true
+                },
+                "checkboxSelection": false,
+                "defaultVisibleState": true,
+                "defaultEditableState": true
+            },
+            "overrideState": false,
+            "checkboxSelection": false,
+            "defaultVisibleState": true,
+            "defaultEditableState": true
+        }
+    ],
+    "autoRefreshTime": 0
+}

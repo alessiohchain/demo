@@ -1,0 +1,274 @@
+{
+    "$schema": "./_schema.json",
+    "name": "reportText.maintenance",
+    "action": "enable_edit",
+    "version": 1,
+    "language": "EN",
+    "shortName": "RPTM",
+    "metadataList": [
+        {
+            "kind": "search",
+            "name": "reportText.maintenance",
+            "rows": 50,
+            "workflow": "reportText.maintenance",
+            "formMetadata": {
+                "kind": "form",
+                "name": "reportText.maintenance",
+                "columns": 1,
+                "workflow": "reportText.maintenance",
+                "fieldList": [
+                    {
+                        "id": "5727",
+                        "name": "maintenanceTran",
+                        "type": "String",
+                        "label": "",
+                        "length": 10,
+                        "emptyRow": true,
+                        "nullable": false,
+                        "fixedValue": "RPTM",
+                        "caseSensitive": false,
+                        "searchNullable": true,
+                        "defaultVisibleState": false,
+                        "defaultEditableState": true
+                    },
+                    {
+                        "id": "5728",
+                        "name": "language",
+                        "type": "String",
+                        "label": "Language",
+                        "length": 10,
+                        "uiType": "ComboBox",
+                        "emptyRow": true,
+                        "nullable": false,
+                        "caseSensitive": false,
+                        "lookupDataKey": "LNG",
+                        "searchNullable": true,
+                        "defaultVisibleState": true,
+                        "defaultEditableState": false
+                    },
+                    {
+                        "id": "5729",
+                        "name": "reportName",
+                        "type": "String",
+                        "label": "Report Name",
+                        "length": 10,
+                        "emptyRow": true,
+                        "nullable": false,
+                        "maxlength": 10,
+                        "caseSensitive": false,
+                        "searchNullable": true,
+                        "defaultVisibleState": true,
+                        "defaultEditableState": false
+                    },
+                    {
+                        "id": "5730",
+                        "name": "textSequence",
+                        "type": "Integer",
+                        "label": "Report Text Sequence",
+                        "length": 4,
+                        "emptyRow": true,
+                        "nullable": false,
+                        "maxlength": 4,
+                        "caseSensitive": false,
+                        "searchNullable": true,
+                        "defaultVisibleState": true,
+                        "defaultEditableState": false
+                    },
+                    {
+                        "id": "5731",
+                        "name": "reportText",
+                        "type": "String",
+                        "label": "Report Text",
+                        "length": 45,
+                        "emptyRow": true,
+                        "nullable": false,
+                        "maxlength": 132,
+                        "caseSensitive": true,
+                        "searchNullable": true,
+                        "defaultVisibleState": true,
+                        "defaultEditableState": true
+                    }
+                ],
+                "footerAlignment": "left",
+                "headerAlignment": "left",
+                "fieldNamesNoRights": [
+                ],
+                "defaultVisibleState": true,
+                "defaultEditableState": true
+            },
+            "gridMetadata": {
+                "kind": "grid",
+                "name": "reportText.maintenance",
+                "rows": 50,
+                "title": "",
+                "workflow": "reportText.maintenance",
+                "fieldList": [
+                    {
+                        "id": "5727",
+                        "name": "maintenanceTran",
+                        "type": "String",
+                        "label": "",
+                        "length": 10,
+                        "emptyRow": true,
+                        "nullable": false,
+                        "fixedValue": "RPTM",
+                        "caseSensitive": false,
+                        "searchNullable": true,
+                        "defaultVisibleState": false,
+                        "defaultEditableState": true
+                    },
+                    {
+                        "id": "5728",
+                        "name": "language",
+                        "type": "String",
+                        "label": "Language",
+                        "length": 10,
+                        "uiType": "ComboBox",
+                        "emptyRow": true,
+                        "nullable": false,
+                        "caseSensitive": false,
+                        "lookupDataKey": "LNG",
+                        "searchNullable": true,
+                        "defaultVisibleState": true,
+                        "defaultEditableState": false
+                    },
+                    {
+                        "id": "5729",
+                        "name": "reportName",
+                        "type": "String",
+                        "label": "Report Name",
+                        "length": 10,
+                        "emptyRow": true,
+                        "nullable": false,
+                        "maxlength": 10,
+                        "caseSensitive": false,
+                        "searchNullable": true,
+                        "defaultVisibleState": true,
+                        "defaultEditableState": false
+                    },
+                    {
+                        "id": "5730",
+                        "name": "textSequence",
+                        "type": "Integer",
+                        "label": "Report Text Sequence",
+                        "length": 4,
+                        "emptyRow": true,
+                        "nullable": false,
+                        "maxlength": 4,
+                        "caseSensitive": false,
+                        "searchNullable": true,
+                        "defaultVisibleState": true,
+                        "defaultEditableState": false
+                    },
+                    {
+                        "id": "5731",
+                        "name": "reportText",
+                        "type": "String",
+                        "label": "Report Text",
+                        "length": 45,
+                        "emptyRow": true,
+                        "nullable": false,
+                        "maxlength": 132,
+                        "caseSensitive": true,
+                        "searchNullable": true,
+                        "defaultVisibleState": true,
+                        "defaultEditableState": true
+                    }
+                ],
+                "overrideState": false,
+                "toolbarMetadata": {
+                    "kind": "toolbar",
+                    "large": false,
+                    "actionButtons": [
+                        {
+                            "id": "5717",
+                            "name": "cmd_create",
+                            "local": true,
+                            "value": "Add",
+                            "command": "cmd_create",
+                            "validate": true,
+                            "accessKey": "A",
+                            "modelType": "none",
+                            "clearCacheType": "LOOKUP"
+                        },
+                        {
+                            "id": "5718",
+                            "name": "cmd_copy",
+                            "local": true,
+                            "value": "Copy",
+                            "command": "cmd_copy",
+                            "validate": true,
+                            "accessKey": "C",
+                            "modelType": "selected",
+                            "clearCacheType": "LOOKUP"
+                        },
+                        {
+                            "id": "5719",
+                            "name": "cmd_delete",
+                            "local": false,
+                            "value": "Delete",
+                            "command": "cmd_delete",
+                            "validate": true,
+                            "accessKey": "R",
+                            "modelType": "selected",
+                            "clearCacheType": "LOOKUP"
+                        },
+                        {
+                            "id": "5720",
+                            "name": "cmd_update",
+                            "local": false,
+                            "value": "Update",
+                            "command": "cmd_update",
+                            "validate": true,
+                            "accessKey": "U",
+                            "modelType": "selected",
+                            "clearCacheType": "LOOKUP"
+                        },
+                        {
+                            "id": "5721",
+                            "name": "cmd_close",
+                            "local": true,
+                            "value": "Close",
+                            "command": "cmd_close",
+                            "validate": true,
+                            "accessKey": "X",
+                            "modelType": "selected"
+                        }
+                    ],
+                    "navigationButtons": [
+                        {
+                            "id": "5723",
+                            "name": "cmd_search",
+                            "local": true,
+                            "value": "Search",
+                            "command": "cmd_search",
+                            "validate": true,
+                            "accessKey": "S",
+                            "modelType": "none"
+                        },
+                        {
+                            "id": "5724",
+                            "name": "cmd_print",
+                            "local": true,
+                            "value": "Print",
+                            "command": "cmd_print",
+                            "validate": true,
+                            "accessKey": "P",
+                            "modelType": "selected"
+                        }
+                    ],
+                    "defaultVisibleState": true,
+                    "defaultEditableState": true
+                },
+                "checkboxSelection": true,
+                "defaultVisibleState": true,
+                "defaultEditableState": true
+            },
+            "overrideState": false,
+            "checkboxSelection": true,
+            "defaultVisibleState": true,
+            "defaultEditableState": true
+        }
+    ],
+    "autoRefreshTime": 0
+}

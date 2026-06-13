@@ -1,29 +1,34 @@
 package za.co.csnx.demo.security;
 
-import java.util.List;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
-import za.co.csnx.demo.repository.CustomerRepository;
+/**
+ * Composite-principal helpers — the {@code "<company>|<username>"} string the
+ * platform IdP stamps as the JWT subject. The UserDetailsService implementation
+ * is gone with module-local login; only the static parsing/composing helpers
+ * remain (used by LookupService and the session controllers).
+ */
+public final class AppUserDetailsService {
 
-@Service
-public class AppUserDetailsService implements UserDetailsService {
+    public static final String SEPARATOR = "|";
 
-    private final CustomerRepository customerRepository;
-
-    public AppUserDetailsService(CustomerRepository customerRepository) {
-        this.customerRepository = customerRepository;
+    private AppUserDetailsService() {
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return customerRepository.findByEmailIgnoreCase(email)
-                .map(c -> User.withUsername(c.getEmail())
-                        .password(c.getPasswordHash())
-                        .authorities(List.of())
-                        .build())
-                .orElseThrow(() -> new UsernameNotFoundException("No user: " + email));
+    /** Compose the principal name used everywhere downstream. */
+    public static String principalOf(String companyCode, String username) {
+        return companyCode + SEPARATOR + username;
+    }
+
+    /** Pull the username portion out of a {@code "<company>|<username>"} principal. */
+    public static String usernameOf(String principal) {
+        if (principal == null) return null;
+        int sep = principal.indexOf(SEPARATOR);
+        return sep < 0 ? principal : principal.substring(sep + 1);
+    }
+
+    /** Pull the company-code portion out of a {@code "<company>|<username>"} principal. */
+    public static String companyOf(String principal) {
+        if (principal == null) return null;
+        int sep = principal.indexOf(SEPARATOR);
+        return sep < 0 ? null : principal.substring(0, sep);
     }
 }

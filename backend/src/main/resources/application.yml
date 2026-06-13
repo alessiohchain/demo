@@ -44,12 +44,42 @@ springdoc:
 
 app:
   security:
-    jwt:
-      issuer: demo-backend
-      access-token-ttl: PT1H
-      refresh-token-ttl: P7D
-      # Override in env: APP_SECURITY_JWT_SECRET (>= 32 bytes when base64-decoded)
-      secret: ${APP_SECURITY_JWT_SECRET:dGhpcy1pcy1hLWRldi1zZWNyZXQtcmVwbGFjZS1pbi1wcm9kdWN0aW9uLW9rPw==}
     cors:
       allowed-origins:
-        - http://localhost:5173
+        - http://localhost:5175
+        - http://localhost:8082
+    # Platform IdP this module relies on — sign-in happens on its central
+    # login page; RS256 access tokens (validated via JWKS) are the only
+    # credential this module accepts.
+    platform:
+      issuer: ${PLATFORM_ISSUER:http://localhost:8090}
+      jwks-uri: ${PLATFORM_JWKS_URI:}   # blank → <issuer>/oauth2/jwks
+      audience: demo-module
+
+# This module's code in the central metadata store (P4).
+csnx:
+  module:
+    code: DEMO
+  engine:
+    registry:
+      # Register this module's screens/menus/lookups into the platform's
+      # central metadata store on boot and read them back. The classpath
+      # manifest is always the offline fallback, so a down platform never
+      # breaks reads.
+      enabled: ${CSNX_REGISTRY_ENABLED:true}
+      module-code: DEMO
+      platform-base-url: ${PLATFORM_REGISTRY_URL:http://localhost:8090}
+      client-id: demo-service
+      client-secret: ${DEMO_SERVICE_SECRET:demo-service-dev-secret}
+      engine-version: 0.1.1
+    # Smart-navigation assistant LLM (shared AI engine). Provider swappable;
+    # key via env (GEMINI_API_KEY). No key → the assistant replies it isn't
+    # configured rather than failing.
+    ai:
+      llm:
+        provider: ${LLM_PROVIDER:gemini}
+        model: ${LLM_MODEL:gemini-2.5-flash-lite}
+        api-key: ${GEMINI_API_KEY:}
+        timeout: PT20S
+      query-log:
+        enabled: ${ASSISTANT_QUERY_LOG_ENABLED:false}

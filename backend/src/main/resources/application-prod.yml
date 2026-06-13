@@ -4,3 +4,9 @@ logging:
 spring:
   jpa:
     show-sql: false
+
+app:
+  security:
+    cors:
+      allowed-origins:
+        - http://localhost:8081

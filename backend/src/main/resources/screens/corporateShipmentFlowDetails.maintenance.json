@@ -1,0 +1,320 @@
+{
+    "$schema": "./_schema.json",
+    "name": "corporateShipmentFlowDetails.maintenance",
+    "action": "enable_edit",
+    "version": 1,
+    "language": "EN",
+    "shortName": "CSFD",
+    "metadataList": [
+        {
+            "kind": "form",
+            "name": "corporateShipmentFlowDetails.maintenance.header",
+            "columns": 2,
+            "workflow": "corporateShipmentFlowDetails.maintenance",
+            "fieldList": [
+                {
+                    "id": "6201",
+                    "name": "shipmentFlow",
+                    "type": "String",
+                    "label": "Flow",
+                    "length": 15,
+                    "emptyRow": true,
+                    "nullable": false,
+                    "maxlength": 30,
+                    "caseSensitive": true,
+                    "defaultVisibleState": true,
+                    "defaultEditableState": false
+                },
+                {
+                    "id": "6202",
+                    "name": "flowDescription",
+                    "type": "String",
+                    "label": "Description",
+                    "length": 30,
+                    "emptyRow": true,
+                    "nullable": false,
+                    "maxlength": 100,
+                    "caseSensitive": true,
+                    "defaultVisibleState": true,
+                    "defaultEditableState": false
+                }
+            ],
+            "headerAlignment": "left",
+            "footerAlignment": "left",
+            "fieldNamesNoRights": [],
+            "defaultVisibleState": true,
+            "defaultEditableState": false
+        },
+        {
+            "kind": "form",
+            "name": "corporateShipmentFlowDetails.maintenance.detail",
+            "columns": 1,
+            "workflow": "corporateShipmentFlowDetails.maintenance",
+            "fieldList": [
+                {
+                    "id": "6210",
+                    "name": "traderCode",
+                    "type": "String",
+                    "label": "Trader",
+                    "length": 15,
+                    "emptyRow": true,
+                    "nullable": false,
+                    "maxlength": 45,
+                    "caseSensitive": true,
+                    "defaultVisibleState": true,
+                    "defaultEditableState": true,
+                    "linkItem": {
+                        "type": "lookup",
+                        "pageCode": "trader.prompt",
+                        "useFasthpath": false,
+                        "lookupItemMetadata": {
+                            "relatedFieldName": "traderCode",
+                            "fieldMapper": {
+                                "traderName": "traderName",
+                                "traderType": "traderType"
+                            }
+                        }
+                    }
+                },
+                {
+                    "id": "6211",
+                    "name": "traderType",
+                    "type": "String",
+                    "label": "Trader Type",
+                    "length": 10,
+                    "uiType": "ComboBox",
+                    "emptyRow": true,
+                    "nullable": false,
+                    "caseSensitive": false,
+                    "lookupDataKey": "TraderType",
+                    "defaultValue": "W",
+                    "defaultVisibleState": true,
+                    "defaultEditableState": true
+                },
+                {
+                    "id": "6212",
+                    "name": "transitTime",
+                    "type": "Integer",
+                    "label": "Transit Time",
+                    "length": 4,
+                    "emptyRow": true,
+                    "nullable": false,
+                    "maxlength": 4,
+                    "defaultValue": 0,
+                    "min": "0",
+                    "max": "9",
+                    "defaultVisibleState": true,
+                    "defaultEditableState": true
+                },
+                {
+                    "id": "6213",
+                    "name": "processTime",
+                    "type": "Integer",
+                    "label": "Process Time",
+                    "length": 4,
+                    "emptyRow": true,
+                    "nullable": false,
+                    "maxlength": 4,
+                    "defaultValue": 0,
+                    "min": "0",
+                    "max": "9",
+                    "defaultVisibleState": true,
+                    "defaultEditableState": true
+                }
+            ],
+            "headerAlignment": "left",
+            "footerAlignment": "left",
+            "fieldNamesNoRights": [],
+            "defaultVisibleState": true,
+            "defaultEditableState": true
+        },
+        {
+            "kind": "grid",
+            "name": "corporateShipmentFlowDetails.maintenance",
+            "rows": 50,
+            "title": "",
+            "workflow": "corporateShipmentFlowDetails.maintenance",
+            "fieldList": [
+                {
+                    "id": "6220",
+                    "name": "shipmentFlowSeq",
+                    "type": "Integer",
+                    "label": "Seq",
+                    "length": 4,
+                    "emptyRow": true,
+                    "nullable": false,
+                    "maxlength": 4,
+                    "align": "right",
+                    "defaultVisibleState": true,
+                    "defaultEditableState": true
+                },
+                {
+                    "id": "6210",
+                    "name": "traderCode",
+                    "type": "String",
+                    "label": "Trader",
+                    "length": 15,
+                    "emptyRow": true,
+                    "nullable": false,
+                    "maxlength": 45,
+                    "caseSensitive": true,
+                    "defaultVisibleState": true,
+                    "defaultEditableState": true,
+                    "linkItem": {
+                        "type": "lookup",
+                        "pageCode": "trader.prompt",
+                        "useFasthpath": false,
+                        "lookupItemMetadata": {
+                            "relatedFieldName": "traderCode",
+                            "fieldMapper": {
+                                "traderName": "traderName",
+                                "traderType": "traderType"
+                            }
+                        }
+                    }
+                },
+                {
+                    "id": "6211",
+                    "name": "traderType",
+                    "type": "String",
+                    "label": "Trader Type",
+                    "length": 10,
+                    "uiType": "ComboBox",
+                    "emptyRow": true,
+                    "nullable": false,
+                    "caseSensitive": false,
+                    "lookupDataKey": "TraderType",
+                    "defaultVisibleState": true,
+                    "defaultEditableState": true
+                },
+                {
+                    "id": "6214",
+                    "name": "traderName",
+                    "type": "String",
+                    "label": "Trader Name",
+                    "length": 30,
+                    "emptyRow": true,
+                    "nullable": true,
+                    "maxlength": 100,
+                    "caseSensitive": true,
+                    "defaultVisibleState": true,
+                    "defaultEditableState": false
+                },
+                {
+                    "id": "6212",
+                    "name": "transitTime",
+                    "type": "Integer",
+                    "label": "Transit Time",
+                    "length": 4,
+                    "emptyRow": true,
+                    "nullable": false,
+                    "maxlength": 4,
+                    "align": "right",
+                    "defaultVisibleState": true,
+                    "defaultEditableState": true
+                },
+                {
+                    "id": "6213",
+                    "name": "processTime",
+                    "type": "Integer",
+                    "label": "Process Time",
+                    "length": 4,
+                    "emptyRow": true,
+                    "nullable": false,
+                    "maxlength": 4,
+                    "align": "right",
+                    "defaultVisibleState": true,
+                    "defaultEditableState": true
+                }
+            ],
+            "searchMetadata": {
+                "kind": "form",
+                "name": "corporateShipmentFlowDetails.maintenance.detail",
+                "columns": 1,
+                "workflow": "corporateShipmentFlowDetails.maintenance",
+                "fieldList": [],
+                "defaultVisibleState": true,
+                "defaultEditableState": true
+            },
+            "overrideState": false,
+            "toolbarMetadata": {
+                "kind": "toolbar",
+                "large": false,
+                "actionButtons": [
+                    {
+                        "id": "6230",
+                        "name": "cmd_create",
+                        "local": true,
+                        "value": "Add",
+                        "command": "cmd_create",
+                        "validate": true,
+                        "accessKey": "A",
+                        "modelType": "none",
+                        "parentData": true
+                    },
+                    {
+                        "id": "6231",
+                        "name": "cmd_copy",
+                        "local": true,
+                        "value": "Copy",
+                        "command": "cmd_copy",
+                        "validate": true,
+                        "accessKey": "C",
+                        "modelType": "single",
+                        "parentData": true
+                    },
+                    {
+                        "id": "6232",
+                        "name": "cmd_delete",
+                        "local": false,
+                        "value": "Delete",
+                        "command": "cmd_delete",
+                        "validate": true,
+                        "accessKey": "R",
+                        "modelType": "selected"
+                    },
+                    {
+                        "id": "6233",
+                        "name": "cmd_update",
+                        "local": false,
+                        "value": "Update",
+                        "command": "cmd_update",
+                        "validate": true,
+                        "accessKey": "U",
+                        "modelType": "selected",
+                        "parentData": true
+                    }
+                ],
+                "navigationButtons": [
+                    {
+                        "id": "6240",
+                        "name": "cmd_search",
+                        "local": false,
+                        "value": "Search",
+                        "command": "cmd_search",
+                        "validate": false,
+                        "accessKey": "S",
+                        "modelType": "none",
+                        "parentData": true
+                    },
+                    {
+                        "id": "6241",
+                        "name": "cmd_close",
+                        "local": true,
+                        "value": "Close",
+                        "command": "cmd_close",
+                        "validate": true,
+                        "accessKey": "X",
+                        "modelType": "selected"
+                    }
+                ],
+                "defaultVisibleState": true,
+                "defaultEditableState": true
+            },
+            "checkboxSelection": true,
+            "defaultVisibleState": true,
+            "defaultEditableState": true
+        }
+    ],
+    "autoRefreshTime": 0
+}

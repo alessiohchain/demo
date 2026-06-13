@@ -1,0 +1,176 @@
+{
+    "$schema": "./_schema.json",
+    "name": "corporateShipmentFlows",
+    "action": "enable_edit",
+    "version": 1,
+    "language": "EN",
+    "shortName": "COSF",
+    "metadataList": [
+        {
+            "kind": "search",
+            "name": "corporateShipmentFlows",
+            "rows": 50,
+            "workflow": "corporateShipmentFlows",
+            "formMetadata": {
+                "kind": "form",
+                "name": "corporateShipmentFlows",
+                "columns": 1,
+                "workflow": "corporateShipmentFlows",
+                "fieldList": [
+                    {
+                        "id": "6101",
+                        "name": "shipmentFlow",
+                        "type": "String",
+                        "label": "Flow",
+                        "length": 15,
+                        "emptyRow": true,
+                        "nullable": false,
+                        "maxlength": 30,
+                        "caseSensitive": true,
+                        "searchNullable": true,
+                        "defaultVisibleState": true,
+                        "defaultEditableState": false
+                    },
+                    {
+                        "id": "6102",
+                        "name": "flowDescription",
+                        "type": "String",
+                        "label": "Description",
+                        "length": 30,
+                        "emptyRow": true,
+                        "nullable": false,
+                        "maxlength": 100,
+                        "caseSensitive": true,
+                        "searchNullable": true,
+                        "defaultVisibleState": true,
+                        "defaultEditableState": true
+                    }
+                ],
+                "footerAlignment": "left",
+                "headerAlignment": "left",
+                "fieldNamesNoRights": [],
+                "defaultVisibleState": true,
+                "defaultEditableState": true
+            },
+            "gridMetadata": {
+                "kind": "grid",
+                "name": "corporateShipmentFlows",
+                "rows": 50,
+                "title": "",
+                "workflow": "corporateShipmentFlows",
+                "fieldList": [
+                    {
+                        "id": "6101",
+                        "name": "shipmentFlow",
+                        "type": "String",
+                        "label": "Flow",
+                        "length": 15,
+                        "emptyRow": true,
+                        "nullable": false,
+                        "maxlength": 30,
+                        "caseSensitive": true,
+                        "searchNullable": true,
+                        "defaultVisibleState": true,
+                        "defaultEditableState": false
+                    },
+                    {
+                        "id": "6102",
+                        "name": "flowDescription",
+                        "type": "String",
+                        "label": "Description",
+                        "length": 30,
+                        "emptyRow": true,
+                        "nullable": false,
+                        "maxlength": 100,
+                        "caseSensitive": true,
+                        "searchNullable": true,
+                        "defaultVisibleState": true,
+                        "defaultEditableState": true
+                    }
+                ],
+                "overrideState": false,
+                "toolbarMetadata": {
+                    "kind": "toolbar",
+                    "large": false,
+                    "actionButtons": [
+                        {
+                            "id": "6110",
+                            "name": "cmd_create",
+                            "local": true,
+                            "value": "Add",
+                            "command": "cmd_create",
+                            "validate": true,
+                            "accessKey": "A",
+                            "modelType": "none",
+                            "clearCacheType": "LOOKUP"
+                        },
+                        {
+                            "id": "6111",
+                            "name": "cmd_details",
+                            "local": false,
+                            "value": "Details",
+                            "command": "cmd_details",
+                            "validate": false,
+                            "accessKey": "D",
+                            "modelType": "single"
+                        },
+                        {
+                            "id": "6112",
+                            "name": "cmd_update",
+                            "local": false,
+                            "value": "Update",
+                            "command": "cmd_update",
+                            "validate": true,
+                            "accessKey": "U",
+                            "modelType": "selected",
+                            "clearCacheType": "LOOKUP"
+                        },
+                        {
+                            "id": "6113",
+                            "name": "cmd_delete",
+                            "local": false,
+                            "value": "Delete",
+                            "command": "cmd_delete",
+                            "validate": true,
+                            "accessKey": "R",
+                            "modelType": "selected",
+                            "clearCacheType": "LOOKUP"
+                        },
+                        {
+                            "id": "6114",
+                            "name": "cmd_close",
+                            "local": true,
+                            "value": "Close",
+                            "command": "cmd_close",
+                            "validate": true,
+                            "accessKey": "X",
+                            "modelType": "selected"
+                        }
+                    ],
+                    "navigationButtons": [
+                        {
+                            "id": "6120",
+                            "name": "cmd_search",
+                            "local": true,
+                            "value": "Search",
+                            "command": "cmd_search",
+                            "validate": true,
+                            "accessKey": "S",
+                            "modelType": "none"
+                        }
+                    ],
+                    "defaultVisibleState": true,
+                    "defaultEditableState": true
+                },
+                "checkboxSelection": true,
+                "defaultVisibleState": true,
+                "defaultEditableState": true
+            },
+            "overrideState": false,
+            "checkboxSelection": true,
+            "defaultVisibleState": true,
+            "defaultEditableState": true
+        }
+    ],
+    "autoRefreshTime": 0
+}
