@@ -3,6 +3,9 @@
 FROM node:22-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
+# The engine is a vendored tarball (file: dep in package.json); it must be
+# present before npm ci resolves the lockfile.
+COPY vendor ./vendor
 RUN npm ci
 COPY . .
 RUN npm run build
