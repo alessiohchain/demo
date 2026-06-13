@@ -3,7 +3,9 @@ import za.co.csnx.engine.activity.*;
 
 import za.co.csnx.demo.business.activity.ShipmentFlowDetailActivity;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.stereotype.Service;
 import za.co.csnx.demo.domain.ShipmentFlowDetail;
 import za.co.csnx.engine.web.dto.ProcessModelEnvelope;
@@ -45,6 +47,24 @@ public class CorporateShipmentFlowDetailsActivityService
     @Override
     protected void applyCompanyScope(ShipmentFlowDetail entity, String companyCode) {
         entity.setCompanyCode(companyCode);
+    }
+
+    /**
+     * The detail grid's Trader Name column reads the {@code @Transient}
+     * {@code traderName}, which the base {@code toData} (toDataAuto) drops.
+     * The detail bean hydrates it (post-load via findByParent, and in
+     * validate() before save), so overlay it onto every echoed row. Because
+     * the engine routes ALL row echoes — cmd_create / cmd_copy / cmd_update
+     * via buildSavedRowEnvelope and the cmd_delete refresh via toEnvelopes —
+     * through this overridable {@code toData(T)}, this single override keeps
+     * the Trader Name column populated on freshly-added rows without a manual
+     * cmd_search.
+     */
+    @Override
+    protected Map<String, Object> toData(ShipmentFlowDetail entity) {
+        Map<String, Object> data = new LinkedHashMap<>(super.toData(entity));
+        data.put("traderName", entity.getTraderName());
+        return data;
     }
 
     @Override

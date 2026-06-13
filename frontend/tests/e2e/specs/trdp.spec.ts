@@ -2,8 +2,8 @@ import { test, expect } from '../fixture';
 import {
   clickToolbarButton,
   fastpathTo,
+  runSearch,
   selectGridRowByText,
-  submitSearchDialog,
 } from '../helpers';
 
 /**
@@ -21,8 +21,7 @@ test.describe('TRDP — Trader picker return paths', () => {
   test.beforeEach(async ({ authedPage: page }) => {
     // Get into the trader-picker via CSFD → Add → Open lookup.
     await fastpathTo(page, 'COSF');
-    await clickToolbarButton(page, 'cmd_search');
-    await submitSearchDialog(page);
+    await runSearch(page);
     await selectGridRowByText(page, 'A1');
     await clickToolbarButton(page, 'cmd_details');
     await expect(page).toHaveURL(/\/CSFD$/);
@@ -31,8 +30,7 @@ test.describe('TRDP — Trader picker return paths', () => {
         .getByRole('button', { name: /open lookup/i })
         .click();
     await expect(page).toHaveURL(/\/TRDP$/);
-    await clickToolbarButton(page, 'cmd_search');
-    await submitSearchDialog(page);
+    await runSearch(page);
     await expect(page.locator('tbody tr', { hasText: 'WH-510' })).toBeVisible();
   });
 

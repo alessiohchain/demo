@@ -74,10 +74,20 @@ test.describe('WSPM — System Parameters', () => {
 
     const min = page.getByRole('spinbutton', { name: /min verification length/i });
     const max = page.getByRole('spinbutton', { name: /max verification length/i });
-    await min.fill('20');
-    await min.press('Tab');
-    await max.fill('10');
-    await max.press('Tab');
+    // Set max < min so the server-only rule rejects. The singleton form is a
+    // controlled RHF input whose defaultValues re-init after a late data settle
+    // and revert an early fill, so let it settle, fill, and assert each value
+    // actually committed (retrying the fill) before submit.
+    await expect(min).toBeEnabled();
+    await page.waitForTimeout(600);
+    await expect(async () => {
+      await max.fill('10');
+      await max.press('Tab');
+      await min.fill('20');
+      await min.press('Tab');
+      await expect(min).toHaveValue('20');
+      await expect(max).toHaveValue('10');
+    }).toPass({ timeout: 10_000 });
 
     const resp = page.waitForResponse((r) =>
       r.url().includes('/api/process')
@@ -86,9 +96,14 @@ test.describe('WSPM — System Parameters', () => {
     );
     await clickToolbarButton(page, 'cmd_update');
     const r = await resp;
-    const body = await r.json();
-    expect(body.exception,
-      'expected BusinessException on inverted verification lengths').toBeTruthy();
-    expect(JSON.stringify(body.exception)).toContain('Verification max length');
+    const body = await r.json().catch(() => ({}));
+    const blob = JSON.stringify(body);
+    // The inter-field rule (max >= min) is enforced server-side and surfaces
+    // either as an inline exception on a 200 ProcessResponse OR — as the
+    // engine does for a thrown BusinessException — a 4xx RFC 7807 ProblemDetail
+    // (kind: business) via GlobalExceptionHandler. Accept either shape.
+    expect(r.status() >= 400 || Boolean(body.exception),
+      `expected a server-side rejection, got ${r.status()}: ${blob}`).toBeTruthy();
+    expect(blob).toContain('Verification max length');
   });
 });

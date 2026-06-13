@@ -3,8 +3,8 @@ import { test, expect } from '../fixture';
 import {
   clickToolbarButton,
   fastpathTo,
+  runSearch,
   selectGridRowByText,
-  submitSearchDialog,
 } from '../helpers';
 
 test.describe('CSFD — Corporate Shipment Flow Details', () => {
@@ -12,8 +12,7 @@ test.describe('CSFD — Corporate Shipment Flow Details', () => {
     authedPage: page,
   }) => {
     await fastpathTo(page, 'COSF');
-    await clickToolbarButton(page, 'cmd_search');
-    await submitSearchDialog(page);
+    await runSearch(page);
 
     await selectGridRowByText(page, 'A1');
     await clickToolbarButton(page, 'cmd_details');
@@ -36,8 +35,7 @@ test.describe('CSFD — Corporate Shipment Flow Details', () => {
   test('Add detail row using trader picker', async ({ authedPage: page }) => {
     // Drill into CSFD for A1
     await fastpathTo(page, 'COSF');
-    await clickToolbarButton(page, 'cmd_search');
-    await submitSearchDialog(page);
+    await runSearch(page);
     await selectGridRowByText(page, 'A1');
     await clickToolbarButton(page, 'cmd_details');
     await expect(page).toHaveURL(/\/CSFD$/);
@@ -54,8 +52,7 @@ test.describe('CSFD — Corporate Shipment Flow Details', () => {
     await expect(page).toHaveURL(/\/TRDP$/);
 
     // Search the picker for all traders
-    await clickToolbarButton(page, 'cmd_search');
-    await submitSearchDialog(page);
+    await runSearch(page);
     await expect(page.locator('tbody tr', { hasText: 'WH-510' })).toBeVisible();
 
     // Pick WH-510 by clicking its cell (clickForDetail).
@@ -117,8 +114,7 @@ test.describe('CSFD — Corporate Shipment Flow Details', () => {
     // was appended a SECOND time — the user saw the row twice.
     // Fix: setMasterDetail stamps a fresh rowID on any keyless child.
     await fastpathTo(page, 'COSF');
-    await clickToolbarButton(page, 'cmd_search');
-    await submitSearchDialog(page);
+    await runSearch(page);
     await selectGridRowByText(page, 'A1');
     await clickToolbarButton(page, 'cmd_details');
     await expect(page).toHaveURL(/\/CSFD$/);
@@ -130,8 +126,7 @@ test.describe('CSFD — Corporate Shipment Flow Details', () => {
     const addDialog = page.getByRole('dialog', { name: 'Add' });
     await addDialog.getByRole('button', { name: /open lookup/i }).click();
     await expect(page).toHaveURL(/\/TRDP$/);
-    await clickToolbarButton(page, 'cmd_search');
-    await submitSearchDialog(page);
+    await runSearch(page);
     await page.locator('tbody tr', { hasText: 'C-002' })
         .locator('td', { hasText: 'C-002' }).click();
     await expect(page).toHaveURL(/\/CSFD$/);
@@ -185,8 +180,7 @@ test.describe('CSFD — Corporate Shipment Flow Details', () => {
     // the activity's validateDuplicate found that exact id already in the DB.
     // Fix: strip shipmentFlowId in withInsertContext before the insert.
     await fastpathTo(page, 'COSF');
-    await clickToolbarButton(page, 'cmd_search');
-    await submitSearchDialog(page);
+    await runSearch(page);
     await selectGridRowByText(page, 'A1');
     await clickToolbarButton(page, 'cmd_details');
     await expect(page).toHaveURL(/\/CSFD$/);
@@ -251,8 +245,7 @@ test.describe('CSFD — Corporate Shipment Flow Details', () => {
     await expect(cosfAdd).not.toBeVisible();
 
     // Search + select + Details on the new flow (zero children).
-    await clickToolbarButton(page, 'cmd_search');
-    await submitSearchDialog(page);
+    await runSearch(page);
     await selectGridRowByText(page, flow);
     await clickToolbarButton(page, 'cmd_details');
     await expect(page).toHaveURL(/\/CSFD$/);
@@ -265,8 +258,7 @@ test.describe('CSFD — Corporate Shipment Flow Details', () => {
     const csfdAdd = page.getByRole('dialog', { name: 'Add' });
     await csfdAdd.getByRole('button', { name: /open lookup/i }).click();
     await expect(page).toHaveURL(/\/TRDP$/);
-    await clickToolbarButton(page, 'cmd_search');
-    await submitSearchDialog(page);
+    await runSearch(page);
     await page.locator('tbody tr', { hasText: 'WH-510' })
         .locator('td', { hasText: 'WH-510' }).click();
     await expect(page).toHaveURL(/\/CSFD$/);
@@ -317,8 +309,7 @@ test.describe('CSFD — Corporate Shipment Flow Details', () => {
     await cosfAdd.getByRole('button', { name: /save/i }).click();
     await expect(cosfAdd).not.toBeVisible();
 
-    await clickToolbarButton(page, 'cmd_search');
-    await submitSearchDialog(page);
+    await runSearch(page);
     await selectGridRowByText(page, flow);
     await clickToolbarButton(page, 'cmd_details');
     await expect(page).toHaveURL(/\/CSFD$/);
@@ -326,8 +317,7 @@ test.describe('CSFD — Corporate Shipment Flow Details', () => {
     await clickToolbarButton(page, 'cmd_create');
     const csfdAdd = page.getByRole('dialog', { name: 'Add' });
     await csfdAdd.getByRole('button', { name: /open lookup/i }).click();
-    await clickToolbarButton(page, 'cmd_search');
-    await submitSearchDialog(page);
+    await runSearch(page);
     await page.locator('tbody tr', { hasText: 'WH-101' })
         .locator('td', { hasText: 'WH-101' }).click();
     const reopened = page.getByRole('dialog', { name: 'Add' });
@@ -413,8 +403,7 @@ async function createFlowWithOneChild(page: Page, flow: string, traderCode: stri
   await cosfAdd.getByRole('button', { name: /save/i }).click();
   await expect(cosfAdd).not.toBeVisible();
 
-  await clickToolbarButton(page, 'cmd_search');
-  await submitSearchDialog(page);
+  await runSearch(page);
   await selectGridRowByText(page, flow);
   await clickToolbarButton(page, 'cmd_details');
   await expect(page).toHaveURL(/\/CSFD$/);
@@ -422,8 +411,7 @@ async function createFlowWithOneChild(page: Page, flow: string, traderCode: stri
   await clickToolbarButton(page, 'cmd_create');
   const csfdAdd = page.getByRole('dialog', { name: 'Add' });
   await csfdAdd.getByRole('button', { name: /open lookup/i }).click();
-  await clickToolbarButton(page, 'cmd_search');
-  await submitSearchDialog(page);
+  await runSearch(page);
   await page.locator('tbody tr', { hasText: traderCode })
       .locator('td', { hasText: traderCode }).click();
   const reopened = page.getByRole('dialog', { name: 'Add' });
@@ -439,8 +427,7 @@ async function createFlowWithOneChild(page: Page, flow: string, traderCode: stri
  *  children server-side). Leaves no header/detail artifacts. */
 async function cleanupFlow(page: Page, flow: string): Promise<void> {
   await fastpathTo(page, 'COSF');
-  await clickToolbarButton(page, 'cmd_search');
-  await submitSearchDialog(page);
+  await runSearch(page);
   const row = page.locator('tbody tr', { hasText: flow });
   if (await row.count() === 0) return;
   await row.first().locator('input[type="checkbox"]').check();

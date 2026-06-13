@@ -1,10 +1,11 @@
 import { test as base, expect, type Page } from '@playwright/test';
 
 /**
- * Per-test login through the central platform IdP (module-local login is
- * retired). Visiting any protected route auto-redirects into the OIDC
- * code flow; the styled IdP login page at :8090/login takes the
- * credentials and bounces back authenticated.
+ * Authenticated page fixture. Sign-in itself happens ONCE in auth.setup.ts;
+ * each spec's browser context starts from that persisted storage state (see
+ * playwright.config.ts), so visiting a protected route silently re-auths via
+ * the IdP session cookie (OIDC code flow with no /login prompt) and lands
+ * authenticated — no per-test credential entry, no /login rate-limit churn.
  *
  * Prereq: the platform stack must be running on :8090 (docker compose up
  * in C:\software\projects\modules\platform) alongside the demo stack, and
@@ -26,17 +27,10 @@ export const test = base.extend<{ authedPage: Page }>({
     });
 
     await page.goto('/');
-    // RequireAuth fires the OIDC redirect → styled IdP login page.
-    await expect(page).toHaveURL(/:8090\/login/);
-    // Company auto-defaults once /api/lookup/init resolves; the submit
-    // stays disabled until then.
-    await page.getByLabel(/username/i).fill(process.env.WCS_USERNAME ?? 'wcs');
-    await page.getByLabel(/^password$/i).fill(process.env.WCS_PASSWORD ?? 'wcs123!');
-    const signIn = page.getByRole('button', { name: /sign in/i });
-    await expect(signIn).toBeEnabled();
-    await signIn.click();
-    // Code flow completes via /auth/callback and restores the deep link.
-    await expect(page).toHaveURL(/\/$/);
+    // The access token lives in memory, so a fresh context has none — the SPA
+    // re-runs the OIDC code flow, but the persisted IdP session cookie makes
+    // it silent (no /login). Wait for the authenticated shell.
+    await expect(page.getByRole('button', { name: /sign out/i })).toBeVisible({ timeout: 15_000 });
     await use(page);
   },
 });
