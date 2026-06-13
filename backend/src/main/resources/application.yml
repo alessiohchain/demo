@@ -17,9 +17,30 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: true
+  # Spring AI — chat autoconfig is OFF by default (none) so the starter can sit
+  # on the classpath without affecting boot. Set spring.ai.model.chat=google-genai
+  # (env SPRING_AI_MODEL_CHAT) together with csnx.engine.ai.llm.provider=google-genai to use it.
+  ai:
+    # Don't retry LLM failures. A 429 from the free-tier daily quota can't be
+    # retried away — retrying only delays the honest "busy, try again" message
+    # AND burns more of the daily request budget. Fail fast on the first attempt.
+    retry:
+      max-attempts: 1
+    model:
+      chat: ${SPRING_AI_MODEL_CHAT:none}
+    google:
+      genai:
+        api-key: ${GEMINI_API_KEY:}
+        chat:
+          options:
+            model: ${LLM_MODEL:gemini-2.5-flash-lite}
+            temperature: 0.0
 
 server:
-  port: ${SERVER_PORT:8080}
+  # Demo's own host port so it coexists with POM (8080) + platform (8090)
+  # during local dev. In the container SERVER_PORT is overridden back to
+  # 8080 (the nginx upstream default) and the host maps 8092:8080.
+  port: ${SERVER_PORT:8092}
   servlet:
     context-path: /
   error:

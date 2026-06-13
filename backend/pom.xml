@@ -18,7 +18,7 @@
 		<java.version>21</java.version>
 		<mapstruct.version>1.6.3</mapstruct.version>
 		<springdoc.version>2.8.13</springdoc.version>
-		<jjwt.version>0.12.6</jjwt.version>
+		<spring-ai.version>1.1.7</spring-ai.version>
 	</properties>
 
 	<dependencies>
@@ -95,6 +95,21 @@
 			<artifactId>csnx-engine-ai</artifactId>
 			<version>0.2.0</version>
 		</dependency>
+		<!-- Smart-navigation assistant LLM via Spring AI (provider-swappable,
+		     selected at runtime behind LlmClient). engine-ai keeps this
+		     non-transitive so non-AI modules don't pull it; a module wiring
+		     engine-ai must declare it. Google GenAI = Gemini Developer API with
+		     an API key. Exclude Logback — project uses Log4j2. -->
+		<dependency>
+			<groupId>org.springframework.ai</groupId>
+			<artifactId>spring-ai-starter-model-google-genai</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 
 		<dependency>
 			<groupId>org.flywaydb</groupId>
@@ -155,6 +170,18 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.ai</groupId>
+				<artifactId>spring-ai-bom</artifactId>
+				<version>${spring-ai.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<build>
 		<plugins>

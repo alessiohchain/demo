@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import za.co.csnx.demo.domain.AppUser;
@@ -21,7 +22,9 @@ public class AppUserSeeder {
 
     private static final Logger log = LoggerFactory.getLogger(AppUserSeeder.class);
 
+    /** Dev/test convenience only — a known-password account must never exist in prod. */
     @Bean
+    @Profile("!prod")
     public ApplicationRunner seedWcsUser(AppUserRepository appUserRepository,
                                          PasswordEncoder passwordEncoder) {
         return args -> seedIfMissing(appUserRepository, passwordEncoder,

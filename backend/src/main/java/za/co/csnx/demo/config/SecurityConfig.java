@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -19,6 +21,17 @@ import za.co.csnx.demo.security.JwtAuthFilter;
  */
 @Configuration
 public class SecurityConfig {
+
+    /**
+     * Sign-in moved to the central IdP, but {@code app_user} survives as a
+     * module-local profile cache and {@link za.co.csnx.demo.service.AppUserSeeder}
+     * still hashes the dev seed user's {@code password_hash} column. Keep a
+     * BCrypt encoder so that seeding has an encoder to call.
+     */
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,

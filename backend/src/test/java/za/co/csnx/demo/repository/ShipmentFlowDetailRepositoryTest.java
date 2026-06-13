@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Import;
 import za.co.csnx.demo.TestcontainersConfiguration;
 import za.co.csnx.demo.domain.ShipmentFlowDetail;
 import za.co.csnx.demo.domain.ShipmentFlowHeader;
+import za.co.csnx.engine.common.AuditingConfig;
 
 /**
  * Verifies the custom JPA finders against a real Postgres (Testcontainers)
@@ -19,7 +20,10 @@ import za.co.csnx.demo.domain.ShipmentFlowHeader;
  */
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import(TestcontainersConfiguration.class)
+// A @DataJpaTest slice doesn't load the engine's @EnableJpaAuditing config, so
+// pull it in explicitly — otherwise @CreatedDate/@LastModifiedDate stay null and
+// the NOT NULL created_at/updated_at columns reject the insert.
+@Import({TestcontainersConfiguration.class, AuditingConfig.class})
 class ShipmentFlowDetailRepositoryTest {
 
     @Autowired

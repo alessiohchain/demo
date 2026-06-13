@@ -64,7 +64,14 @@ public class CorporateShipmentFlowActivityService
         List<ShipmentFlowDetail> children = shipmentFlowDetailActivity.findByParent(companyCode, id.getShipmentFlow());
 
         List<ProcessModelEnvelope> childEnvelopes = children.stream()
-                .map(c -> ProcessModelEnvelope.ofData(toDataAuto(c)))
+                .map(c -> {
+                    // toDataAuto skips @Transient fields, so the post-load
+                    // hydrated traderName must be overlaid onto the wire map
+                    // explicitly (the detail grid's Trader Name column reads it).
+                    Map<String, Object> childData = new java.util.LinkedHashMap<>(toDataAuto(c));
+                    childData.put("traderName", c.getTraderName());
+                    return ProcessModelEnvelope.ofData(childData);
+                })
                 .toList();
         return ProcessResponse.changePage(DETAIL_WORKFLOW, request.command(),
                 Map.of("", ProcessModelHolder.parentChild(
