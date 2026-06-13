@@ -130,6 +130,7 @@
         },
         {
             "kind": "grid",
+            "masterDetailRole": "primary",
             "name": "corporateShipmentFlowDetails.maintenance",
             "rows": 50,
             "title": "",
