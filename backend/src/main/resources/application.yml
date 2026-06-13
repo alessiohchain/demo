@@ -93,6 +93,10 @@ csnx:
       client-id: demo-service
       client-secret: ${DEMO_SERVICE_SECRET:demo-service-dev-secret}
       engine-version: 0.1.1
+      # Re-fetch the stored manifest from the central store this often so live
+      # DB screen edits (DB-source-of-truth) appear without a restart. Low for
+      # snappy edit-and-see; POST /api/metadata/reload forces it immediately.
+      refresh-seconds: ${CSNX_REGISTRY_REFRESH_SECONDS:5}
     # Smart-navigation assistant LLM (shared AI engine). Provider swappable;
     # key via env (GEMINI_API_KEY). No key → the assistant replies it isn't
     # configured rather than failing.
