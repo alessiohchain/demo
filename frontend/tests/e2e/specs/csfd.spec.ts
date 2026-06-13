@@ -4,7 +4,7 @@ import {
   clickToolbarButton,
   fastpathTo,
   runSearch,
-  selectGridRowByText,
+  selectRowAndDetails,
 } from '../helpers';
 
 test.describe('CSFD — Corporate Shipment Flow Details', () => {
@@ -14,8 +14,7 @@ test.describe('CSFD — Corporate Shipment Flow Details', () => {
     await fastpathTo(page, 'COSF');
     await runSearch(page);
 
-    await selectGridRowByText(page, 'A1');
-    await clickToolbarButton(page, 'cmd_details');
+    await selectRowAndDetails(page, 'A1');
 
     await expect(page).toHaveURL(/\/CSFD$/);
 
@@ -36,8 +35,7 @@ test.describe('CSFD — Corporate Shipment Flow Details', () => {
     // Drill into CSFD for A1
     await fastpathTo(page, 'COSF');
     await runSearch(page);
-    await selectGridRowByText(page, 'A1');
-    await clickToolbarButton(page, 'cmd_details');
+    await selectRowAndDetails(page, 'A1');
     await expect(page).toHaveURL(/\/CSFD$/);
 
     const initialRowCount = await page.locator('tbody tr').filter({ hasNotText: 'No rows.' }).count();
@@ -115,8 +113,7 @@ test.describe('CSFD — Corporate Shipment Flow Details', () => {
     // Fix: setMasterDetail stamps a fresh rowID on any keyless child.
     await fastpathTo(page, 'COSF');
     await runSearch(page);
-    await selectGridRowByText(page, 'A1');
-    await clickToolbarButton(page, 'cmd_details');
+    await selectRowAndDetails(page, 'A1');
     await expect(page).toHaveURL(/\/CSFD$/);
 
     // Open Add dialog and create a row via the trader picker. Pick
@@ -181,8 +178,7 @@ test.describe('CSFD — Corporate Shipment Flow Details', () => {
     // Fix: strip shipmentFlowId in withInsertContext before the insert.
     await fastpathTo(page, 'COSF');
     await runSearch(page);
-    await selectGridRowByText(page, 'A1');
-    await clickToolbarButton(page, 'cmd_details');
+    await selectRowAndDetails(page, 'A1');
     await expect(page).toHaveURL(/\/CSFD$/);
 
     // Select an existing detail row (the seeded WH-101 row with seq 10).
@@ -246,8 +242,7 @@ test.describe('CSFD — Corporate Shipment Flow Details', () => {
 
     // Search + select + Details on the new flow (zero children).
     await runSearch(page);
-    await selectGridRowByText(page, flow);
-    await clickToolbarButton(page, 'cmd_details');
+    await selectRowAndDetails(page, flow);
     await expect(page).toHaveURL(/\/CSFD$/);
 
     // Children grid must be empty up front.
@@ -310,8 +305,7 @@ test.describe('CSFD — Corporate Shipment Flow Details', () => {
     await expect(cosfAdd).not.toBeVisible();
 
     await runSearch(page);
-    await selectGridRowByText(page, flow);
-    await clickToolbarButton(page, 'cmd_details');
+    await selectRowAndDetails(page, flow);
     await expect(page).toHaveURL(/\/CSFD$/);
 
     await clickToolbarButton(page, 'cmd_create');
@@ -404,8 +398,7 @@ async function createFlowWithOneChild(page: Page, flow: string, traderCode: stri
   await expect(cosfAdd).not.toBeVisible();
 
   await runSearch(page);
-  await selectGridRowByText(page, flow);
-  await clickToolbarButton(page, 'cmd_details');
+  await selectRowAndDetails(page, flow);
   await expect(page).toHaveURL(/\/CSFD$/);
 
   await clickToolbarButton(page, 'cmd_create');

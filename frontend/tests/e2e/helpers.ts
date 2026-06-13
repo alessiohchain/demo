@@ -51,6 +51,24 @@ export async function selectGridRowByText(page: Page, text: string): Promise<voi
   await row.locator('input[type="checkbox"]').check();
 }
 
+/**
+ * Select the row matching `text` and drill into the detail screen via
+ * `cmd_details`, robustly. Ticking a grid checkbox updates the engine's
+ * `selectedRows` on the NEXT React tick, so a `cmd_details` fired in the same
+ * microtask can read an empty selection and silently no-op (no navigation).
+ * Retry the select → details → navigate until the detail screen actually lands.
+ */
+export async function selectRowAndDetails(page: Page, text: string): Promise<void> {
+  await expect(async () => {
+    if (/\/CSFD$/.test(new URL(page.url()).pathname)) return; // already there
+    const cb = page.locator('tbody tr', { hasText: text }).first().locator('input[type="checkbox"]');
+    await cb.check();
+    await expect(cb).toBeChecked();
+    await clickToolbarButton(page, 'cmd_details');
+    await expect(page).toHaveURL(/\/CSFD$/, { timeout: 3000 });
+  }).toPass({ timeout: 15_000 });
+}
+
 /** Click the "Yes" / confirm button on the destructive-action confirm dialog. */
 export async function confirmDialog(page: Page): Promise<void> {
   await page.getByRole('dialog').getByRole('button', { name: /^(yes|ok|confirm)$/i }).click();

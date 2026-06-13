@@ -3,7 +3,7 @@ import {
   clickToolbarButton,
   fastpathTo,
   runSearch,
-  selectGridRowByText,
+  selectRowAndDetails,
 } from '../helpers';
 
 /**
@@ -22,8 +22,7 @@ test.describe('TRDP — Trader picker return paths', () => {
     // Get into the trader-picker via CSFD → Add → Open lookup.
     await fastpathTo(page, 'COSF');
     await runSearch(page);
-    await selectGridRowByText(page, 'A1');
-    await clickToolbarButton(page, 'cmd_details');
+    await selectRowAndDetails(page, 'A1');
     await expect(page).toHaveURL(/\/CSFD$/);
     await clickToolbarButton(page, 'cmd_create');
     await page.getByRole('dialog', { name: 'Add' })
