@@ -2,7 +2,6 @@ import { test, expect } from '../fixture';
 import {
   clickToolbarButton,
   fastpathTo,
-  selectGridRowByText,
   submitSearchDialog,
 } from '../helpers';
 
@@ -36,10 +35,20 @@ test.describe('COSF — Corporate Shipment Flows', () => {
     const newRow = page.locator('tbody tr', { hasText: flowCode });
     await expect(newRow).toBeVisible();
 
-    // Delete + confirm
-    await selectGridRowByText(page, flowCode);
-    await clickToolbarButton(page, 'cmd_delete');
-    await page.getByRole('dialog').getByRole('button', { name: /^delete$/i }).click();
+    // Delete + confirm. Ticking a grid checkbox updates the engine's
+    // selectedRows on the NEXT React tick, so a cmd_delete fired in the same
+    // microtask can read an empty selection and never open the confirm dialog.
+    // Retry select → delete until the confirm dialog appears, then confirm.
+    const confirmDelete = page.getByRole('dialog').getByRole('button', { name: /^delete$/i });
+    await expect(async () => {
+      if (await confirmDelete.isVisible()) return; // dialog already open
+      const cb = page.locator('tbody tr', { hasText: flowCode }).first().locator('input[type="checkbox"]');
+      await cb.check();
+      await expect(cb).toBeChecked();
+      await clickToolbarButton(page, 'cmd_delete');
+      await expect(confirmDelete).toBeVisible({ timeout: 3000 });
+    }).toPass({ timeout: 15_000 });
+    await confirmDelete.click();
 
     // Refresh search; row should be gone.
     await clickToolbarButton(page, 'cmd_search');

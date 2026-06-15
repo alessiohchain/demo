@@ -98,7 +98,7 @@ const engineStatics: EngineStatics = {
 };
 
 function ThemedShell() {
-  const { user, menu, fastpaths, lookupData, logout, versionInfo, switchFacilityWarehouse } =
+  const { user, menu, fastpaths, lookupData, logout, versionInfo, features, switchFacilityWarehouse } =
     useAuth();
   // The user's launchable modules ride the access-token claim; recompute when
   // the session identity changes (login / silent re-auth).
@@ -116,6 +116,7 @@ function ThemedShell() {
         lookupData,
         logout,
         versionInfo: versionInfo ?? undefined,
+        features: features ?? undefined,
         changePasswordUrl,
         modules,
         currentModuleCode: MODULE_CODE,

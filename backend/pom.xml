@@ -93,7 +93,7 @@
 		<dependency>
 			<groupId>za.co.csnx</groupId>
 			<artifactId>csnx-engine-ai</artifactId>
-			<version>0.2.1</version>
+			<version>0.2.2</version>
 		</dependency>
 		<!-- Smart-navigation assistant LLM via Spring AI (provider-swappable,
 		     selected at runtime behind LlmClient). engine-ai keeps this

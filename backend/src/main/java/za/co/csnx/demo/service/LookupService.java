@@ -29,6 +29,11 @@ public class LookupService {
     private final za.co.csnx.engine.registry.PlatformMetadataSource metadataSource;
     private final za.co.csnx.engine.security.GrantEnforcer grantEnforcer;
 
+    /** Header version label — a real version (default 1.0), NOT the module code.
+     *  The module switcher already identifies the module. */
+    @org.springframework.beans.factory.annotation.Value("${csnx.module.version:1.0}")
+    private String moduleVersion;
+
     public LookupService(AppUserRepository appUserRepository,
                          za.co.csnx.engine.registry.PlatformMetadataSource metadataSource,
                          za.co.csnx.engine.security.GrantEnforcer grantEnforcer) {
@@ -63,7 +68,7 @@ public class LookupService {
                 metadataSource.lookupVersion(),
                 DEFAULT_PASSWORD_SETTINGS,
                 null,
-                "DEMO",
+                moduleVersion,
                 Boolean.FALSE,
                 buildFeatures());
     }

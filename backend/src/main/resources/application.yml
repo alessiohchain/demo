@@ -81,6 +81,8 @@ app:
 csnx:
   module:
     code: DEMO
+    # Header version label (shown next to the module switcher). Not the module code.
+    version: ${MODULE_VERSION:1.0}
   engine:
     registry:
       # Register this module's screens/menus/lookups into the platform's

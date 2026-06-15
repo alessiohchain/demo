@@ -41,6 +41,11 @@ test.describe('MODS — module switcher + portal', () => {
     await expect(page.getByRole('button', { name: /sign out/i })).toBeVisible({ timeout: 20_000 });
     await expect(page.getByRole('heading', { name: /All modules/i })).toBeVisible();
 
+    // Platform Admin has smart-nav disabled (no engine-ai backend), so the
+    // shared shell hides the assistant field; the version label shows 1.0.
+    await expect(page.getByRole('textbox', { name: /smart navigation/i })).toHaveCount(0);
+    await expect(page.getByText('1.0', { exact: true }).first()).toBeVisible();
+
     const pomTile = page.getByRole('link', { name: /Purchase Order Management/ }).first();
     await expect(pomTile).toBeVisible();
 
