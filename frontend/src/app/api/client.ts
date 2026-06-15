@@ -18,6 +18,12 @@ export function setAccessToken(token: string | null) {
   accessToken = token;
 }
 
+/** The in-memory bearer token (a platform-issued JWT), or null pre-login.
+ *  Read by the module-list claim decoder for the module switcher. */
+export function getAccessToken(): string | null {
+  return accessToken;
+}
+
 export function setUnauthorizedHandler(handler: () => void) {
   onUnauthorized = handler;
 }

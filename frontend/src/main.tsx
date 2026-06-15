@@ -1,11 +1,12 @@
-import { StrictMode } from 'react';
+import { StrictMode, useMemo } from 'react';
 import { createRoot } from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from 'react-router-dom';
 import { router } from '@/app/router';
 import { AuthProvider, useAuth } from '@/app/auth/AuthProvider';
-import { api, resetInflight } from '@/app/api/client';
-import { verifyCredentials } from '@/app/auth/platformSso';
+import { api, resetInflight, getInflightCount, subscribeInflight } from '@/app/api/client';
+import { verifyCredentials, platformIssuer } from '@/app/auth/platformSso';
+import { readModulesClaim, MODULE_CODE } from '@/app/auth/moduleClaim';
 import { CLIENT_SORT_ENABLED, IS_DEVELOPMENT } from '@/app/urlFlags';
 import { EngineRuntimeProvider, type EngineStatics } from '@alessiohchain/csnx-engine';
 import { ThemeProvider } from '@/app/theme/ThemeProvider';
@@ -87,6 +88,8 @@ const engineStatics: EngineStatics = {
   api,
   resetInflight,
   verifyCredentials,
+  getInflightCount,
+  subscribeInflight,
   flags: {
     cacheUi: CACHE_UI_ENABLED,
     clientSort: CLIENT_SORT_ENABLED,
@@ -95,11 +98,29 @@ const engineStatics: EngineStatics = {
 };
 
 function ThemedShell() {
-  const { user, menu, fastpaths, lookupData, logout } = useAuth();
+  const { user, menu, fastpaths, lookupData, logout, versionInfo, switchFacilityWarehouse } =
+    useAuth();
+  // The user's launchable modules ride the access-token claim; recompute when
+  // the session identity changes (login / silent re-auth).
+  const modules = useMemo(() => readModulesClaim(), [user]);
+  const changePasswordUrl = user
+    ? `${platformIssuer()}/change-password?company=${encodeURIComponent(user.companyCode ?? '')}&user=${encodeURIComponent(user.username ?? '')}`
+    : undefined;
   return (
     <EngineRuntimeProvider
       statics={engineStatics}
-      session={{ user, menu, fastpaths, lookupData, logout }}
+      session={{
+        user,
+        menu,
+        fastpaths,
+        lookupData,
+        logout,
+        versionInfo: versionInfo ?? undefined,
+        changePasswordUrl,
+        modules,
+        currentModuleCode: MODULE_CODE,
+        switchFacilityWarehouse,
+      }}
     >
       <ThemeProvider username={user?.username}>
         <RouterProvider router={router} />
