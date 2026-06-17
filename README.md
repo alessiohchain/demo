@@ -113,9 +113,24 @@ a Testcontainers Postgres instance.
    `BaseEntity`, `BaseRepository`, `GlobalExceptionHandler` and shadcn primitives
    carry over unchanged.
 
-## Future direction
+## Engine + screen authoring
 
-The frontend will evolve into a metadata-driven UI engine equivalent to CSnx's
-GWT engine (`MetadataManagerBean` + `DynamicFormView`). The current shadcn
-primitives are intentionally simple so they can be reused as leaf renderers in
-that engine. See `docs/plans/CSNX-13935-plan.md` (in the CSnx repo) for context.
+The frontend is a metadata-driven UI engine — workflows live as JSON under
+`backend/src/main/resources/screens/<workflow>.json` and the shadcn
+primitives are leaf renderers behind the engine's `FieldRenderer`. Two
+screen families ship today: **RPTM** (single-grid CRUD) and **COSF + CSFD**
+(master-detail with a Trader picker). Add a new screen by writing the JSON
++ matching activity service — no Flyway migration unless you're also
+shipping a new fastpath/menu entry.
+
+## Docs
+
+- [CLAUDE.md](CLAUDE.md) — project rules and conventions.
+- [docs/engine.md](docs/engine.md) — engine REST/wire contract.
+- [docs/activity-services.md](docs/activity-services.md) — how to write an activity service.
+- [docs/dao-patterns.md](docs/dao-patterns.md) — entity + repository conventions.
+- [docs/migrations.md](docs/migrations.md) — Flyway conventions.
+- [docs/architecture.md](docs/architecture.md) — single-module wiring end-to-end.
+- [docs/decisions.md](docs/decisions.md) — rationale behind every stack choice.
+- [docs/platform-architecture.md](docs/platform-architecture.md) — multi-module future direction.
+- [docs/demo-ops.md](docs/demo-ops.md) — GCP deployment runbook.

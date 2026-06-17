@@ -124,7 +124,43 @@ If a module's entity grows past 15 fields and the boilerplate becomes
 genuinely painful, re-add Lombok **per module** — the stack is the template,
 not the gospel.
 
-## 9. MapStruct for DTO mapping
+## 9. Entities skip CSnx's per-entity `equals`/`hashCode` and `setNullToDefaults`
+
+**What CSnx does.** Every entity carries (a) ~30 lines of null-guarded
+field-by-field `equals`/`hashCode` and (b) an abstract `setNullToDefaults()`
+inherited from CSnx's `BaseEntity` that injects placeholder values
+(`TypeMappings.DEFAULT_STRING = ""`, `DEFAULT_DATE = epoch`,
+`DEFAULT_INTEGER = 0`) before persist. Both are workarounds for the
+underlying schema: many CSnx columns are `NOT NULL` without a DB-side
+`DEFAULT`, so Java must fill the gap; and CSnx's pre-Hibernate Dozer-clone
+era needed business-key entity equality across layer boundaries.
+
+**What demo does.** Entities use JPA's default identity equality.
+Composite-key `Pk` inner classes carry their own `equals`/`hashCode`
+(correctly — `Objects.equals`-based, no nullity weirdness) so
+`repository.findById(pk)` works. Flyway migrations declare DB-side
+`DEFAULT` clauses on every `NOT NULL` column (e.g.
+`V13__scct_shipment_flow_detail.sql`: `transit_time INTEGER NOT NULL
+DEFAULT 0`, `trader_type VARCHAR(9) NOT NULL DEFAULT 'W'`), so a Java
+null falls through to the column default at INSERT.
+
+**Why the divergence.** CSnx's patterns plug holes demo doesn't have:
+modern Hibernate doesn't need business-key entity equality unless the
+entity ends up in a `HashSet` / `Map` key (none currently do), and
+Postgres handles defaulting at the column. Adding the CSnx pieces would
+be ~50 lines of boilerplate per entity for zero behavioural payoff.
+CSnx's `equals` is also subtly buggy — the null-guards
+(`getX() != null && other.getX() != null && getX().equals(...)`) mean two
+records with a null PK component compare *unequal* against themselves.
+
+**When to revisit.** If a future entity is put into a `HashSet`, used
+as a `Map` key, or appears twice in a lazy collection (Hibernate proxy
++ initialized instance), add a Hibernate-aware `equals`/`hashCode` on
+`BaseEntity` — `Hibernate.getClass()` for type check + an abstract
+`getPrimaryKey()` returning the existing PK object. Don't reach for
+CSnx's per-entity field-comparison shape.
+
+## 10. MapStruct for DTO mapping
 
 Compile-time, no reflection, no Lombok dependency (we removed the
 `lombok-mapstruct-binding` annotation processor when Lombok left). Generated
@@ -133,7 +169,7 @@ mappers are visible in `target/generated-sources` for debugging.
 Rejected: hand-written mappers (boilerplate at scale), ModelMapper (runtime
 reflection, harder to debug, slower).
 
-## 10. Frontend: React + TS + Vite + shadcn + TanStack Query + RHF/zod
+## 11. Frontend: React + TS + Vite + shadcn + TanStack Query + RHF/zod
 
 - **React + TypeScript** — strict mode. No `any`.
 - **Vite** over CRA (deprecated) and Next.js (overkill for SPA-only modules).
@@ -152,7 +188,7 @@ Long-term: generate the TS API client from `/v3/api-docs` (springdoc) via
 `openapi-typescript` so request/response types stay in sync. Hand-typed for
 now — premature for one endpoint group.
 
-## 11. Repo layout: one repo per module, backend/ and frontend/ folders
+## 12. Repo layout: one repo per module, backend/ and frontend/ folders
 
 - **One repo per module** (sibling folders under `modules/`). Modules are
   independently deployable; bundling them in a monorepo would couple release
@@ -163,7 +199,7 @@ now — premature for one endpoint group.
 - Demo module lives at `C:\software\projects\modules\demo`. Future modules
   copy the demo as a starting point.
 
-## 12. Containerization: Dockerfile for compose, buildpacks for prod images
+## 13. Containerization: Dockerfile for compose, buildpacks for prod images
 
 - `backend/Dockerfile` (multi-stage Temurin 21 → JRE alpine) is what
   `docker compose up` uses. Predictable, no surprise dependencies.
@@ -173,7 +209,7 @@ now — premature for one endpoint group.
 - Frontend: multi-stage Node 22 build → nginx 1.27 alpine, with `/api`
   reverse-proxied to the `backend` service.
 
-## 13. Testing: JUnit 5 + Mockito + AssertJ + Testcontainers (no H2)
+## 14. Testing: JUnit 5 + Mockito + AssertJ + Testcontainers (no H2)
 
 - **JUnit 5 + Mockito**: defaults.
 - **AssertJ** instead of Hamcrest matchers — fluent, readable, single import.
@@ -184,7 +220,7 @@ now — premature for one endpoint group.
   `@SpringBootTest` for genuinely cross-cutting integration (auth flow,
   Spring context boots cleanly with the full app).
 
-## 14. Future direction: metadata-driven UI engine
+## 15. Future direction: metadata-driven UI engine
 
 Long-term, the React frontend will evolve into a metadata-driven engine
 equivalent to CSnx's GWT engine (`MetadataManagerBean` +
@@ -200,7 +236,51 @@ future renderer can dispatch to them as leaf components.
 of primitives, not the immediate implementation. Don't bake business logic
 into demo screens; keep them easy to replace.
 
-## 15. MCP servers — what's wired and where
+## 17. No AOP layer — `@RestControllerAdvice` covers what demo needs
+
+**What CSnx does.** Three files under `za.co.csnx.common.aop`:
+`SystemPointCuts` (a library of layer-based pointcuts —
+`inServiceLayer`, `inDataAccessLayer`, etc.), `LoggingExceptionAdvice`
+(`@AfterThrowing` that logs and writes to a `UserProcessLogThreadLocal`-
+backed process error log), and `ConvertDAOExceptionAdvice`
+(`@AfterThrowing` that translates
+`OptimisticLockingFailureException` / `DataIntegrityViolationException`
++ SQLSTATE FK violations to `BusinessException` with user-friendly
+messages). Wired via Spring `@Aspect` auto-proxy.
+
+**What demo does.** No `aop` package; no `spring-boot-starter-aop`
+dependency. The cross-cutting concerns CSnx might use AOP for already
+have first-class Spring equivalents:
+
+- **REST exception → `ProblemDetail`** — `GlobalExceptionHandler`
+  (`@RestControllerAdvice`). Covers `BusinessException`, validation
+  errors, auth failures, and (as of this decision) the same
+  `OptimisticLockingFailureException` /
+  `DataIntegrityViolationException` cases CSnx's
+  `ConvertDAOExceptionAdvice` handles — translated to 409 with
+  `kind:business` so the engine's axios interceptor surfaces them as
+  sonner toasts.
+- **Transactions** — `@Transactional` via Spring's auto-proxy
+  (method-level only, never class-level — see § 9 and CLAUDE.md).
+- **Audit dates** — `@PrePersist`/`@PreUpdate` on
+  `MaintainableDateTimeBaseEntity`.
+- **Audit user/tran** — `AbstractEngineActivity.applyAuditStamps`
+  called explicitly from CRUD verbs.
+
+**Why no AOP.** AOP adds a debugging layer of indirection
+(stacktraces through generated proxies, control flow harder to trace
+in an IDE). For the two narrow translations demo needs it's
+overweight versus `@ExceptionHandler` methods that sit beside the
+existing ones in one file, with no new dependency. CSnx's process-
+error-log aspect serves a CSnx-only concept demo doesn't have.
+
+**When to revisit.** If a future module needs surgical cross-cutting
+behaviour that *can't* be expressed as `@RestControllerAdvice` /
+`@PrePersist` / Spring Data auditing — per-method audit logging,
+retry-with-backoff, method-level metrics — add
+`spring-boot-starter-aop` then, scoped to the specific concern.
+
+## 18. MCP servers — what's wired and where
 
 - **GitLab** — user-scope (`~/.claude.json`, with PAT). Available
   automatically in any project. Used for issues, MRs, repo ops on
