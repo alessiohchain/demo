@@ -17,6 +17,12 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: true
+    # Pin the history table to public. The app schema (`demo`) now matches the DB
+    # role name, so postgres `search_path` ("$user", public) resolves "$user" ->
+    # the demo schema and would otherwise flip Flyway's default schema there,
+    # orphaning the real history in public and re-baselining + replaying old
+    # migrations that still reference the pre-rename schema.
+    default-schema: public
   # Spring AI — chat autoconfig is OFF by default (none) so the starter can sit
   # on the classpath without affecting boot. Set spring.ai.model.chat=google-genai
   # (env SPRING_AI_MODEL_CHAT) together with csnx.engine.ai.llm.provider=google-genai to use it.
