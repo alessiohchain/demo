@@ -23,15 +23,15 @@ environment cannot be edited — write a new one. Flyway's checksum
 validation will refuse to start the app if the file's hash drifts from
 the recorded one.
 
-## Schema is always `demoschema`
+## Schema is always `demo`
 
-Every table is fully qualified: `CREATE TABLE demoschema.foo (...)`. The
-backend's `application.yml` sets `spring.flyway.default-schema=demoschema`
-+ `spring.jpa.properties.hibernate.default_schema=demoschema` so JPA finds
+Every table is fully qualified: `CREATE TABLE demo.foo (...)`. The
+backend's `application.yml` sets `spring.flyway.default-schema=demo`
++ `spring.jpa.properties.hibernate.default_schema=demo` so JPA finds
 the tables without per-entity `schema=` annotations on every `@Table`.
 
 When cloning the template for a new module, change the schema name to the
-module's name (`<module>schema`) in both `application.yml` and every
+module's name (`<module>`) in both `application.yml` and every
 existing migration **before** the first run.
 
 ## CSnx-aligned column shapes
@@ -129,7 +129,7 @@ The compose stack enforces this order:
 
 1. **`postgres`** comes up; healthcheck waits for it to accept connections.
 2. **`backend`** starts; Flyway runs all pending migrations against
-   `demoschema`. If a migration fails the container exits non-zero.
+   `demo`. If a migration fails the container exits non-zero.
 3. **`ScreenMetadataSeeder`** runs as a `@PostConstruct` hook after
    Flyway. Hashes each `screens/*.json` resource, upserts changed ones,
    warns on workflows in the DB without a matching file (drift signal —

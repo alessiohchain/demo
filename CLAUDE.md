@@ -310,7 +310,7 @@ worked examples.
 | [docs/engine.md](docs/engine.md) | System-of-record for the metadata engine — `/api/metadata`, `/api/process`, `/api/lookup/init` wire shapes, `MetadataHolder` schema, validation cascade, master-detail landmines. |
 | [docs/activity-services.md](docs/activity-services.md) | How to write an activity service — `AbstractCrudActivityService` hooks, response-envelope shapes, the four worked examples (RPTM/COSF/CSFD/TRDP). |
 | [docs/dao-patterns.md](docs/dao-patterns.md) | Entity + repository conventions — `BaseEntity` hierarchy, `@IdClass` composite PKs, `@Version updateSerial`, `BaseRepository`, sequence generators. |
-| [docs/migrations.md](docs/migrations.md) | Flyway conventions — file naming, `demoschema`, CSnx-aligned column shapes, what Flyway ships vs what the screen-metadata seeder owns. |
+| [docs/migrations.md](docs/migrations.md) | Flyway conventions — file naming, `demo`, CSnx-aligned column shapes, what Flyway ships vs what the screen-metadata seeder owns. |
 | [docs/architecture.md](docs/architecture.md) | Single-module wiring end-to-end — backend package layout, frontend source tree, container architecture, auth flow. |
 | [docs/decisions.md](docs/decisions.md) | Rationale behind every stack choice. Read before proposing a stack change ("add Lombok back?", "switch to Logback?", "use H2 for tests?"). |
 | [docs/platform-architecture.md](docs/platform-architecture.md) | Demo as the single-module template; sketch of the multi-module future. |

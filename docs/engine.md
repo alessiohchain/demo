@@ -819,7 +819,7 @@ instead:
 @GeneratedValue(strategy = SEQUENCE, generator = "shipment_flow_detail_seq")
 @SequenceGenerator(
     name = "shipment_flow_detail_seq",
-    sequenceName = "demoschema.shipment_flow_detail_shipment_flow_id_seq",
+    sequenceName = "demo.shipment_flow_detail_shipment_flow_id_seq",
     allocationSize = 1)
 @Column(name = "shipment_flow_id", nullable = false)
 private Long shipmentFlowId;

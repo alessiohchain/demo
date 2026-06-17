@@ -42,7 +42,7 @@ Copy `C:\software\projects\modules\demo` to
 2. Rename Maven `artifactId` and Java package `za.co.csnx.demo` →
    `za.co.csnx.<name>`.
 3. Update `application.yml` — database name, JWT issuer, schema name
-   (`demoschema` → `<name>schema`).
+   (`demo` → `<name>`).
 4. Replace the Flyway baseline migrations with the new domain's tables.
    The auth foundation (V1, V5), `BaseEntity` hierarchy, repository
    contracts, engine wiring all carry over unchanged.
@@ -117,7 +117,7 @@ package layout keep the inside organised.
   platform, signed with the same key, with a `service` claim and a
   `module` audience. Module JWT filter accepts both user and service
   tokens.
-- **Database per module vs schema per module**: currently `demoschema`
+- **Database per module vs schema per module**: currently `demo`
   in a shared `demo` DB. For prod, lean toward DB-per-module to keep
   blast radius small.
 - **Postgres connection pooler**: once any backend scales beyond 1-2

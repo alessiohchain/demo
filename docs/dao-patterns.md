@@ -100,7 +100,7 @@ composite `@IdClass`. Use `GenerationType.SEQUENCE` with a
 @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "shipment_flow_detail_seq")
 @SequenceGenerator(
         name = "shipment_flow_detail_seq",
-        sequenceName = "demoschema.scct_shipment_flow_detail_shipment_flow_id_seq",
+        sequenceName = "demo.scct_shipment_flow_detail_shipment_flow_id_seq",
         allocationSize = 1)
 @Column(name = "shipment_flow_id", nullable = false)
 private Long shipmentFlowId;
