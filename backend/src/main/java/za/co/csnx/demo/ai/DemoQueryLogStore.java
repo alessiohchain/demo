@@ -9,7 +9,7 @@ import za.co.csnx.demo.repository.AssistantQueryLogRepository;
 
 /**
  * Demo's {@link QueryLogStore}: persists the assistant query log into demo's own
- * {@code demoschema.assistant_query_log} table (the per-module "training" /
+ * {@code demo.assistant_query_log} table (the per-module "training" /
  * learning-loop surface). The engine's {@code QueryLogService} owns the
  * own-transaction + best-effort wrapping; this store only maps record↔entity
  * and enforces the per-user ownership check on feedback.

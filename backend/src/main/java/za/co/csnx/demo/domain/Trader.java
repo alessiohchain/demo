@@ -18,7 +18,7 @@ import za.co.csnx.engine.common.MaintainableTranUserBaseEntity;
  * {@code traderCode} field opens.
  */
 @Entity
-@Table(name = "scwt_trader", schema = "demoschema")
+@Table(name = "scwt_trader", schema = "demo")
 @IdClass(Trader.Pk.class)
 public class Trader extends MaintainableTranUserBaseEntity {
 

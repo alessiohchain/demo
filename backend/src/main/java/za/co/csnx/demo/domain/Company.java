@@ -11,10 +11,10 @@ import za.co.csnx.engine.common.BaseEntity;
  * ({@code C:\software\projects\CSnx\src\za\co\csnx\model\csnx\Company.java}),
  * collapsed to the fields the demo actually uses. Read-only at runtime —
  * we never read from the CSnx schema; this table lives in
- * {@code demoschema.company}.
+ * {@code demo.company}.
  */
 @Entity
-@Table(name = "company", schema = "demoschema")
+@Table(name = "company", schema = "demo")
 public class Company extends BaseEntity {
 
     private static final long serialVersionUID = 1L;

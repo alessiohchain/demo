@@ -21,7 +21,7 @@ import za.co.csnx.engine.common.BaseEntity;
  * {@code C:\software\projects\CSnx\src\za\co\csnx\model\csnx\User.java}.
  */
 @Entity
-@Table(name = "app_user", schema = "demoschema")
+@Table(name = "app_user", schema = "demo")
 @IdClass(AppUser.Pk.class)
 public class AppUser extends BaseEntity {
 

@@ -16,7 +16,7 @@ import za.co.csnx.engine.common.MaintainableTranUserBaseEntity;
  * Mirror of CSnx's {@code ReportText} entity (composite PK
  * {@code (companyCode, reportName, language, textSequence)}), in
  * Java 21 / Jakarta Persistence form. Column names live in
- * {@code demoschema.report_text} rather than CSnx's
+ * {@code demo.report_text} rather than CSnx's
  * {@code CSNX.SCWT_REPORT_TEXT}; the demo never reads from CSnx.
  *
  * <p>Conceptual reference:
@@ -32,7 +32,7 @@ import za.co.csnx.engine.common.MaintainableTranUserBaseEntity;
  * {@link za.co.csnx.engine.common.MaintainableTranUser} contract.
  */
 @Entity
-@Table(name = "scwt_report_text", schema = "demoschema")
+@Table(name = "scwt_report_text", schema = "demo")
 @IdClass(ReportText.Pk.class)
 public class ReportText extends MaintainableTranUserBaseEntity {
 

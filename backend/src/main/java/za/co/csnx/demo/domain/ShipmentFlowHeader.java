@@ -20,7 +20,7 @@ import za.co.csnx.engine.common.MaintainableTranUserBaseEntity;
  * {@code C:\software\projects\CSnx\src\za\co\csnx\model\csnx\ScctShipmentFlowHeader.java}.
  */
 @Entity
-@Table(name = "scct_shipment_flow_header", schema = "demoschema")
+@Table(name = "scct_shipment_flow_header", schema = "demo")
 @IdClass(ShipmentFlowHeader.Pk.class)
 public class ShipmentFlowHeader extends MaintainableTranUserBaseEntity {
 

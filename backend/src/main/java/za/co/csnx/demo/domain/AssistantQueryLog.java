@@ -14,7 +14,7 @@ import za.co.csnx.engine.common.BaseEntity;
  * accuracy/repair-rate metrics and synonym/example mining (the learning loop).
  */
 @Entity
-@Table(name = "assistant_query_log", schema = "demoschema")
+@Table(name = "assistant_query_log", schema = "demo")
 public class AssistantQueryLog extends BaseEntity {
 
     @Id

@@ -30,7 +30,7 @@ import za.co.csnx.engine.common.MaintainableTranUserBaseEntity;
  * {@code C:\software\projects\CSnx\src\za\co\csnx\model\csnx\ScctShipmentFlowDetail.java}.
  */
 @Entity
-@Table(name = "scct_shipment_flow_detail", schema = "demoschema")
+@Table(name = "scct_shipment_flow_detail", schema = "demo")
 @IdClass(ShipmentFlowDetail.Pk.class)
 public class ShipmentFlowDetail extends MaintainableTranUserBaseEntity {
 
@@ -48,7 +48,7 @@ public class ShipmentFlowDetail extends MaintainableTranUserBaseEntity {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "shipment_flow_detail_seq")
     @SequenceGenerator(
             name = "shipment_flow_detail_seq",
-            sequenceName = "demoschema.scct_shipment_flow_detail_shipment_flow_id_seq",
+            sequenceName = "demo.scct_shipment_flow_detail_shipment_flow_id_seq",
             allocationSize = 1)
     @Column(name = "shipment_flow_id", nullable = false)
     private Long shipmentFlowId;

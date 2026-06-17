@@ -25,7 +25,7 @@ import za.co.csnx.engine.common.MaintainableTranUserBaseEntity;
  * {@code C:\software\projects\CSnx\src\za\co\csnx\model\csnx\SysParameters.java}.
  */
 @Entity
-@Table(name = "scwt_sys_parms", schema = "demoschema")
+@Table(name = "scwt_sys_parms", schema = "demo")
 public class SysParameters extends MaintainableTranUserBaseEntity {
 
     private static final long serialVersionUID = 1L;
