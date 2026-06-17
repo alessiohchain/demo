@@ -18,6 +18,17 @@
 const ISSUER: string =
   (import.meta.env.VITE_PLATFORM_ISSUER as string | undefined) ?? 'http://localhost:8090';
 const CLIENT_ID = 'demo-module';
+
+/**
+ * The central portal origin (no trailing slash). Sign-out lands here so the
+ * next sign-in is routed by the portal — straight into a single-module user's
+ * one module, or a chooser for multi-module users. Also the fallback target
+ * when a user reaches a module they cannot access (see {@code moduleClaim.ts}).
+ * Must match a registered post-logout-redirect-uri on this module's IdP client.
+ */
+export const PORTAL_URL: string = (
+  (import.meta.env.VITE_PORTAL_URL as string | undefined) ?? 'http://localhost:8091'
+).replace(/\/+$/, '');
 const VERIFIER_KEY = 'platform_pkce_verifier';
 const STATE_KEY = 'platform_pkce_state';
 const RETURN_TO_KEY = 'platform_return_to';
@@ -33,16 +44,17 @@ export function clearPlatformSession(): void {
 
 /**
  * OIDC RP-initiated logout URL — ends the IdP session (the cross-module
- * SSO session) and lands back on this module's origin. Null when no
- * id_token survived (e.g. storage cleared): callers fall back to a plain
- * IdP-login redirect.
+ * SSO session) and lands on the central portal, which routes the next
+ * sign-in (a chooser for multi-module users, straight-through for
+ * single-module). Null when no id_token survived (e.g. storage cleared):
+ * callers fall back to a plain IdP-login redirect.
  */
 export function globalLogoutUrl(): string | null {
   const idToken = sessionStorage.getItem(ID_TOKEN_KEY);
   if (!idToken) return null;
   const params = new URLSearchParams({
     id_token_hint: idToken,
-    post_logout_redirect_uri: `${window.location.origin}/`,
+    post_logout_redirect_uri: `${PORTAL_URL}/`,
   });
   return `${ISSUER}/connect/logout?${params.toString()}`;
 }

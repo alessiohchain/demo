@@ -95,8 +95,12 @@ try {
 
     # 3. Rebuild + restart containers ----------------------------------------
     Step "docker compose up -d --build"
-    $svc = if ($Service) { @($Service) } else { @() }
-    & docker compose up -d --build @svc
+    # Build a single args array and splat it. (A 1-element @($Service) gets
+    # unwrapped to a scalar string on assignment, and splatting a string
+    # enumerates its characters — so append onto a multi-element array instead.)
+    $composeArgs = @('up', '-d', '--build')
+    if ($Service) { $composeArgs += $Service }
+    & docker compose @composeArgs
     if ($LASTEXITCODE -ne 0) { throw "docker compose up failed ($LASTEXITCODE)" }
 
     # 4. Status --------------------------------------------------------------

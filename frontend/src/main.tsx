@@ -1,4 +1,4 @@
-import { StrictMode, useMemo } from 'react';
+import { StrictMode, useEffect, useMemo } from 'react';
 import { createRoot } from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from 'react-router-dom';
@@ -6,7 +6,7 @@ import { router } from '@/app/router';
 import { AuthProvider, useAuth } from '@/app/auth/AuthProvider';
 import { api, resetInflight, getInflightCount, subscribeInflight } from '@/app/api/client';
 import { verifyCredentials, platformIssuer } from '@/app/auth/platformSso';
-import { readModulesClaim, MODULE_CODE } from '@/app/auth/moduleClaim';
+import { readModulesClaim, moduleAccessRedirect, MODULE_CODE } from '@/app/auth/moduleClaim';
 import { CLIENT_SORT_ENABLED, IS_DEVELOPMENT } from '@/app/urlFlags';
 import { EngineRuntimeProvider, type EngineStatics } from '@alessiohchain/csnx-engine';
 import { ThemeProvider } from '@/app/theme/ThemeProvider';
@@ -103,6 +103,14 @@ function ThemedShell() {
   // The user's launchable modules ride the access-token claim; recompute when
   // the session identity changes (login / silent re-auth).
   const modules = useMemo(() => readModulesClaim(), [user]);
+  // If the signed-in user has no access to THIS module (e.g. they signed in
+  // here after switching identities), route them like a normal login: straight
+  // into their one module, or the portal to choose when they have several.
+  useEffect(() => {
+    if (!user) return;
+    const target = moduleAccessRedirect(modules);
+    if (target) window.location.assign(target);
+  }, [user, modules]);
   const changePasswordUrl = user
     ? `${platformIssuer()}/change-password?company=${encodeURIComponent(user.companyCode ?? '')}&user=${encodeURIComponent(user.username ?? '')}`
     : undefined;
