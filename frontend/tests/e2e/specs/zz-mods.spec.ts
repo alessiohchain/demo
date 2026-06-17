@@ -7,8 +7,7 @@ import { test, expect } from '../fixture';
  * stacks: the access-token `modules` claim drives the in-header switcher; a
  * pick navigates cross-origin to the target module, which silently re-auths
  * via the shared IdP session cookie; and the platform portal renders branded
- * tiles with working favorites. Needs platform :8090/:8091 + POM :8081 +
- * demo :8082 all up.
+ * module tiles. Needs platform :8090/:8091 + POM :8081 + demo :8082 all up.
  *
  * IMPORTANT — this file is named `zz-` so it runs LAST. Its cross-origin
  * auth against other clients (pom-module / portal) advances the shared IdP
@@ -36,29 +35,19 @@ test.describe('MODS — module switcher + portal', () => {
     await expect(page.getByRole('button', { name: 'Open module launcher' })).toBeVisible();
   });
 
-  test('the platform portal renders branded tiles and favoriting persists', async ({ authedPage: page }) => {
+  test('the platform portal renders branded module tiles', async ({ authedPage: page }) => {
     await page.goto('http://localhost:8091/');
     await expect(page.getByRole('button', { name: /sign out/i })).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByRole('heading', { name: /All modules/i })).toBeVisible();
 
     // Platform Admin has smart-nav disabled (no engine-ai backend), so the
     // shared shell hides the assistant field; the version label shows 1.0.
     await expect(page.getByRole('textbox', { name: /smart navigation/i })).toHaveCount(0);
     await expect(page.getByText('1.0', { exact: true }).first()).toBeVisible();
 
-    const pomTile = page.getByRole('link', { name: /Purchase Order Management/ }).first();
-    await expect(pomTile).toBeVisible();
-
-    // Star POM → a Favorites section appears.
-    await pomTile.getByRole('button', { name: 'Star Purchase Order Management' }).click();
-    await expect(page.getByRole('heading', { name: /^Favorites$/i })).toBeVisible({ timeout: 10_000 });
-
-    // Unstar POM → the Favorites section goes away again (clean state for reruns).
-    await page
-      .getByRole('link', { name: /Purchase Order Management/ })
-      .first()
-      .getByRole('button', { name: 'Unstar Purchase Order Management' })
-      .click();
-    await expect(page.getByRole('heading', { name: /^Favorites$/i })).toBeHidden({ timeout: 10_000 });
+    // The portal lists the user's launchable modules as branded tiles. (The
+    // portal's own module tile is hidden — it would only link back here; and
+    // favorites/recents were removed, so it's a plain module grid now.)
+    await expect(page.getByRole('link', { name: /Purchase Order Management/ }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: /Demo Module/ }).first()).toBeVisible();
   });
 });
