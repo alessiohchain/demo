@@ -112,6 +112,19 @@ csnx:
     service-process:
       enabled: ${CSNX_SERVICE_PROCESS_ENABLED:false}
       jwks-uri: ${PLATFORM_JWKS_URI:${PLATFORM_ISSUER:http://localhost:8090}/oauth2/jwks}
+    # Outbound Channel 1 client (caller) — needed by global-settings below.
+    service-client:
+      enabled: ${CSNX_SERVICE_CLIENT_ENABLED:false}
+      platform-base-url: ${PLATFORM_ISSUER:http://localhost:8090}
+      target-base-url: ${SERVICE_TARGET_URL:}
+      client-id: demo-service
+      client-secret: ${DEMO_SERVICE_SECRET:demo-service-dev-secret}
+    # Track the platform's global settings (search limit) — fetch over Channel 1
+    # on boot + refresh. Off by default; requires service-client.enabled=true.
+    global-settings:
+      enabled: ${CSNX_GLOBAL_SETTINGS_ENABLED:false}
+      company: ${CSNX_GLOBAL_SETTINGS_COMPANY:WCS}
+      refresh-ms: ${CSNX_GLOBAL_SETTINGS_REFRESH_MS:300000}
     # Smart-navigation assistant LLM (shared AI engine). Provider swappable;
     # key via env (GEMINI_API_KEY). No key → the assistant replies it isn't
     # configured rather than failing.
