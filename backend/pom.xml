@@ -183,6 +183,16 @@
 		</dependencies>
 	</dependencyManagement>
 
+	<!-- Resolve the shared CSnx engines (engine-spring, engine-ai) from GitHub
+	     Packages. Auth: the github-csnx server in ~/.m2/settings.xml (local) or
+	     the GH_PACKAGES_TOKEN secret wired into CI. -->
+	<repositories>
+		<repository>
+			<id>github-csnx</id>
+			<url>https://maven.pkg.github.com/alessiohchain/platform</url>
+		</repository>
+	</repositories>
+
 	<build>
 		<plugins>
 			<plugin>

@@ -64,6 +64,11 @@ services:
   frontend:
     build:
       context: ./frontend
+      # GitHub Packages read token for the frontend's `npm ci` (the engine is
+      # pulled from the registry, not a vendored tgz). Export GH_PACKAGES_TOKEN
+      # before `docker compose up --build`.
+      secrets:
+        - gh_token
     depends_on:
       backend:
         condition: service_healthy
@@ -73,3 +78,7 @@ services:
 
 volumes:
   postgres-data:
+
+secrets:
+  gh_token:
+    environment: GH_PACKAGES_TOKEN
