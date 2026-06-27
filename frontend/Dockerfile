@@ -2,11 +2,13 @@
 
 FROM node:22-alpine AS build
 WORKDIR /app
-COPY package.json package-lock.json ./
-# The engine is a vendored tarball (file: dep in package.json); it must be
-# present before npm ci resolves the lockfile.
-COPY vendor ./vendor
-RUN npm ci
+COPY package.json package-lock.json .npmrc ./
+# The engine is pulled from GitHub Packages (no vendored tgz). The token is a
+# BuildKit secret so it never lands in an image layer; .npmrc reads it from
+# $GH_PACKAGES_TOKEN. Pass it via `docker compose` (compose secrets) or
+# `docker build --secret id=gh_token,env=GH_PACKAGES_TOKEN`.
+RUN --mount=type=secret,id=gh_token \
+    GH_PACKAGES_TOKEN="$(cat /run/secrets/gh_token)" npm ci
 COPY . .
 RUN npm run build
 
