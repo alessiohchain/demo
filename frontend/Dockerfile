@@ -10,6 +10,17 @@ COPY package.json package-lock.json .npmrc ./
 RUN --mount=type=secret,id=gh_token \
     GH_PACKAGES_TOKEN="$(cat /run/secrets/gh_token)" npm ci
 COPY . .
+# The IdP issuer the frontend redirects to is baked into the bundle at build
+# time (Vite inlines import.meta.env.VITE_PLATFORM_ISSUER). Local/compose builds
+# keep the localhost default; the GCP deploy passes the platform-backend public
+# URL via --build-arg.
+ARG VITE_PLATFORM_ISSUER=http://localhost:8090
+ENV VITE_PLATFORM_ISSUER=$VITE_PLATFORM_ISSUER
+# The central portal URL the OIDC RP-initiated logout redirects back to (must be
+# a registered post-logout-redirect-uri on this module's IdP client). Defaults to
+# the local portal; the GCP deploy passes the platform-frontend public URL.
+ARG VITE_PORTAL_URL=http://localhost:8091
+ENV VITE_PORTAL_URL=$VITE_PORTAL_URL
 RUN npm run build
 
 FROM nginx:1.27-alpine
