@@ -1,0 +1,157 @@
+name: CI/CD
+
+# PRs: build + test both halves.
+# Merge to main: build + test, then build/push images to ACR and roll the
+# Container Apps revisions (environment "azure-dev" — add required reviewers
+# on a future "azure-prod" environment for gated prod deploys).
+#
+# Azure auth is OIDC federated credentials (no stored cloud secrets):
+# an Entra app registration with a federated credential for this repo's
+# main branch + azure-dev environment, exposed as repository VARIABLES
+# AZURE_CLIENT_ID / AZURE_TENANT_ID / AZURE_SUBSCRIPTION_ID.
+#
+# Unlike platform (engine source in-repo), demo CONSUMES the shared engine
+# from GitHub Packages: Maven auth comes from setup-java's server-id
+# (writes ~/.m2/settings.xml with the github-csnx server matching backend/
+# pom.xml's <repositories> id), npm auth from the GH_PACKAGES_TOKEN env
+# that frontend/.npmrc reads.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  packages: read
+  id-token: write # OIDC token for azure/login
+
+concurrency:
+  group: ci-cd-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  RESOURCE_GROUP: csnx-rg
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          # Writes ~/.m2/settings.xml with the github-csnx server (matches the
+          # <repositories> id) so Maven can pull the engine from GitHub Packages.
+          server-id: github-csnx
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+      # Unit + Testcontainers integration tests (Docker is available on
+      # ubuntu-latest runners).
+      - name: Test backend
+        run: mvn -B -ntp -f backend/pom.xml verify
+        env:
+          MAVEN_USERNAME: ${{ github.actor }}
+          MAVEN_PASSWORD: ${{ secrets.GH_PACKAGES_TOKEN }}
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      # Pulls @alessiohchain/csnx-engine from GitHub Packages (see .npmrc).
+      - run: npm ci
+        env:
+          GH_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+      - run: npm run build
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    environment: azure-dev
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      # Shared fleet resources carry a random suffix — discover them at
+      # runtime (mirrors scripts/deploy-azure.ps1).
+      - name: Discover fleet resources
+        id: fleet
+        run: |
+          acr=$(az acr list -g "$RESOURCE_GROUP" --query "[0].name" -o tsv)
+          domain=$(az containerapp env list -g "$RESOURCE_GROUP" --query "[0].properties.defaultDomain" -o tsv)
+          if [ -z "$acr" ] || [ -z "$domain" ]; then
+            echo "::error::Shared Azure infra not found in $RESOURCE_GROUP — run terraform apply in the platform repo's infra/azure first."
+            exit 1
+          fi
+          issuer="${{ vars.PLATFORM_ISSUER }}"
+          [ -n "$issuer" ] || issuer="https://platform-backend.$domain"
+          echo "acr=$acr" >> "$GITHUB_OUTPUT"
+          echo "server=$acr.azurecr.io" >> "$GITHUB_OUTPUT"
+          echo "issuer=$issuer" >> "$GITHUB_OUTPUT"
+          echo "portal=https://platform-frontend.$domain" >> "$GITHUB_OUTPUT"
+          echo "frontend=https://demo-frontend.$domain" >> "$GITHUB_OUTPUT"
+          echo "tag=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          server-id: github-csnx
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+      - name: Build backend jar
+        run: mvn -B -ntp -f backend/pom.xml -DskipTests package
+        env:
+          MAVEN_USERNAME: ${{ github.actor }}
+          MAVEN_PASSWORD: ${{ secrets.GH_PACKAGES_TOKEN }}
+
+      - name: Build and push images
+        env:
+          # BuildKit secret for the frontend's npm ci (engine from GitHub Packages).
+          GH_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+        run: |
+          az acr login --name "${{ steps.fleet.outputs.acr }}"
+          server="${{ steps.fleet.outputs.server }}"
+          tag="${{ steps.fleet.outputs.tag }}"
+          docker build -t "$server/demo-backend:$tag" -t "$server/demo-backend:latest" backend
+          docker build --secret id=gh_token,env=GH_PACKAGES_TOKEN \
+            --build-arg "VITE_PLATFORM_ISSUER=${{ steps.fleet.outputs.issuer }}" \
+            --build-arg "VITE_PORTAL_URL=${{ steps.fleet.outputs.portal }}" \
+            -t "$server/demo-frontend:$tag" -t "$server/demo-frontend:latest" frontend
+          docker push "$server/demo-backend:$tag"
+          docker push "$server/demo-backend:latest"
+          docker push "$server/demo-frontend:$tag"
+          docker push "$server/demo-frontend:latest"
+
+      - name: Roll Container Apps revisions
+        run: |
+          server="${{ steps.fleet.outputs.server }}"
+          tag="${{ steps.fleet.outputs.tag }}"
+          az containerapp update -n demo-backend  -g "$RESOURCE_GROUP" --image "$server/demo-backend:$tag"
+          az containerapp update -n demo-frontend -g "$RESOURCE_GROUP" --image "$server/demo-frontend:$tag"
+
+      # The backend is internal-ingress (unreachable from the runner), so
+      # smoke-check the public frontend instead.
+      - name: Smoke-check the frontend
+        run: |
+          curl -fsS --retry 10 --retry-delay 15 --retry-all-errors \
+            "${{ steps.fleet.outputs.frontend }}/" > /dev/null
+          echo "Frontend OK: ${{ steps.fleet.outputs.frontend }}"
