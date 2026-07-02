@@ -1,0 +1,20 @@
+# Copy to terraform.tfvars and fill in. terraform.tfvars is gitignored.
+
+subscription_id = "00000000-0000-0000-0000-000000000000"
+
+# Shared fleet resource names carry a random suffix — read them from the
+# PLATFORM repo's terraform outputs:
+#   cd ../../../platform/infra/azure ; terraform output
+acr_name             = "csnxacrXXXXXX"   # platform output: acr_name
+key_vault_name       = "csnx-kv-XXXXXX"  # platform output: key_vault_name
+postgres_server_name = "csnx-pg-XXXXXX"  # platform output: postgres_server_name
+
+# location                       = "southafricanorth"
+# app_name                       = "demo"
+# shared_resource_group          = "csnx-rg"
+# container_app_environment_name = "csnx-aca-env"
+# application_insights_name      = "csnx-appinsights"
+
+# Custom-domain platform issuer (only if one is bound to platform-backend;
+# must match platform's issuer_url).
+# platform_issuer = "https://id.example.com"

@@ -1,0 +1,10 @@
+# Terraform local state — must never be committed (contains random_password values).
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfplan
+terraform.tfvars
+*.auto.tfvars
+crash.log
+crash.*.log

@@ -34,6 +34,18 @@ resource "google_cloud_run_v2_service" "frontend" {
         name  = "BACKEND_AUDIENCE"
         value = google_cloud_run_v2_service.backend.uri
       }
+      # Browser-facing platform URLs (IdP issuer + central portal). The
+      # entrypoint renders them into the SPA's config.js at startup — runtime
+      # config, not baked into the bundle. Project-number Cloud Run URLs,
+      # matching the backend's PLATFORM_ISSUER.
+      env {
+        name  = "PLATFORM_ISSUER"
+        value = "https://platform-backend-236510297424.africa-south1.run.app"
+      }
+      env {
+        name  = "PORTAL_URL"
+        value = "https://platform-frontend-236510297424.africa-south1.run.app"
+      }
 
       startup_probe {
         http_get {
