@@ -65,8 +65,9 @@ services:
     build:
       context: ./frontend
       # GitHub Packages read token for the frontend's `npm ci` (the engine is
-      # pulled from the registry, not a vendored tgz). Export GH_PACKAGES_TOKEN
-      # before `docker compose up --build`.
+      # pulled from the registry, not a vendored tgz). scripts/redeploy.ps1
+      # writes .secrets/gh_token from GH_PACKAGES_TOKEN before the build;
+      # file-based because env-sourced build secrets need compose >= 2.23.
       secrets:
         - gh_token
     depends_on:
@@ -81,4 +82,4 @@ volumes:
 
 secrets:
   gh_token:
-    environment: GH_PACKAGES_TOKEN
+    file: .secrets/gh_token

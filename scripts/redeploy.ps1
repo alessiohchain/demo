@@ -93,6 +93,22 @@ try {
         Ok "backend jar built"
     } else { Warn "skipping backend jar build" }
 
+    # 2b. GitHub Packages token file for the frontend image build ------------
+    # docker-compose.yml feeds `npm ci` the file-based secret .secrets/gh_token
+    # (file-based because env-sourced build secrets need compose >= 2.23).
+    # Materialise it from GH_PACKAGES_TOKEN - process env first, then the
+    # User-scope variable (set on this machine but not inherited by
+    # non-login shells).
+    $ghToken = $env:GH_PACKAGES_TOKEN
+    if (-not $ghToken) { $ghToken = [Environment]::GetEnvironmentVariable('GH_PACKAGES_TOKEN', 'User') }
+    if ($ghToken) {
+        New-Item -ItemType Directory -Force -Path (Join-Path $RepoRoot '.secrets') | Out-Null
+        [System.IO.File]::WriteAllText((Join-Path $RepoRoot '.secrets\gh_token'), $ghToken)
+        Ok "wrote .secrets/gh_token for the image build"
+    } elseif (-not (Test-Path (Join-Path $RepoRoot '.secrets\gh_token'))) {
+        throw "GH_PACKAGES_TOKEN not set and .secrets/gh_token missing - the frontend image build needs a GitHub Packages read token"
+    }
+
     # 3. Rebuild + restart containers ----------------------------------------
     Step "docker compose up -d --build"
     # Build a single args array and splat it. (A 1-element @($Service) gets
