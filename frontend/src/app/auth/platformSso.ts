@@ -15,8 +15,19 @@
  *    reload.
  */
 
+declare global {
+  interface Window {
+    /** Rendered at container start from PLATFORM_ISSUER / PORTAL_URL (see public/config.js). */
+    __PLATFORM_ENV__?: { platformIssuer?: string; portalUrl?: string };
+  }
+}
+
+// Resolution order: runtime config (one image, per-environment env vars) →
+// build-time Vite var (dev-server override) → local-compose default.
 const ISSUER: string =
-  (import.meta.env.VITE_PLATFORM_ISSUER as string | undefined) ?? 'http://localhost:8090';
+  window.__PLATFORM_ENV__?.platformIssuer ||
+  (import.meta.env.VITE_PLATFORM_ISSUER as string | undefined) ||
+  'http://localhost:8090';
 const CLIENT_ID = 'demo-module';
 
 /**
@@ -27,7 +38,9 @@ const CLIENT_ID = 'demo-module';
  * Must match a registered post-logout-redirect-uri on this module's IdP client.
  */
 export const PORTAL_URL: string = (
-  (import.meta.env.VITE_PORTAL_URL as string | undefined) ?? 'http://localhost:8091'
+  window.__PLATFORM_ENV__?.portalUrl ||
+  (import.meta.env.VITE_PORTAL_URL as string | undefined) ||
+  'http://localhost:8091'
 ).replace(/\/+$/, '');
 const VERIFIER_KEY = 'platform_pkce_verifier';
 const STATE_KEY = 'platform_pkce_state';

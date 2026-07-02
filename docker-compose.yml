@@ -70,6 +70,11 @@ services:
       # file-based because env-sourced build secrets need compose >= 2.23.
       secrets:
         - gh_token
+    environment:
+      # Browser-facing platform URLs (IdP + central portal), rendered into
+      # config.js at container start — changing them needs no image rebuild.
+      PLATFORM_ISSUER: ${PLATFORM_ISSUER:-http://localhost:8090}
+      PORTAL_URL: ${PORTAL_URL:-http://localhost:8091}
     depends_on:
       backend:
         condition: service_healthy

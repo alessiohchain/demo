@@ -44,6 +44,17 @@ resource "azurerm_container_app" "frontend" {
         name  = "BACKEND_URL"
         value = "https://${azurerm_container_app.backend.ingress[0].fqdn}"
       }
+      # Browser-facing platform URLs (IdP issuer + central portal). The
+      # entrypoint renders them into the SPA's config.js at startup — runtime
+      # config, not baked into the bundle.
+      env {
+        name  = "PLATFORM_ISSUER"
+        value = local.platform_issuer
+      }
+      env {
+        name  = "PORTAL_URL"
+        value = "https://platform-frontend.${local.env_domain}"
+      }
 
       startup_probe {
         transport               = "HTTP"

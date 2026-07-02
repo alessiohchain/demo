@@ -8,9 +8,9 @@
   the resource group at runtime — their names carry a random suffix, so
   nothing is hardcoded. For each requested service:
     backend  : ./mvnw package -> docker build -> docker push -> az containerapp update
-    frontend : docker build (VITE_PLATFORM_ISSUER + VITE_PORTAL_URL baked,
-               engine pulled from GitHub Packages via BuildKit secret) ->
-               push -> update
+    frontend : docker build (engine pulled from GitHub Packages via BuildKit
+               secret; issuer + portal URL are the runtime PLATFORM_ISSUER /
+               PORTAL_URL env vars — nothing is baked) -> push -> update
 
   Images are tagged with the git short SHA (plus :latest) and revisions are
   rolled to the SHA tag — pushing the same :latest would not create a new
@@ -34,16 +34,17 @@
   Build + push only; skip the Container Apps revision roll.
 
 .PARAMETER IssuerUrl
-  Override the platform OIDC issuer baked into the frontend bundle (set this
-  when a custom domain is bound to platform-backend). Default: the platform
-  backend's FQDN derived from the Container Apps environment. Must match the
-  PLATFORM_ISSUER env on the demo-backend Container App (infra/azure).
+  Override the platform OIDC issuer set on the frontend app as the
+  PLATFORM_ISSUER runtime env var (set this when a custom domain is bound to
+  platform-backend). Default: the platform backend's FQDN derived from the
+  Container Apps environment. Must match the PLATFORM_ISSUER env on the
+  demo-backend Container App (infra/azure).
 
 .PARAMETER PortalUrl
-  Override the central portal URL baked into the frontend bundle as
-  VITE_PORTAL_URL (the OIDC RP-initiated logout redirects here; must be a
-  registered post-logout URI). Default: the platform frontend's FQDN derived
-  from the Container Apps environment.
+  Override the central portal URL set as the PORTAL_URL runtime env var (the
+  OIDC RP-initiated logout redirects here; must be a registered post-logout
+  URI). Default: the platform frontend's FQDN derived from the Container Apps
+  environment.
 #>
 [CmdletBinding()]
 param(
@@ -129,10 +130,11 @@ function Invoke-DeployService {
     Write-Host ''
     Write-Host "==> [$Name] build  $image" -ForegroundColor Cyan
     if ($Name -eq 'frontend') {
-        # Frontend needs the GitHub Packages token (engine pulled at npm ci)
-        # and bakes the cloud IdP issuer + portal URL into the bundle.
+        # Frontend needs the GitHub Packages token (engine pulled at npm ci).
+        # Nothing environment-specific is baked in — the issuer + portal URL
+        # are runtime env vars.
         if (-not $env:GH_PACKAGES_TOKEN) { throw "GH_PACKAGES_TOKEN is not set — the frontend build pulls @alessiohchain/csnx-engine from GitHub Packages." }
-        docker build --secret "id=gh_token,env=GH_PACKAGES_TOKEN" --build-arg "VITE_PLATFORM_ISSUER=$IssuerUrl" --build-arg "VITE_PORTAL_URL=$PortalUrl" -t $image -t $latest $context
+        docker build --secret "id=gh_token,env=GH_PACKAGES_TOKEN" -t $image -t $latest $context
     }
     else {
         docker build -t $image -t $latest $context
@@ -155,7 +157,15 @@ function Invoke-DeployService {
     }
 
     Write-Host "==> [$Name] roll   Container Apps revision" -ForegroundColor Cyan
-    az containerapp update --name $app --resource-group $ResourceGroup --image $image | Out-Null
+    if ($Name -eq 'frontend') {
+        # Terraform owns these env vars too (same values); setting them on the
+        # roll keeps the frontend working even if this image lands before the
+        # next `terraform apply` stamps them.
+        az containerapp update --name $app --resource-group $ResourceGroup --image $image --set-env-vars "PLATFORM_ISSUER=$IssuerUrl" "PORTAL_URL=$PortalUrl" | Out-Null
+    }
+    else {
+        az containerapp update --name $app --resource-group $ResourceGroup --image $image | Out-Null
+    }
     if ($LASTEXITCODE -ne 0) { throw "az containerapp update failed for $Name" }
 
     Write-Host "==> [$Name] done" -ForegroundColor Green

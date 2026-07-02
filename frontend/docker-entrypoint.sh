@@ -9,10 +9,16 @@ set -eu
 #                                  BACKEND_AUDIENCE=<same URL>. Adds an
 #                                  X-Serverless-Authorization ID-token header
 #                                  refreshed every 30 minutes.
+# All environments: PLATFORM_ISSUER=<browser-facing IdP URL> and
+# PORTAL_URL=<central portal URL> are rendered into the SPA's /config.js at
+# startup — runtime config, not baked into the Vite bundle, so one image
+# serves every environment. Empty keeps the bundle's localhost fallbacks.
 
 BACKEND_URL="${BACKEND_URL:-http://backend:8080}"
 BACKEND_HOST=$(printf '%s' "$BACKEND_URL" | sed -E 's|^https?://([^/]+).*|\1|')
 BACKEND_AUDIENCE="${BACKEND_AUDIENCE:-}"
+PLATFORM_ISSUER="${PLATFORM_ISSUER:-}"
+PORTAL_URL="${PORTAL_URL:-}"
 
 TEMPLATE=/etc/nginx/templates/default.conf.template
 RENDERED=/etc/nginx/conf.d/default.conf
@@ -38,6 +44,11 @@ fetch_id_token() {
 echo "demo-entrypoint: BACKEND_URL=${BACKEND_URL}" >&2
 echo "demo-entrypoint: BACKEND_HOST=${BACKEND_HOST}" >&2
 echo "demo-entrypoint: BACKEND_AUDIENCE=${BACKEND_AUDIENCE}" >&2
+echo "demo-entrypoint: PLATFORM_ISSUER=${PLATFORM_ISSUER}" >&2
+echo "demo-entrypoint: PORTAL_URL=${PORTAL_URL}" >&2
+
+printf 'window.__PLATFORM_ENV__ = { platformIssuer: "%s", portalUrl: "%s" };\n' \
+    "$PLATFORM_ISSUER" "$PORTAL_URL" > /usr/share/nginx/html/config.js
 
 if [ -n "$BACKEND_AUDIENCE" ]; then
     TOKEN=$(fetch_id_token)
