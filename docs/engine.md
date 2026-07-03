@@ -260,24 +260,26 @@ Important fields:
 
 ### Metadata storage
 
-Demo stores screen metadata in the `screen_metadata` table (`payload`
-JSONB column per workflow). `MetadataController` queries it via
-`ScreenMetadataRepository` and returns it as the `MetadataHolder`.
+Screen metadata lives in the **central platform metadata store** (the
+platform DB's `screen_metadata` table, `payload` JSONB per workflow +
+module). `MetadataController` reads it via the engine's
+`PlatformMetadataSource` (with the module's own classpath manifest as the
+offline fallback) and returns it as the `MetadataHolder`. There are no
+module-local metadata tables.
 
-**Source of truth for the payload is a JSON file under
-`backend/src/main/resources/screens/<workflow>.json`.** At every boot,
-`ScreenMetadataSeeder` (`service/ScreenMetadataSeeder.java`) scans
-that directory, deserialises each file into `MetadataHolder`
-(structural validation — boot fails fast if a file is malformed),
-hashes the canonicalised payload, and upserts the row only if the
-hash differs from `screen_metadata.payload_hash`. Hibernate's
-`@Version` (`update_serial`) bumps on update, driving the engine's
-cache-bust on the front-end.
+**Authoring source of truth is a JSON file under
+`backend/src/main/resources/screens/<workflow>.json`.** At every boot the
+engine's `ScreenRegistrar` scans that directory (plus `registry/*.json`
+for menu + lookups), deserialises each file into `MetadataHolder`
+(structural validation — boot fails fast if a file is malformed), hashes
+the canonicalised payload, and registers changed ones with the platform
+store, which drives the engine's front-end cache-bust.
 
 Authoring a payload change is therefore "edit the JSON file, restart"
-— no Flyway migration needed. Flyway migrations remain the home of
-one-time enablement (menu placement, role grants) and schema
-changes.
+— no Flyway migration needed (under compose, redeploy the backend image:
+the JSON bakes into the jar). Flyway migrations remain the home of schema
+changes; menu placement is `registry/menu.json` and role grants live
+platform-side (`module_grant`).
 
 `reportText.maintenance.json` references the local `_schema.json`
 draft-07 JSON Schema at the top of the file. Open either file in
@@ -662,20 +664,25 @@ A 4-letter fastpath code is the user-facing entry point to a workflow.
 | Concept       | What the engine depends on |
 |---------------|----------------------------|
 | **Fastpath**  | A 4-letter code that resolves to a workflow id + initial action verb. Carried by `fastpathToWorkflow` in the lookup bundle. |
-| **Menu**      | Tree of `menu_item` rows placing fastpaths under sections. The sidebar renders this tree. |
-| **Role grant** | A `(company, role, fastpath)` tuple that grants the current user access. Missing → the menu hides the entry and `/api/metadata` returns a 403 / "no metadata" business error. |
+| **Menu**      | Tree placing fastpaths under sections. The sidebar renders this tree, already pruned server-side to the user's grants. |
+| **Role grant** | A platform `module_grant` row `(company, role, module, fastpath, right)` — `fastpath '*'` grants the whole module; `right_cd` is `M` maintain / `R` read / `N` none. Deny-by-default (`GrantEnforcer`): missing → the menu hides the entry and `/api/metadata` / `/api/process` reject. |
 
-Storage:
+Storage (there are NO local metadata tables — metadata lives in the central
+platform store):
 
-- `screen_metadata` — workflow metadata JSON.
-- `menu_item` — menu tree.
-- Role / fastpath grant tables — TBD per module; demo currently uses
-  a single ADMIN role granted to the seeded user.
+- Screens — `backend/src/main/resources/screens/<workflow>.json`, registered
+  on boot and read back via `PlatformMetadataSource` (classpath fallback if
+  the platform is down).
+- Menu — `backend/src/main/resources/registry/menu.json`, registered the
+  same way.
+- Grants — the **platform DB**'s `module_grant` table, maintained via the
+  platform IAMG screen (or a platform-repo migration). The WCS ADMIN role
+  holds a `'*'` wildcard per module, so admins see every fastpath without
+  per-screen rows.
 
-Adding a new fastpath = Flyway migration inserting:
-1. A row into `screen_metadata` with the workflow's JSON.
-2. A row into `menu_item` placing it in the sidebar.
-3. A role grant row for the company / role that should access it.
+Adding a new fastpath = screen JSON (`shortName` = the fastpath) +
+`registry/menu.json` entry + a platform-side grant for any non-wildcard
+role that should reach it. No module Flyway migration.
 
 ---
 
@@ -710,27 +717,28 @@ seeds and serves its metadata. Recipe:
    repository extends `BaseRepository<T, ID>`.
 3. **Metadata payload.** Create
    `backend/src/main/resources/screens/<workflow>.json`. Start by
-   copying an existing screen file (e.g. `reportText.maintenance.json`)
-   and reshaping. Keep the `"$schema": "./_schema.json"` line at the
-   top for IDE help. Restart the backend; `ScreenMetadataSeeder`
-   upserts the row into `screen_metadata` and bumps the cache version.
-   No Flyway migration is needed for payload-only changes.
-4. **Enablement (only for a brand-new fastpath).** Write one Flyway
-   migration that inserts:
-   - A `menu_item` row placing the fastpath under a section.
-   - A role-grant row for the `(company, role, fastpath)` combination
-     that should access it.
-   The `screen_metadata.fastpath` column itself is populated from the
-   JSON file's `shortName` field by the seeder — no SQL needed.
+   copying an existing screen file and reshaping. Keep the
+   `"$schema": "./_schema.json"` line at the top for IDE help. Restart
+   the backend; the engine registrar re-registers the payload with the
+   central platform store (hash-skips unchanged files). No Flyway
+   migration for payload-only changes — but under compose the JSON bakes
+   into the jar, so redeploy the backend image, not just restart.
+4. **Enablement (only for a brand-new fastpath).**
+   - Add the entry to `backend/src/main/resources/registry/menu.json`
+     (registered on boot alongside the screens).
+   - Grant it platform-side (`module_grant` via IAMG or a platform-repo
+     migration) for any non-wildcard role; the ADMIN role's `'*'`
+     wildcard already covers admins. New VVD families go in
+     `registry/lookups.json`.
 5. **Smoke test.** Launch the compose stack, log in, type the fastpath
    in the header, confirm:
    - The grid renders.
    - `cmd_search` fires correctly.
    - Add / Update / Delete round-trip with the activity.
-6. **Watch the boot logs** — `ScreenMetadataSeeder` emits one line per
-   seeded / updated / skipped file, plus a `warn` line for any
-   workflow row that has no backing resource file. Drift surfaces
-   here.
+6. **Watch the boot logs** — the registrar logs one summary line
+   (`Module DEMO manifest built — N screens, N menu, N lookups`) and a
+   confirmation once the platform accepts the registration. Drift
+   surfaces here.
 
 For incremental reshapes (rename a label, add a button, change a
 validator), it's just step 3 — edit the JSON file, restart.

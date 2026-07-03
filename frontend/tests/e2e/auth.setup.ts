@@ -24,7 +24,10 @@ setup('authenticate', async ({ page }) => {
   await page.goto('/');
   // RequireAuth fires the OIDC redirect → styled IdP login page.
   await expect(page).toHaveURL(/:8090\/login/);
-  await page.getByLabel(/username/i).fill(process.env.WCS_USERNAME ?? 'wcs');
+  // `wcstest` is the dedicated e2e ADMIN (platform AppUserSeeder); `wcs` is
+  // the human dev login and is never used by automated tests. See
+  // pom/frontend/tests/e2e/README.md for the full user matrix.
+  await page.getByLabel(/username/i).fill(process.env.WCS_USERNAME ?? 'wcstest');
   await page.getByLabel(/^password$/i).fill(process.env.WCS_PASSWORD ?? 'wcstest123');
   const signIn = page.getByRole('button', { name: /sign in/i });
   await expect(signIn).toBeEnabled();

@@ -57,6 +57,12 @@ cd frontend ; npm run dev   # http://localhost:5173
 # Tests
 cd backend ; ./mvnw test    # unit + Testcontainers integration
 
+# E2E (Playwright — the standing verification for demo work; needs the
+# platform + demo compose stacks up. No env vars: auth.setup signs in as the
+# seeded `wcstest`/`wcstest123` e2e admin — `wcs`/`wcs123!` is the HUMAN dev
+# login only. User matrix: pom/frontend/tests/e2e/README.md)
+cd frontend ; npx playwright test
+
 # Full stack (3 containers: postgres + backend + frontend)
 docker compose up --build   # frontend http://localhost:8081, backend :8080, db :5432
 ```
@@ -79,8 +85,10 @@ docker compose up --build   # frontend http://localhost:8081, backend :8080, db 
   `AbstractCrudActivityService<T, ID>` for CRUD-shaped screens.
 - **Migrations**: see [docs/migrations.md](docs/migrations.md). Flyway under
   `backend/src/main/resources/db/migration/V<n>__<snake_case>.sql`. Don't
-  edit a released migration. Screen JSON is *not* shipped via Flyway — the
-  `ScreenMetadataSeeder` upserts JSON resources on boot.
+  edit a released migration. Screen JSON / menu / lookups are *not* shipped
+  via Flyway — the engine registrar registers `screens/*.json` +
+  `registry/*.json` with the central platform metadata store on boot; role
+  grants live platform-side (`module_grant`).
 - **Three layers: ActivityService → ActivityBean → Repository.** Mirrors
   CSnx's `BaseActivityService → BusinessHelper.getXxxActivity() → DAO`.
   The service does wire-shape work (toData/fromData, command routing,
@@ -286,11 +294,14 @@ detail-popup); they each carry their own React-Hook-Form context and
 don't share state, so don't use them for sections of one logical form.
 
 **Screen authoring convention:** one JSON file per workflow under
-`backend/src/main/resources/screens/<workflow>.json`. `ScreenMetadataSeeder`
-upserts each file into `screen_metadata` on boot (hashes the payload to
-short-circuit unchanged files). Iterating on a screen = edit the JSON,
-restart — no Flyway migration unless you're adding a brand-new fastpath
-(menu placement + role grant still ship as Flyway). `_schema.json` in
+`backend/src/main/resources/screens/<workflow>.json`. On boot the engine
+registrar registers each file with the **central platform metadata store**
+(`module_cd='DEMO'`, hashing the payload to short-circuit unchanged files);
+the module reads metadata back via `PlatformMetadataSource`. Iterating on a
+screen = edit the JSON, restart — no Flyway migration. A brand-new fastpath
+needs a `registry/menu.json` entry plus a **platform-side** `module_grant`
+row (deny-by-default; the ADMIN role's `'*'` wildcard covers admins).
+`_schema.json` in
 the same directory gives VS Code / IntelliJ autocomplete via the
 `$schema` reference at the top of each file.
 

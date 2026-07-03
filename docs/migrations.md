@@ -76,28 +76,28 @@ coexist deliberately.
 **Flyway migrations carry:**
 
 - Table DDL — `CREATE TABLE`, `ALTER TABLE`, `CREATE INDEX`, FKs, sequences.
-- Reference data — `INSERT` into `lookup_value` (VVD dropdowns), `menu_item`,
-  role/permission rows, fastpath rows.
-- One-off data fixes / backfills.
+- One-off data fixes / backfills + demo seed rows.
 
-**Flyway migrations do NOT carry:**
+**Flyway migrations do NOT carry (the local metadata tables were dropped
+when metadata moved to the central platform store):**
 
-- Screen metadata payloads. Those live as JSON resources under
-  `backend/src/main/resources/screens/<workflow>.json` and are upserted
-  by `ScreenMetadataSeeder` on every boot (the seeder hashes each
-  payload to short-circuit unchanged files). Iterating on a screen =
-  edit JSON + restart. No new Flyway file needed unless the screen ships
-  a **new fastpath** (which means a new row in `menu_item` and a role
-  grant — both Flyway-shipped) or a **new lookup-value family** for a
-  VVD on that screen.
+- Screen metadata payloads — JSON resources under
+  `backend/src/main/resources/screens/<workflow>.json`, registered with the
+  central platform metadata store on boot (payload-hashed to skip unchanged
+  files) and read back via `PlatformMetadataSource`.
+- Menu / fastpath placement — `registry/menu.json`, registered the same way.
+- Lookup (VVD) families — `registry/lookups.json` / `lookups-shared.json`.
+- Role grants — they live in the **platform** DB (`module_grant`, maintained
+  via the IAMG screen or a platform-repo migration; deny-by-default — the
+  WCS ADMIN role's `'*'` wildcard covers admins).
 
 The split keeps screen iterations cheap: no migration version bump per
-field rename.
+field rename — and none per menu entry or lookup row either.
 
 **Updating a screen JSON requires a backend image rebuild, not just a
 restart.** The resources live inside the Spring Boot fat-jar (baked at
 `mvn package` time), so `docker compose restart backend` reuses the
-existing image — `ScreenMetadataSeeder` happily re-seeds the same old
+existing image — the engine registrar happily re-registers the same old
 payload. Always use `docker compose up --build -d backend` after a
 JSON edit. (Local dev outside Docker is fine: `./mvnw spring-boot:run`
 picks up changes via classpath scanning on restart.)
@@ -130,10 +130,11 @@ The compose stack enforces this order:
 1. **`postgres`** comes up; healthcheck waits for it to accept connections.
 2. **`backend`** starts; Flyway runs all pending migrations against
    `demo`. If a migration fails the container exits non-zero.
-3. **`ScreenMetadataSeeder`** runs as a `@PostConstruct` hook after
-   Flyway. Hashes each `screens/*.json` resource, upserts changed ones,
-   warns on workflows in the DB without a matching file (drift signal —
-   manual SQL crept in).
+3. **Metadata registration** — after Flyway, the engine's
+   `ScreenRegistrar` reads `screens/*.json` + `registry/*.json`, hashes
+   each payload, and registers changed ones with the **central platform
+   store** (`module_cd='DEMO'`); the module reads metadata back via
+   `PlatformMetadataSource` (classpath fallback if the platform is down).
 4. **`frontend`** comes up last (nginx is happy regardless of backend
    state; the `/api` reverse-proxy returns 502 until the backend is
    live, but the React shell still loads).
@@ -146,11 +147,11 @@ restart backend container" — Flyway picks it up on the next boot.
 
 | Change | Migration? |
 |---|---|
-| Edit a screen JSON | No — restart backend, seeder upserts. |
-| Add a new screen JSON | No (same as above) **unless** the screen registers a fastpath or needs new VVD lookup rows — then yes for the menu + lookup rows. |
+| Edit a screen JSON | No — restart backend, registrar re-registers. |
+| Add a new screen JSON | No — plus a `registry/menu.json` entry for its fastpath and a **platform-side** grant. |
 | Add a new table / column / index | Yes. |
-| Add a new VVD lookup family | Yes — `INSERT` into `lookup_value`. |
-| Add a new menu entry | Yes — `INSERT` into `menu_item`. |
+| Add a new VVD lookup family | No — `registry/lookups.json`. |
+| Add a new menu entry | No — `registry/menu.json`. |
 | Backfill / one-off data fix | Yes. |
 | Rename a column on a released table | Yes — write a new `V<n+1>`. Never edit the original migration. |
 
