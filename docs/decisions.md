@@ -74,8 +74,10 @@ despite team familiarity:
 - Java-based migrations supported when SQL isn't enough.
 - Industry default for Spring Boot projects — onboarding is faster.
 
-Migration filenames: `V<n>__<snake_case>.sql`. **Never edit a released
-migration**; add a new one.
+Migration filenames: `V<version>__<snake_case>.sql`, where `<version>` is a
+`yyyyMMddHHmmss` timestamp for new migrations (see `docs/migrations.md`) —
+avoids the cross-branch version collisions a plain incrementing counter is
+prone to. **Never edit a released migration**; add a new one.
 
 ## 6. Log4j 2, not Logback (and definitely not Log4j 1.x)
 

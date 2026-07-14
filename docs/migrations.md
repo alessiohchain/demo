@@ -11,17 +11,39 @@ backend/src/main/resources/db/migration/
     V1__init.sql
     V2__metadata.sql
     ...
-    V17__align_with_csnx_table_names.sql
+    V22__rename_demoschema_to_demo.sql
+    V20260707143000__some_new_thing.sql
 ```
 
-Naming: `V<n>__<snake_case_description>.sql`. Two underscores between the
-version and the description. Version numbers are strictly ascending; gaps
-are fine but never reuse a number.
+Naming: `V<version>__<snake_case_description>.sql`. Two underscores between
+the version and the description.
 
-**Released migrations are immutable.** A migration that has run on any
-environment cannot be edited — write a new one. Flyway's checksum
-validation will refuse to start the app if the file's hash drifts from
-the recorded one.
+**New migrations use a timestamp version**, not the next sequential
+integer: `V<yyyyMMddHHmmss>` in UTC at authoring time (e.g.
+`V20260707143000__add_widget_table.sql`). The legacy sequential band
+(`V1`-`V22`) stays frozen as-is — don't renumber it, and don't hand out a
+new sequential number either. Two branches cut at different times get
+different timestamps by construction, so they can never collide the way
+`V45__register_controltower_module.sql` and
+`V45__register_dockmaster_module.sql` did when the CONTROLTOWER and
+DockMaster branches were merged (CSNX-13760) — Flyway refused to start
+with "Found more than one migration with version 45", which broke every
+context-loading test in the module. This only bit because two branches
+independently picked the next free sequential number; a timestamp can't
+collide unless two migrations are authored the same second.
+
+This mixes safely with the existing schemes: Flyway parses each
+dot-separated version segment as a number and compares numerically (not
+lexically), a 14-digit timestamp is numerically far larger than any
+2-3 digit sequential version or the engine's reserved `V9000+` band, and
+`spring.flyway.out-of-order=true` is already set in `application.yml` —
+the engine's high-band and a module's own migrations are independent
+streams that don't have to interleave in version order.
+
+**Released migrations are immutable, regardless of scheme.** A migration
+that has run on any environment cannot be edited — write a new one.
+Flyway's checksum validation will refuse to start the app if the file's
+hash drifts from the recorded one.
 
 ## Schema is always `demo`
 

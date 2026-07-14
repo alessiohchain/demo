@@ -17,6 +17,12 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: true
+    # Engine migrations use a reserved high band (V9000+) and get applied ahead
+    # of new module migrations, so a later module migration arrives "out of
+    # order" on an already-upgraded DB. The two streams are independent, so
+    # allow it. Also lets new timestamp-versioned migrations interleave with the
+    # legacy V1-V22 band.
+    out-of-order: true
     # Pin the history table to public. The app schema (`demo`) now matches the DB
     # role name, so postgres `search_path` ("$user", public) resolves "$user" ->
     # the demo schema and would otherwise flip Flyway's default schema there,

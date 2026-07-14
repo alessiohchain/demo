@@ -84,8 +84,15 @@ docker compose up --build   # frontend http://localhost:8081, backend :8080, db 
   [docs/activity-services.md](docs/activity-services.md). Extend
   `AbstractCrudActivityService<T, ID>` for CRUD-shaped screens.
 - **Migrations**: see [docs/migrations.md](docs/migrations.md). Flyway under
-  `backend/src/main/resources/db/migration/V<n>__<snake_case>.sql`. Don't
-  edit a released migration. Screen JSON / menu / lookups are *not* shipped
+  `backend/src/main/resources/db/migration/V<version>__<snake_case>.sql`.
+  **New migrations use a timestamp version** (`V<yyyyMMddHHmmss>`, UTC at
+  authoring time) — not the next sequential integer — so two branches
+  authored concurrently can never collide the way `V45`/`V46` did in the
+  CONTROLTOWER/DockMaster merge (CSNX-13760). The legacy `V1`-`V22`
+  sequential band and the engine's reserved `V9000+` band stay as they are;
+  Flyway compares versions numerically and `spring.flyway.out-of-order=true`
+  is already set, so the schemes mix safely. Don't edit a released
+  migration. Screen JSON / menu / lookups are *not* shipped
   via Flyway — the engine registrar registers `screens/*.json` +
   `registry/*.json` with the central platform metadata store on boot; role
   grants live platform-side (`module_grant`).
