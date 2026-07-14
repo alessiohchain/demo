@@ -37,9 +37,15 @@ coverage/
 .yarn/
 
 # Env / secrets
+# Real per-environment files hold credentials — keep them out of git.
+# .env.example is the tracked template (see !.env.example below).
 .env
 .env.local
 .env.*.local
+.env.test
+.env.preprod
+.env.prod
+!.env.example
 *.pem
 *.key
 *.p12

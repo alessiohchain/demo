@@ -22,7 +22,12 @@ RUN apk add --no-cache gettext
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 COPY docker-entrypoint.sh /usr/local/bin/demo-entrypoint.sh
-RUN chmod +x /usr/local/bin/demo-entrypoint.sh
+# Strip any CR before chmod: a Windows (CRLF) checkout turns the script's
+# `#!/bin/sh` shebang into `#!/bin/sh\r`, so Alpine fails to exec it with
+# "no such file or directory". sed makes the image build correctly regardless
+# of the host's git autocrlf setting.
+RUN sed -i 's/\r$//' /usr/local/bin/demo-entrypoint.sh \
+    && chmod +x /usr/local/bin/demo-entrypoint.sh
 EXPOSE 80
 HEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://localhost/ >/dev/null || exit 1
 ENTRYPOINT ["/usr/local/bin/demo-entrypoint.sh"]

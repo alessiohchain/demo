@@ -1,24 +1,49 @@
+# One compose file for every environment. Everything that differs between
+# local / test / preprod / prod lives in a per-environment .env file
+# (.env.local, .env.test, .env.preprod, .env.prod) — the images are identical.
+#
+#   local  :  ./scripts/stack.ps1 -Action up                 # built-in defaults == .env.local
+#             ./scripts/stack.ps1 -Action up -Environment local
+#   others :  docker compose --env-file .env.test    up -d
+#             docker compose --env-file .env.preprod up -d
+#             docker compose --env-file .env.prod    up -d
+#
+# Every ${VAR:-default} falls back to the local-dev value, so plain
+# `docker compose up` (no --env-file) behaves exactly like the old dev stack.
+# Demo has no broker of its own: it reaches the platform's IdP + central
+# metadata registry on the host (host.docker.internal) — start the platform
+# stack first. See .env.example for the full list of knobs.
+
 services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: demo
-      POSTGRES_USER: demo
-      POSTGRES_PASSWORD: demo
+      POSTGRES_DB: ${DEMO_DB_NAME:-demo}
+      POSTGRES_USER: ${DEMO_DB_USER:-demo}
+      POSTGRES_PASSWORD: ${DEMO_DB_PASSWORD:-demo}
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U demo -d demo"]
+      test: ["CMD-SHELL", "pg_isready -U ${DEMO_DB_USER:-demo} -d ${DEMO_DB_NAME:-demo}"]
       interval: 5s
       timeout: 3s
       retries: 20
     ports:
-      # Demo's own host port so it coexists with POM (5432) + platform (5433).
-      - "5434:5432"
+      # Demo's own host port, distinct from every module (POM 5432, platform
+      # 5433, vendor-portal 5434, controltower 5436). Demo is the throwaway
+      # module, so on any clash demo moves — never a real module.
+      # Full publish spec so prod can bind localhost only, e.g. 127.0.0.1:5435:5432
+      - "${DEMO_DB_PUBLISH:-5435:5432}"
 
   backend:
+    # build + image: on a laptop `up --build` compiles the tag from source;
+    # on test/preprod/prod hosts the SAME tag is loaded via `docker load` and
+    # the build section is never exercised (no source/build context needed).
+    # The backend Dockerfile COPYs a prebuilt target/*.jar — run `mvnw package`
+    # (or scripts/redeploy.ps1) before building the image locally.
     build:
       context: ./backend
+    image: ${DEMO_BACKEND_IMAGE:-demo-backend:latest}
     environment:
       # Default to dev so dev endpoints + verbose SQL logging are on.
       # Override for prod-like local: SPRING_PROFILES_ACTIVE=prod docker compose up
@@ -26,9 +51,9 @@ services:
       # Keep the container's internal port at 8080 (the nginx upstream default);
       # the host maps 8092:8080 so demo's backend coexists with POM (8080).
       SERVER_PORT: 8080
-      DB_URL: jdbc:postgresql://postgres:5432/demo
-      DB_USER: demo
-      DB_PASSWORD: demo
+      DB_URL: jdbc:postgresql://postgres:5432/${DEMO_DB_NAME:-demo}
+      DB_USER: ${DEMO_DB_USER:-demo}
+      DB_PASSWORD: ${DEMO_DB_PASSWORD:-demo}
       # Smart-navigation assistant — Gemini API key. Supplied from the host
       # environment or an untracked .env file (docker compose auto-reads .env);
       # never hardcode the key here. When unset the assistant replies that it
@@ -54,7 +79,7 @@ services:
       postgres:
         condition: service_healthy
     ports:
-      - "8092:8080"
+      - "${DEMO_BACKEND_PUBLISH:-8092:8080}"
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q UP || exit 1"]
       interval: 10s
@@ -70,6 +95,7 @@ services:
       # file-based because env-sourced build secrets need compose >= 2.23.
       secrets:
         - gh_token
+    image: ${DEMO_FRONTEND_IMAGE:-demo-frontend:latest}
     environment:
       # Browser-facing platform URLs (IdP + central portal), rendered into
       # config.js at container start — changing them needs no image rebuild.
@@ -79,8 +105,10 @@ services:
       backend:
         condition: service_healthy
     ports:
-      # Demo's own host port so it coexists with POM (8081) + platform (8091).
-      - "8082:80"
+      # Demo's own host port, distinct from every module (POM 8081, platform
+      # 8091, controltower 8084, vendor-portal frontend 8083 / backend 8082).
+      # Demo moved off 8082 to leave it to vendor-portal's backend.
+      - "${DEMO_FRONTEND_PUBLISH:-8085:80}"
 
 volumes:
   postgres-data:
