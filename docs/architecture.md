@@ -42,7 +42,7 @@ module with the same shape.
 | Framework | Spring Boot 3.5 (Spring 6, Jakarta EE) |
 | Build | Maven via `./mvnw` |
 | Persistence | Spring Data JPA + Hibernate, `JpaSpecificationExecutor` for filtering |
-| Migrations | Flyway (`db/migration/V<n>__*.sql`) |
+| Migrations | Flyway (`db/migration/V<version>__*.sql`; new migrations use a `V<yyyyMMddHHmmss>` timestamp — see [migrations.md](migrations.md)) |
 | Validation | Jakarta Bean Validation (Hibernate Validator) |
 | Auth | Spring Security stateless + JWT (jjwt) |
 | DTO mapping | MapStruct (compile-time, `defaultComponentModel=spring`) |

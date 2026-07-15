@@ -45,7 +45,11 @@ Copy `C:\software\projects\modules\demo` to
    (`demo` → `<name>`).
 4. Replace the Flyway baseline migrations with the new domain's tables.
    The auth foundation (V1, V5), `BaseEntity` hierarchy, repository
-   contracts, engine wiring all carry over unchanged.
+   contracts, engine wiring all carry over unchanged. Write **new**
+   migrations with a `V<yyyyMMddHHmmss>` timestamp version (UTC at
+   authoring time), not the next sequential integer, so concurrently
+   authored branches can't collide on the same version — see
+   [migrations.md](migrations.md).
 5. Replace the seeded screens under `backend/src/main/resources/screens/`
    with module-specific ones. The engine, activity-service base class,
    and shadcn primitives carry over unchanged.
