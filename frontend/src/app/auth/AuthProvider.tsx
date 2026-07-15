@@ -79,6 +79,8 @@ export interface Features {
   defaultMenu?: string;
   tileIcon?: string;
   tileColor?: string;
+  /** Whether the header facility/warehouse chooser is shown (default true). */
+  fwChooser?: boolean;
 }
 
 export interface LoginBundle {
@@ -90,6 +92,8 @@ export interface LoginBundle {
   lookupVersion: number;
   /** Per-module feature flags + landing/branding (null pre-login). */
   features?: Features;
+  /** Optional help link; rendered in the shell only when present. */
+  helpUrl?: string;
   /** Server-stamped metadata version. Paired with {@link lookupVersion} in
    *  the {@code cachVersion} round-trip — a bumped {@code metadataVersion}
    *  signals the cached SWET metadata is stale. */
@@ -129,6 +133,8 @@ interface AuthContextValue {
   passwordSettings: PasswordSettings | null;
   /** Per-module feature flags + landing/branding; null until bootstrap. */
   features: Features | null;
+  /** Optional help link; null until bootstrap. */
+  helpUrl: string | null;
   isAuthenticated: boolean;
   /** Complete the platform-SSO sign-in: adopt the platform-issued access
    *  token, then bootstrap the engine bundle from /api/session/bootstrap. */
@@ -157,6 +163,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const [versionInfo, setVersionInfo] = useState<string | null>(null);
   const [passwordSettings, setPasswordSettings] = useState<PasswordSettings | null>(null);
   const [features, setFeatures] = useState<Features | null>(null);
+  const [helpUrl, setHelpUrl] = useState<string | null>(null);
 
   const clear = useCallback(() => {
     clearPlatformSession();
@@ -168,6 +175,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     setVersionInfo(null);
     setPasswordSettings(null);
     setFeatures(null);
+    setHelpUrl(null);
     setAccessToken(null);
     clearCacheVersion();
     clearWorkflowStateStore();
@@ -221,6 +229,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       setLookupVersion(data.lookupVersion);
       setVersionInfo(data.versionInfo ?? null);
       setFeatures(data.features ?? null);
+      setHelpUrl(data.helpUrl ?? null);
       // Seed the version pair so every subsequent /api/process round-trip
       // ships {@code cachVersion} for drift detection.
       setCacheVersion({
@@ -283,12 +292,13 @@ export function AuthProvider({ children }: PropsWithChildren) {
       versionInfo,
       passwordSettings,
       features,
+      helpUrl,
       isAuthenticated: !!user,
       loginWithPlatform,
       logout,
       switchFacilityWarehouse,
     }),
-    [user, menu, fastpaths, lookupData, lookupVersion, versionInfo, passwordSettings, features, loginWithPlatform, logout, switchFacilityWarehouse],
+    [user, menu, fastpaths, lookupData, lookupVersion, versionInfo, passwordSettings, features, helpUrl, loginWithPlatform, logout, switchFacilityWarehouse],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

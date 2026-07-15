@@ -67,7 +67,7 @@ public class LookupService {
                 metadataSource.metadataVersion(),
                 metadataSource.lookupVersion(),
                 DEFAULT_PASSWORD_SETTINGS,
-                null,
+                metadataSource.moduleConfig().helpUrl(),
                 moduleVersion,
                 Boolean.FALSE,
                 buildFeatures());
@@ -81,7 +81,8 @@ public class LookupService {
         return new LookupBundle.Features(
                 c.smartNavigationEnabled(), c.dashboardEnabled(),
                 c.smartReportsEnabled(), c.smartCaptureEnabled(), c.schedulingEnabled(),
-                c.defaultFastpath(), c.defaultMenu(), c.tileIcon(), c.tileColor());
+                c.defaultFastpath(), c.defaultMenu(), c.tileIcon(), c.tileColor(),
+                c.fwChooser());
     }
 
     /** Convenience for callers that have a single combined principal string. */
