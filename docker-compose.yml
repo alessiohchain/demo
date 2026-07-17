@@ -16,7 +16,16 @@
 
 services:
   postgres:
-    image: postgres:16-alpine
+    # Debian postgres + wal2json (3-line Dockerfile) for the engine's WAL CDC;
+    # wal_level=logical activates logical decoding so demo can be a CDC producer
+    # of its own tables (e.g. demo.scwt_trader). ⚠ Switching from the old
+    # postgres:16-alpine changes libc collation — the postgres-data volume must
+    # be recreated ONCE on upgrade (docker volume rm demo_postgres-data after
+    # `down`; Flyway migrations + seeds rebuild the dev DB on next boot).
+    build:
+      context: ./infra/postgres-wal2json
+    image: ${DEMO_DB_IMAGE:-demo-postgres-wal2json:16}
+    command: postgres -c wal_level=logical
     environment:
       POSTGRES_DB: ${DEMO_DB_NAME:-demo}
       POSTGRES_USER: ${DEMO_DB_USER:-demo}
@@ -75,6 +84,25 @@ services:
       # secret must match the demo-service hash registered on the platform.
       PLATFORM_REGISTRY_URL: ${PLATFORM_REGISTRY_URL:-http://host.docker.internal:8090}
       DEMO_SERVICE_SECRET: ${DEMO_SERVICE_SECRET:-demo-service-dev-secret}
+      # Inter-module events (Spring Cloud Stream rabbit binder): DEMO consumes
+      # pom.vendor.changed → demo.int_vendor. The broker lives in the platform
+      # stack — start it first. See docs/inter-module-integration.md.
+      CSNX_EVENTS_ENABLED: "${CSNX_EVENTS_ENABLED:-true}"
+      RABBITMQ_HOST: ${RABBITMQ_HOST:-host.docker.internal}
+      # Become a Channel-1 callee so the platform's Integration Trace can read
+      # this module's event ledgers (outbox/inbox/error viewers) over
+      # /api/service/process (JWKS-validated platform token, scope module.process).
+      CSNX_SERVICE_PROCESS_ENABLED: "${CSNX_SERVICE_PROCESS_ENABLED:-true}"
+      # WAL CDC producer: demo captures its own tables (e.g. demo.scwt_trader)
+      # off a logical slot (csnx_cdc_demo) into the outbox. Its CDC config set is
+      # fetched from the PLATFORM over Channel 1 (int_cdc_config, module_cd=DEMO),
+      # so demo needs the outbound service client + the Docker URL split (token
+      # mint + config fetch both target the platform stack on the host). Needs
+      # wal_level=logical on postgres (set above) + csnx.events (on above).
+      CSNX_ENGINE_CDC_ENABLED: "${CSNX_ENGINE_CDC_ENABLED:-true}"
+      CSNX_SERVICE_CLIENT_ENABLED: "${CSNX_SERVICE_CLIENT_ENABLED:-true}"
+      SERVICE_TARGET_URL: ${SERVICE_TARGET_URL:-http://host.docker.internal:8090}
+      CSNX_ENGINE_SERVICE_CLIENT_PLATFORM_BASE_URL: ${CSNX_ENGINE_SERVICE_CLIENT_PLATFORM_BASE_URL:-http://host.docker.internal:8090}
     depends_on:
       postgres:
         condition: service_healthy

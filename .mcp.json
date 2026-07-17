@@ -3,6 +3,44 @@
     "atlassian": {
       "type": "sse",
       "url": "https://mcp.atlassian.com/v1/sse"
+    },
+    "jdbc-db2": {
+      "type": "stdio",
+      "command": "C:/Program Files/Eclipse Adoptium/jdk-21.0.9.10-hotspot/bin/java.exe",
+      "args": [
+        "-cp",
+        "C:/software/mcp-servers/MCPServer-1.0.0-runner.jar;C:/software/mcp-servers/db2jcc4.jar",
+        "io.quarkus.runner.GeneratedMain"
+      ],
+      "env": {
+        "JDBC_URL": "jdbc:db2://localhost:500/QA:currentSchema=CSNX;",
+        "JDBC_USER": "db2inst1",
+        "JDBC_PASSWORD": "root"
+      }
+    },
+    "postgres": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "DATABASE_URI",
+        "crystaldba/postgres-mcp",
+        "--access-mode=unrestricted"
+      ],
+      "env": {
+        "DATABASE_URI": "postgresql://demo:demo@host.docker.internal:5432/demo"
+      }
+    },
+    "azure": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@azure/mcp@latest",
+        "server",
+        "start"
+      ]
     }
   }
 }

@@ -14,6 +14,11 @@ spring:
     properties:
       hibernate:
         jdbc.lob.non_contextual_creation: true
+        # Default schema for the schema-agnostic shared engine entities (event
+        # admin viewers etc.). This module's own entities hardcode
+        # @Table(schema="demo"), so they're unaffected; this only resolves the
+        # unqualified engine entities to this module's schema.
+        default_schema: ${APP_SCHEMA:demo}
   flyway:
     enabled: true
     baseline-on-migrate: true
@@ -29,6 +34,33 @@ spring:
     # orphaning the real history in public and re-baselining + replaying old
     # migrations that still reference the pre-rename schema.
     default-schema: public
+    # Engine-owned migrations (event_outbox / event_inbox / … V9000+) ship in
+    # the csnx-engine-spring jar at classpath:db/engine; the ${appSchema}
+    # placeholder lands them in this module's own schema. Needed for the
+    # inter-module event consumer below. See docs/inter-module-integration.md.
+    locations: classpath:db/migration,classpath:db/engine
+    placeholders:
+      appSchema: ${APP_SCHEMA:demo}
+  # RabbitMQ — broker for inter-module events (Spring Cloud Stream rabbit
+  # binder). DEMO has no broker of its own; the compose stack reaches the
+  # platform stack's broker via host.docker.internal.
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+  cloud:
+    stream:
+      bindings:
+        # DEMO's inbound integration events — one Consumer bean
+        # (DemoEventConsumers.integrationEvents) dispatches by event type:
+        # pom.vendor.changed -> demo.int_vendor and platform.company.changed ->
+        # demo.int_company (both WAL CDC, configured on the platform CDCC screen).
+        # A single functional bean is auto-detected (set
+        # spring.cloud.function.definition explicitly if a second is ever added).
+        integrationEvents-in-0:
+          destination: csnx.events
+          group: demo               # durable, competing-consumer safe
   # Spring AI — chat autoconfig is OFF by default (none) so the starter can sit
   # on the classpath without affecting boot. Set spring.ai.model.chat=google-genai
   # (env SPRING_AI_MODEL_CHAT) together with csnx.engine.ai.llm.provider=google-genai to use it.
@@ -60,6 +92,12 @@ server:
     include-binding-errors: always
 
 management:
+  health:
+    # The event broker is a soft dependency — the inbox consumer just pauses
+    # while RabbitMQ is unreachable, so don't let it drag the module DOWN
+    # (which would also break broker-less standalone/test runs).
+    rabbit:
+      enabled: false
   endpoints:
     web:
       exposure:
@@ -95,6 +133,21 @@ csnx:
     code: DEMO
     # Header version label (shown next to the module switcher). Not the module code.
     version: ${MODULE_VERSION:1.0}
+  # Inter-module events — DEMO subscribes to pom.vendor.changed (WAL CDC from
+  # pom's vendor master) and mirrors it into demo.int_vendor. Activated by the
+  # rabbit binder on the classpath. See docs/inter-module-integration.md and
+  # docs/cdc-vendor-pom-to-demo.md (platform repo).
+  events:
+    # Off by default so test slices and broker-less standalone runs are
+    # unaffected; turned on per-environment (compose sets CSNX_EVENTS_ENABLED).
+    enabled: ${CSNX_EVENTS_ENABLED:false}
+    schema: ${APP_SCHEMA:demo}
+    destination: csnx.events
+    # Register the read-only event admin viewers (outbox/inbox/error log
+    # activities) so the platform's Integration Trace can read this module's
+    # ledgers over Channel 1. CRUD/read only — safe with or without the broker.
+    admin:
+      enabled: ${CSNX_EVENTS_ADMIN_ENABLED:true}
   engine:
     registry:
       # Register this module's screens/menus/lookups into the platform's
@@ -125,6 +178,16 @@ csnx:
       target-base-url: ${SERVICE_TARGET_URL:}
       client-id: demo-service
       client-secret: ${DEMO_SERVICE_SECRET:demo-service-dev-secret}
+    # WAL CDC producer (WalCdcPoller). Demo captures its OWN tables named in
+    # int_cdc_config (module_cd=DEMO, e.g. demo.scwt_trader) off a logical slot
+    # (csnx_cdc_demo) into the outbox. The config set is fetched from the PLATFORM
+    # over Channel 1 (service-client above; the Docker URL-split env in compose
+    # points the token mint + config fetch at the platform stack). Needs
+    # wal_level=logical on postgres + csnx.events (enabled above). schema = where
+    # int_cdc_state lands.
+    cdc:
+      enabled: ${CSNX_ENGINE_CDC_ENABLED:false}
+      schema: ${APP_SCHEMA:demo}
     # Track the platform's global settings (search limit) — fetch over Channel 1
     # on boot + refresh. Off by default; requires service-client.enabled=true.
     global-settings:
