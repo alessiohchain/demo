@@ -129,6 +129,11 @@ app:
 
 # This module's code in the central metadata store (P4).
 csnx:
+  # TEMP test-services gate — activates TestCallController (/api/test/call) so
+  # DEMO can fire a Channel-1 call to platform for end-to-end logging demos.
+  # Delete after sign-off (with TestCallController + the /api/test/** permits).
+  test-services:
+    enabled: ${TEST_SERVICES_ENABLED:true}
   module:
     code: DEMO
     # Header version label (shown next to the module switcher). Not the module code.
@@ -171,6 +176,28 @@ csnx:
     service-process:
       enabled: ${CSNX_SERVICE_PROCESS_ENABLED:false}
       jwks-uri: ${PLATFORM_JWKS_URI:${PLATFORM_ISSUER:http://localhost:8090}/oauth2/jwks}
+    # Service Call Log (SCLG) — record inbound + outbound service calls into
+    # demo.service_call_log; admin-enabled surfaces the integration.callLog viewer.
+    call-log:
+      enabled: ${CSNX_CALL_LOG_ENABLED:true}
+      schema: ${APP_SCHEMA:demo}
+      max-payload-chars: ${CSNX_CALL_LOG_MAX_PAYLOAD_CHARS:32768}
+      display-payload-chars: ${CSNX_CALL_LOG_DISPLAY_PAYLOAD_CHARS:1000}
+      retention-days: ${CSNX_CALL_LOG_RETENTION_DAYS:30}
+      admin-enabled: ${CSNX_CALL_LOG_ADMIN_ENABLED:true}
+      retry:
+        enabled: ${CSNX_CALL_LOG_RETRY_ENABLED:true}
+        poll-ms: ${CSNX_CALL_LOG_RETRY_POLL_MS:10000}
+        batch-size: 10
+        stale-processing-minutes: 5
+    # Per-service registry (SVCF) — opt-in logging (only services with a
+    # matching, log-enabled service_config row are recorded).
+    service-config:
+      enabled: ${CSNX_SERVICE_CONFIG_ENABLED:true}
+      schema: ${APP_SCHEMA:demo}
+      cache-ttl-ms: ${CSNX_SERVICE_CONFIG_CACHE_TTL_MS:30000}
+      admin-enabled: ${CSNX_SERVICE_CONFIG_ADMIN_ENABLED:true}
+      log-unconfigured: ${CSNX_SERVICE_CONFIG_LOG_UNCONFIGURED:false}
     # Outbound Channel 1 client (caller) — needed by global-settings below.
     service-client:
       enabled: ${CSNX_SERVICE_CLIENT_ENABLED:false}

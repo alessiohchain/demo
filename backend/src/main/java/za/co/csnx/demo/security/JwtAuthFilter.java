@@ -33,7 +33,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/actuator/health",
-            "/actuator/info");
+            "/actuator/info",
+            "/api/test/**"); // TEMP test-services trigger (delete after sign-off)
     private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
 
     private final PlatformTokenVerifier platformTokenVerifier;

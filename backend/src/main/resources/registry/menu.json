@@ -46,5 +46,29 @@
     "workflow": "sysParameters.maintenance",
     "parentCode": "admin",
     "sortOrder": 10
+  },
+  {
+    "code": "integration",
+    "label": "Integration",
+    "fastpath": null,
+    "workflow": null,
+    "parentCode": null,
+    "sortOrder": 40
+  },
+  {
+    "code": "SCLG",
+    "label": "Service Call Log",
+    "fastpath": "SCLG",
+    "workflow": "integration.callLog",
+    "parentCode": "integration",
+    "sortOrder": 10
+  },
+  {
+    "code": "SVCF",
+    "label": "Service Config",
+    "fastpath": "SVCF",
+    "workflow": "integration.serviceConfig",
+    "parentCode": "integration",
+    "sortOrder": 20
   }
 ]

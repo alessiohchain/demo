@@ -1,0 +1,101 @@
+{
+    "$schema": "./_schema.json",
+    "name": "integration.callLog",
+    "action": "cmd_search",
+    "version": 2,
+    "language": "EN",
+    "shortName": "SCLG",
+    "metadataList": [
+        {
+            "kind": "search",
+            "name": "integration.callLog",
+            "rows": 50,
+            "workflow": "integration.callLog",
+            "formMetadata": {
+                "kind": "form",
+                "name": "integration.callLog",
+                "columns": 2,
+                "workflow": "integration.callLog",
+                "fieldList": [
+                    { "id": "8101", "name": "direction",    "type": "String", "label": "Direction (IN/OUT)", "maxlength": 3,   "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8102", "name": "status",       "type": "String", "label": "Status",              "maxlength": 16,  "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8107", "name": "serviceName",  "type": "String", "label": "Service",             "maxlength": 120, "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8103", "name": "externalSystem","type": "String", "label": "External System",     "maxlength": 120, "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8104", "name": "company",      "type": "String", "label": "Company",             "maxlength": 32,  "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8105", "name": "workflow",     "type": "String", "label": "Workflow",            "maxlength": 120, "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8132", "name": "serviceType",  "type": "String", "label": "Service Type",        "maxlength": 16,  "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8133", "name": "payloadType",  "type": "String", "label": "Payload Type",        "maxlength": 16,  "defaultVisibleState": true, "defaultEditableState": true }
+                ],
+                "footerAlignment": "left",
+                "headerAlignment": "left",
+                "fieldNamesNoRights": [],
+                "defaultVisibleState": true,
+                "defaultEditableState": true
+            },
+            "gridMetadata": {
+                "kind": "grid",
+                "name": "integration.callLog",
+                "rows": 50,
+                "title": "",
+                "workflow": "integration.callLog",
+                "fieldList": [
+                    { "id": "8110", "name": "id",           "type": "Integer", "label": "Id",       "maxlength": 18,  "defaultVisibleState": false, "defaultEditableState": false },
+                    { "id": "8111", "name": "startedAt",    "type": "Instant", "label": "Started",  "defaultVisibleState": true, "defaultEditableState": false },
+                    { "id": "8112", "name": "direction",    "type": "String",  "label": "Dir",      "maxlength": 3, "align": "center", "defaultVisibleState": true, "defaultEditableState": false,
+                      "styleValueMap": { "IN": "info", "OUT": "neutral" } },
+                    { "id": "8107", "name": "serviceName",  "type": "String",  "label": "Service",  "maxlength": 120, "defaultVisibleState": true, "defaultEditableState": false },
+                    { "id": "8113", "name": "externalSystem","type": "String",  "label": "External System", "maxlength": 120, "defaultVisibleState": true, "defaultEditableState": false },
+                    { "id": "8114", "name": "company",      "type": "String",  "label": "Company",  "maxlength": 32,  "defaultVisibleState": true, "defaultEditableState": false },
+                    { "id": "8117", "name": "status",       "type": "String",  "label": "Status",   "maxlength": 16, "align": "center", "defaultVisibleState": true, "defaultEditableState": false,
+                      "styleValueMap": { "PROCESSING": "info", "OK": "success", "ERROR": "warning", "FAILED": "danger", "DENIED": "neutral" } },
+                    { "id": "8126", "name": "retryDisplay", "type": "String",  "label": "Retries", "maxlength": 12, "align": "center", "defaultVisibleState": true, "defaultEditableState": false },
+                    { "id": "8119", "name": "processTime",  "type": "String",  "label": "Process Time", "maxlength": 12, "align": "right", "defaultVisibleState": true, "defaultEditableState": false },
+                    { "id": "8120", "name": "errorMessage", "type": "String",  "label": "Error",    "length": 40, "maxlength": 4000, "defaultVisibleState": true, "defaultEditableState": false },
+                    { "id": "8122", "name": "requestJson",  "type": "String",  "label": "Request",  "uiType": "json", "length": 40, "maxlength": 4000, "defaultVisibleState": true, "defaultEditableState": false },
+                    { "id": "8123", "name": "responseJson", "type": "String",  "label": "Response", "uiType": "json", "length": 40, "maxlength": 4000, "defaultVisibleState": true, "defaultEditableState": false },
+                    { "id": "8121", "name": "hostUrl",      "type": "String",  "label": "Host URL", "length": 30, "maxlength": 500, "defaultVisibleState": true, "defaultEditableState": false },
+                    { "id": "8129", "name": "retry",        "type": "String",  "label": "Retry",    "uiType": "icon", "align": "center", "defaultVisibleState": true, "defaultEditableState": false,
+                      "iconMetadata": { "sourceField": "status", "visibleExpression": "status == 'FAILED' && retryable", "iconMap": { "FAILED": "RotateCcw" }, "colorMap": { "FAILED": "warning" } },
+                      "cellClickAction": { "command": "cmd_retry", "tooltip": "Retry this call" } },
+                    { "id": "8115", "name": "workflow",     "type": "String",  "label": "Workflow", "maxlength": 120, "defaultVisibleState": false, "defaultEditableState": false },
+                    { "id": "8127", "name": "retryable",    "type": "Boolean", "label": "Retryable", "defaultVisibleState": false, "defaultEditableState": false },
+                    { "id": "8128", "name": "external",     "type": "Boolean", "label": "External",  "defaultVisibleState": false, "defaultEditableState": false },
+                    { "id": "8132", "name": "serviceType",  "type": "String",  "label": "Service Type", "maxlength": 16, "align": "center", "defaultVisibleState": false, "defaultEditableState": false },
+                    { "id": "8133", "name": "payloadType",  "type": "String",  "label": "Payload Type", "maxlength": 16, "align": "center", "defaultVisibleState": false, "defaultEditableState": false },
+                    { "id": "8124", "name": "finishedAt",   "type": "Instant", "label": "Finished",  "defaultVisibleState": false, "defaultEditableState": false }
+                ],
+                "filterPresets": [
+                    { "name": "all",        "label": "All",        "isDefault": true },
+                    { "name": "processing", "label": "Processing", "expression": "status == 'PROCESSING'" },
+                    { "name": "errors",     "label": "Errors",     "expression": "status == 'ERROR'" },
+                    { "name": "failed",     "label": "Failed",     "expression": "status == 'FAILED'" },
+                    { "name": "denied",     "label": "Denied",     "expression": "status == 'DENIED'" },
+                    { "name": "outbound",   "label": "Outbound",   "expression": "direction == 'OUT'" },
+                    { "name": "inbound",    "label": "Inbound",    "expression": "direction == 'IN'" }
+                ],
+                "overrideState": false,
+                "inlineEdit": false,
+                "toolbarMetadata": {
+                    "kind": "toolbar",
+                    "large": false,
+                    "actionButtons": [
+                        { "id": "8130", "name": "cmd_close", "local": true, "value": "Close", "command": "cmd_close", "validate": true, "accessKey": "X", "modelType": "selected" }
+                    ],
+                    "navigationButtons": [
+                        { "id": "8131", "name": "cmd_search", "local": true, "value": "Search", "command": "cmd_search", "validate": true, "accessKey": "S", "modelType": "none" }
+                    ],
+                    "defaultVisibleState": true,
+                    "defaultEditableState": true
+                },
+                "checkboxSelection": false,
+                "defaultVisibleState": true,
+                "defaultEditableState": false
+            },
+            "overrideState": false,
+            "checkboxSelection": false,
+            "defaultVisibleState": true,
+            "defaultEditableState": true
+        }
+    ],
+    "autoRefreshTime": 0
+}

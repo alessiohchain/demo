@@ -1,0 +1,90 @@
+{
+    "$schema": "./_schema.json",
+    "name": "integration.serviceConfig",
+    "action": "cmd_search",
+    "version": 1,
+    "language": "EN",
+    "shortName": "SVCF",
+    "metadataList": [
+        {
+            "kind": "search",
+            "name": "integration.serviceConfig",
+            "rows": 50,
+            "workflow": "integration.serviceConfig",
+            "formMetadata": {
+                "kind": "form",
+                "name": "integration.serviceConfig",
+                "columns": 2,
+                "workflow": "integration.serviceConfig",
+                "fieldList": [
+                    { "id": "8901", "name": "id",            "type": "Integer", "label": "Id",             "maxlength": 18,  "defaultVisibleState": false, "defaultEditableState": false },
+                    { "id": "8915", "name": "companyCode",   "type": "String",  "label": "Company",        "uiType": "ComboBox", "lookupDataKey": "Company", "emptyRow": true, "maxlength": 32, "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8902", "name": "serviceName",   "type": "String",  "label": "Service Name",   "maxlength": 120, "nullable": false, "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8903", "name": "serviceType",   "type": "String",  "label": "Service Type",   "uiType": "ComboBox", "lookupDataKey": "SVCT", "emptyRow": true, "maxlength": 16, "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8904", "name": "payloadType",   "type": "String",  "label": "Payload Type",   "uiType": "ComboBox", "lookupDataKey": "PLDT", "emptyRow": true, "maxlength": 16, "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8913", "name": "direction",     "type": "String",  "label": "Direction",       "uiType": "ComboBox", "lookupDataKey": "DRCT", "emptyRow": true, "maxlength": 3, "nullable": false, "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8914", "name": "externalSystem","type": "String",  "label": "External System", "maxlength": 120, "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8907", "name": "enabled",       "type": "Boolean", "label": "Enabled",        "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8908", "name": "logEnabled",    "type": "Boolean", "label": "Log",            "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8909", "name": "retryable",     "type": "Boolean", "label": "Retryable",      "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8910", "name": "baseUrl",       "type": "String",  "label": "Base URL (outbound external)", "maxlength": 500, "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8911", "name": "description",   "type": "String",  "label": "Description",    "maxlength": 255, "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8912", "name": "paramsJson",    "type": "String",  "label": "Params (JSON) — maxAttempts / retryIntervalSeconds", "uiType": "json", "maxlength": 2000, "defaultVisibleState": true, "defaultEditableState": true }
+                ],
+                "footerAlignment": "left",
+                "headerAlignment": "left",
+                "fieldNamesNoRights": [],
+                "defaultVisibleState": true,
+                "defaultEditableState": true
+            },
+            "gridMetadata": {
+                "kind": "grid",
+                "name": "integration.serviceConfig",
+                "rows": 50,
+                "title": "",
+                "workflow": "integration.serviceConfig",
+                "fieldList": [
+                    { "id": "8901", "name": "id",            "type": "Integer", "label": "Id",             "maxlength": 18,  "defaultVisibleState": false, "defaultEditableState": false },
+                    { "id": "8915", "name": "companyCode",   "type": "String",  "label": "Company",        "uiType": "ComboBox", "lookupDataKey": "Company", "emptyRow": true, "align": "center", "maxlength": 32, "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8902", "name": "serviceName",   "type": "String",  "label": "Service Name",   "maxlength": 120, "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8903", "name": "serviceType",   "type": "String",  "label": "Type",           "uiType": "ComboBox", "lookupDataKey": "SVCT", "emptyRow": true, "align": "center", "maxlength": 16, "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8904", "name": "payloadType",   "type": "String",  "label": "Payload",        "uiType": "ComboBox", "lookupDataKey": "PLDT", "emptyRow": true, "align": "center", "maxlength": 16, "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8913", "name": "direction",     "type": "String",  "label": "Direction",       "uiType": "ComboBox", "lookupDataKey": "DRCT", "emptyRow": true, "align": "center", "maxlength": 3, "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8914", "name": "externalSystem","type": "String",  "label": "External System", "maxlength": 120, "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8907", "name": "enabled",       "type": "Boolean", "label": "Enabled",        "align": "center", "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8908", "name": "logEnabled",    "type": "Boolean", "label": "Log",            "align": "center", "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8909", "name": "retryable",     "type": "Boolean", "label": "Retryable",      "align": "center", "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8910", "name": "baseUrl",       "type": "String",  "label": "Base URL",       "length": 30, "maxlength": 500, "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8911", "name": "description",   "type": "String",  "label": "Description",    "length": 24, "maxlength": 255, "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8912", "name": "paramsJson",    "type": "String",  "label": "Params (JSON)",  "uiType": "json", "length": 24, "maxlength": 2000, "defaultVisibleState": true, "defaultEditableState": true }
+                ],
+                "overrideState": false,
+                "inlineEdit": true,
+                "toolbarMetadata": {
+                    "kind": "toolbar",
+                    "large": false,
+                    "actionButtons": [
+                        { "id": "8920", "name": "cmd_create", "local": true,  "value": "Add",    "command": "cmd_create", "validate": true, "accessKey": "A", "modelType": "none",     "clearCacheType": "LOOKUP" },
+                        { "id": "8921", "name": "cmd_copy",   "local": true,  "value": "Copy",   "command": "cmd_copy",   "validate": true, "accessKey": "C", "modelType": "selected", "clearCacheType": "LOOKUP" },
+                        { "id": "8922", "name": "cmd_delete", "local": false, "value": "Delete", "command": "cmd_delete", "validate": true, "accessKey": "R", "modelType": "selected", "clearCacheType": "LOOKUP" },
+                        { "id": "8923", "name": "cmd_update", "local": false, "value": "Update", "command": "cmd_update", "validate": true, "accessKey": "U", "modelType": "selected", "clearCacheType": "LOOKUP" },
+                        { "id": "8924", "name": "cmd_close",  "local": true,  "value": "Close",  "command": "cmd_close",  "validate": true, "accessKey": "X", "modelType": "selected" }
+                    ],
+                    "navigationButtons": [
+                        { "id": "8925", "name": "cmd_search", "local": true, "value": "Search", "command": "cmd_search", "validate": true, "accessKey": "S", "modelType": "none" }
+                    ],
+                    "defaultVisibleState": true,
+                    "defaultEditableState": true
+                },
+                "checkboxSelection": true,
+                "defaultVisibleState": true,
+                "defaultEditableState": true
+            },
+            "overrideState": false,
+            "checkboxSelection": true,
+            "defaultVisibleState": true,
+            "defaultEditableState": true
+        }
+    ],
+    "autoRefreshTime": 0
+}
