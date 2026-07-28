@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   Build, push, and roll a Container Apps revision for the demo backend,
   frontend, or both — the Azure sibling of deploy-gcp.ps1.
@@ -55,7 +55,13 @@ param(
     [switch]$NoRoll,
 
     [string]$IssuerUrl = '',
-    [string]$PortalUrl = ''
+    [string]$PortalUrl = '',
+
+    # Fleet coordinates — override for shared-group deployments (e.g.
+    # -ResourceGroup Playground). Discovery filters on FleetName so unrelated
+    # resources in a shared group are never picked up.
+    [string]$ResourceGroup = $(if ($env:CSNX_RESOURCE_GROUP) { $env:CSNX_RESOURCE_GROUP } else { 'csnx-rg' }),
+    [string]$FleetName = $(if ($env:CSNX_FLEET_NAME) { $env:CSNX_FLEET_NAME } else { 'csnx' })
 )
 
 $ErrorActionPreference = 'Stop'
@@ -65,23 +71,23 @@ $ErrorActionPreference = 'Stop'
 # < 23, so force it on.
 $env:DOCKER_BUILDKIT = '1'
 
-$ResourceGroup = 'csnx-rg'
-
 # Resolve repo root from this script's location so it works from anywhere.
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 
 # --- Discover shared fleet resources (random-suffixed names) ---------------
+# Filtered on the fleet prefix, NOT [0]: a shared resource group (e.g. a
+# corporate "Playground") may hold unrelated registries or environments.
 
-$AcrName = az acr list --resource-group $ResourceGroup --query "[0].name" -o tsv
-if (-not $AcrName) { throw "No ACR found in $ResourceGroup — run terraform apply in the PLATFORM repo's infra/azure first." }
+$AcrName = az acr list --resource-group $ResourceGroup --query "[?starts_with(name, '$FleetName')].name | [0]" -o tsv
+if (-not $AcrName) { throw "No '$FleetName*' ACR found in $ResourceGroup — run the PLATFORM repo's scripts/deploy-infra-azure.ps1 first." }
 $AcrServer = "$AcrName.azurecr.io"
 
-$EnvDomain = az containerapp env list --resource-group $ResourceGroup --query "[0].properties.defaultDomain" -o tsv
-if (-not $EnvDomain) { throw "No Container Apps environment found in $ResourceGroup — run terraform apply in the PLATFORM repo's infra/azure first." }
+$EnvDomain = az containerapp env list --resource-group $ResourceGroup --query "[?name=='$FleetName-aca-env'].properties.defaultDomain | [0]" -o tsv
+if (-not $EnvDomain) { throw "No '$FleetName-aca-env' Container Apps environment found in $ResourceGroup — run the PLATFORM repo's scripts/deploy-infra-azure.ps1 first." }
 
 if (-not $IssuerUrl) {
-    # Must match infra/azure local.platform_issuer (default-FQDN form). If a
-    # custom-domain issuer is configured in terraform.tfvars, pass -IssuerUrl.
+    # Must match the platform's default-FQDN issuer form. If a custom-domain
+    # issuer is configured on the platform, pass -IssuerUrl.
     $IssuerUrl = "https://platform-backend.$EnvDomain"
 }
 if (-not $PortalUrl) {
@@ -130,10 +136,12 @@ function Invoke-DeployService {
     Write-Host ''
     Write-Host "==> [$Name] build  $image" -ForegroundColor Cyan
     if ($Name -eq 'frontend') {
-        # Frontend needs the GitHub Packages token (engine pulled at npm ci).
-        # Nothing environment-specific is baked in — the issuer + portal URL
-        # are runtime env vars.
-        if (-not $env:GH_PACKAGES_TOKEN) { throw "GH_PACKAGES_TOKEN is not set — the frontend build pulls @alessiohchain/csnx-engine from GitHub Packages." }
+        # The engine npm package is currently VENDORED (package.json points at
+        # file:vendor/*.tgz), so npm ci never contacts GitHub Packages. The
+        # Dockerfile still mounts the gh_token BuildKit secret, so satisfy it
+        # with a placeholder when no real token is set — restore a real
+        # GH_PACKAGES_TOKEN when the registry dependency returns.
+        if (-not $env:GH_PACKAGES_TOKEN) { $env:GH_PACKAGES_TOKEN = 'vendored-engine-no-token-needed' }
         docker build --secret "id=gh_token,env=GH_PACKAGES_TOKEN" -t $image -t $latest $context
     }
     else {

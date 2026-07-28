@@ -32,7 +32,9 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  RESOURCE_GROUP: csnx-rg
+  # Overridable for shared-group deployments (e.g. Playground) via repo vars.
+  RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP || 'csnx-rg' }}
+  FLEET_NAME: ${{ vars.CSNX_FLEET_NAME || 'csnx' }}
 
 jobs:
   backend:
@@ -94,10 +96,10 @@ jobs:
       - name: Discover fleet resources
         id: fleet
         run: |
-          acr=$(az acr list -g "$RESOURCE_GROUP" --query "[0].name" -o tsv)
-          domain=$(az containerapp env list -g "$RESOURCE_GROUP" --query "[0].properties.defaultDomain" -o tsv)
+          acr=$(az acr list -g "$RESOURCE_GROUP" --query "[?starts_with(name, '$FLEET_NAME')].name | [0]" -o tsv)
+          domain=$(az containerapp env list -g "$RESOURCE_GROUP" --query "[?name=='$FLEET_NAME-aca-env'].properties.defaultDomain | [0]" -o tsv)
           if [ -z "$acr" ] || [ -z "$domain" ]; then
-            echo "::error::Shared Azure infra not found in $RESOURCE_GROUP — run terraform apply in the platform repo's infra/azure first."
+            echo "::error::Shared Azure infra not found in $RESOURCE_GROUP — run the platform repo's scripts/deploy-infra-azure.ps1 first."
             exit 1
           fi
           issuer="${{ vars.PLATFORM_ISSUER }}"

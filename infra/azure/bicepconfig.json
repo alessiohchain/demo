@@ -1,0 +1,18 @@
+{
+  "analyzers": {
+    "core": {
+      "enabled": true,
+      "rules": {
+        "use-recent-api-versions": {
+          "level": "warning"
+        },
+        "no-unused-params": {
+          "level": "warning"
+        },
+        "secure-parameter-default": {
+          "level": "error"
+        }
+      }
+    }
+  }
+}
