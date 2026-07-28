@@ -3,6 +3,11 @@
 FROM node:22-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json .npmrc ./
+# LOCAL-ONLY: package.json points @alessiohchain/csnx-engine at
+# file:vendor/...tgz because this machine has no GitHub Packages token, so the
+# tarball must be in the build context before `npm ci`. Drop this line (and the
+# vendor/ dir) when restoring the registry dependency.
+COPY vendor ./vendor
 # The engine is pulled from GitHub Packages (no vendored tgz). The token is a
 # BuildKit secret so it never lands in an image layer; .npmrc reads it from
 # $GH_PACKAGES_TOKEN. Pass it via `docker compose` (compose secrets) or
