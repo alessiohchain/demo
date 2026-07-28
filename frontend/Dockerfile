@@ -29,5 +29,8 @@ COPY docker-entrypoint.sh /usr/local/bin/demo-entrypoint.sh
 RUN sed -i 's/\r$//' /usr/local/bin/demo-entrypoint.sh \
     && chmod +x /usr/local/bin/demo-entrypoint.sh
 EXPOSE 80
-HEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://localhost/ >/dev/null || exit 1
+# Probe 127.0.0.1, not `localhost`: nginx.conf.template binds IPv4 only
+# (`listen 80;`), but `localhost` resolves to ::1 first inside the container, so
+# the probe was refused and the container sat permanently unhealthy.
+HEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://127.0.0.1/ >/dev/null || exit 1
 ENTRYPOINT ["/usr/local/bin/demo-entrypoint.sh"]
