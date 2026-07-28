@@ -78,7 +78,14 @@ jobs:
       - run: npm run build
 
   deploy:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # Runs only when Azure is actually wired: the OIDC federated-credential repo
+    # VARIABLES must be present. When they're absent, this job is SKIPPED — not
+    # failed — so the pipeline stays green until Azure CI/CD is wired up
+    # (mirrors the platform repo's gate).
+    if: >-
+      github.event_name == 'push' && github.ref == 'refs/heads/main'
+      && vars.AZURE_CLIENT_ID != '' && vars.AZURE_TENANT_ID != ''
+      && vars.AZURE_SUBSCRIPTION_ID != ''
     needs: [backend, frontend]
     runs-on: ubuntu-latest
     environment: azure-dev
