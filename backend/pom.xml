@@ -95,7 +95,7 @@
 		<dependency>
 			<groupId>za.co.csnx</groupId>
 			<artifactId>csnx-engine-ai</artifactId>
-			<version>0.2.2</version>
+			<version>0.2.3</version>
 		</dependency>
 		<!-- Spring Cloud Stream + RabbitMQ binder: activates the engine's
 		     inter-module event infrastructure. DEMO is a subscriber — first
