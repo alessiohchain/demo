@@ -129,6 +129,36 @@ The deploy script (`deploy-gcp.ps1`) never touches infrastructure — it only ro
 
 \newpage
 
+# Azure (Container Apps fleet)
+
+Demo also runs on Azure — since 2026-07-29 live in the shared **Playground**
+resource group on the WCS Dev subscription (`southafricanorth`), portal at
+`https://demo-frontend.<aca-default-domain>`. The full fleet runbook lives in
+the **platform** repo: `docs/platform-ops-azure.md`. Demo-side essentials:
+
+- **IaC is Bicep**, not Terraform: `infra/azure/main.bicep` creates only the
+  demo-scoped pieces (identities, grants, internal-ingress backend + external
+  frontend; `SERVER_PORT=8080` carries over from the Cloud Run quirk). The
+  platform repo owns the shared fleet and must deploy first. No Service Bus
+  wiring — demo runs without the event binder on Azure today.
+- **Deploys**:
+
+  ```powershell
+  .\scripts\deploy-azure.ps1 -ResourceGroup Playground              # code change
+  .\scripts\deploy-infra-azure.ps1 -ResourceGroup Playground -WhatIf # infra preview
+  .\scripts\deploy-infra-azure.ps1 -ResourceGroup Playground         # infra deploy
+  ```
+
+  The infra wrapper auto-discovers the shared resources by fleet prefix and
+  preserves rolled image tags; nothing is copied from platform outputs.
+- **Database**: shared PostgreSQL Flexible Server, database `demo`, role
+  `demo_app` (created by the platform's db-init job; password in the shared
+  Key Vault as `demo-db-password`). The server is private-only — ad-hoc SQL
+  goes through the platform's db-init job override (see the runbook).
+- **Registration**: the platform DB must hold demo's Azure origin
+  (`platform.module_origin`) and tile URL (`platform.module.base_url`) —
+  one-time inserts, already done for Playground; needed again per new fleet.
+
 # Diagnostics
 
 ## Logs

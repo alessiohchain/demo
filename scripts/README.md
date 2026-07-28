@@ -6,6 +6,7 @@
 | `redeploy.ps1`   | Rebuild this repo from latest `main` (backend jar + images) and restart its containers |
 | `deploy-gcp.ps1` | Build + push + roll Cloud Run revisions for backend, frontend, or both |
 | `deploy-azure.ps1` | Build + push + roll Container Apps revisions for backend, frontend, or both |
+| `deploy-infra-azure.ps1` | Deploy the DEMO-scoped Azure infrastructure (`infra/azure/main.bicep`) — auto-discovers the platform-owned shared fleet |
 | `db-proxy.ps1`   | Open a local JDBC port to the private-IP Cloud SQL via Cloud SQL Auth Proxy |
 
 ## Local dev: rebuild & restart containers
@@ -53,13 +54,22 @@ Temurin **JDK 21** (the machine default `JAVA_HOME` is JDK 8).
 The script does not touch infrastructure. If you change `infra/gcp/*.tf`, run
 `terraform apply` in `infra/gcp` instead.
 
-The Azure sibling works the same way (`GH_PACKAGES_TOKEN` must be set for
-frontend builds; infra changes go through `terraform apply` in `infra/azure`):
+The Azure sibling works the same way. The **platform** repo owns the shared
+fleet (ACR, Postgres, Key Vault, ACA environment) and must have deployed
+first; infra changes go through `.\scripts\deploy-infra-azure.ps1` (Bicep,
+auto-discovers the shared resources by fleet prefix). Live example: resource
+group `Playground` on WCS Dev — full runbook in platform's
+`docs/platform-ops-azure.md`. The engine npm package is vendored, so
+frontend builds need no `GH_PACKAGES_TOKEN`.
 
 ```powershell
-.\scripts\deploy-azure.ps1            # both services
-.\scripts\deploy-azure.ps1 backend    # backend only
-.\scripts\deploy-azure.ps1 frontend   # frontend only
+.\scripts\deploy-azure.ps1 -ResourceGroup Playground            # both services
+.\scripts\deploy-azure.ps1 backend -ResourceGroup Playground    # backend only
+.\scripts\deploy-azure.ps1 frontend -ResourceGroup Playground   # frontend only
+
+# infrastructure change — edit infra\azure\main.bicep, then:
+.\scripts\deploy-infra-azure.ps1 -ResourceGroup Playground -WhatIf   # preview
+.\scripts\deploy-infra-azure.ps1 -ResourceGroup Playground           # deploy
 ```
 
 ## Connect a JDBC client (DBeaver, IntelliJ, psql, etc.)
