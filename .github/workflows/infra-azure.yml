@@ -1,0 +1,39 @@
+name: Infra (Azure)
+
+# Bicep hygiene for this module's thin infra/azure root: compile + lint must
+# be clean (linter config in infra/azure/bicepconfig.json; any warning fails).
+# Deployments are run from a workstation via scripts/deploy-infra-azure.ps1 —
+# a what-if/deploy pair here (azure/login OIDC + az deployment group) is the
+# follow-up once CI-driven infra changes are wanted.
+
+on:
+  pull_request:
+    branches: [main]
+    paths: ['infra/azure/**']
+  push:
+    branches: [main]
+    paths: ['infra/azure/**']
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/azure
+    steps:
+      - uses: actions/checkout@v4
+      # az (with the Bicep compiler) is preinstalled on ubuntu-latest.
+      - name: Compile + lint Bicep
+        run: |
+          az bicep upgrade
+          az bicep build --file main.bicep --stdout > /dev/null 2> lint.txt || {
+            cat lint.txt; exit 1;
+          }
+          if [ -s lint.txt ]; then
+            echo "::error::Bicep lint warnings (bicepconfig.json treats these as blocking):"
+            cat lint.txt
+            exit 1
+          fi

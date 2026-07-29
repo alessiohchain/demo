@@ -92,14 +92,23 @@ var portalUrl = 'https://platform-frontend.${envDomain}'
 //   backend : pull images, read its single db-password secret
 //   frontend: pull images only
 
+@description('Tags stamped on the module-owned resources (fleet convention).')
+param tags object = {
+  system: 'csnx'
+  environment: 'dev'
+  managedBy: 'bicep'
+}
+
 resource backendIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' = {
   name: '${appName}-backend'
   location: location
+  tags: tags
 }
 
 resource frontendIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' = {
   name: '${appName}-frontend'
   location: location
+  tags: tags
 }
 
 var roleIds = {
@@ -143,6 +152,7 @@ resource backendKvSecret 'Microsoft.Authorization/roleAssignments@2022-04-01' = 
 resource backendApp 'Microsoft.App/containerApps@2025-01-01' = {
   name: '${appName}-backend'
   location: location
+  tags: tags
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -253,6 +263,18 @@ resource backendApp 'Microsoft.App/containerApps@2025-01-01' = {
               timeoutSeconds: 5
               failureThreshold: 3
             }
+            {
+              // Traffic only reaches replicas that answer - matters during
+              // revision rolls and scale-out.
+              type: 'Readiness'
+              httpGet: {
+                path: '/actuator/health'
+                port: 8080
+              }
+              periodSeconds: 10
+              timeoutSeconds: 5
+              failureThreshold: 3
+            }
           ]
         }
       ]
@@ -269,6 +291,7 @@ resource backendApp 'Microsoft.App/containerApps@2025-01-01' = {
 resource frontendApp 'Microsoft.App/containerApps@2025-01-01' = {
   name: '${appName}-frontend'
   location: location
+  tags: tags
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -336,6 +359,18 @@ resource frontendApp 'Microsoft.App/containerApps@2025-01-01' = {
               periodSeconds: 5
               timeoutSeconds: 3
               failureThreshold: 6
+            }
+            {
+              // Traffic only reaches replicas that answer - matters during
+              // revision rolls and scale-out.
+              type: 'Readiness'
+              httpGet: {
+                path: '/'
+                port: 80
+              }
+              periodSeconds: 10
+              timeoutSeconds: 3
+              failureThreshold: 3
             }
           ]
         }

@@ -148,6 +148,23 @@ jobs:
           docker push "$server/demo-frontend:$tag"
           docker push "$server/demo-frontend:latest"
 
+      # Vulnerability gate - fails the job (before the roll) on a fixable
+      # HIGH/CRITICAL, so nothing vulnerable gets deployed. Mirrors the
+      # controltower workflow.
+      - name: Scan backend image
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ steps.fleet.outputs.server }}/demo-backend:${{ steps.fleet.outputs.tag }}
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: '1'
+      - name: Scan frontend image
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ steps.fleet.outputs.server }}/demo-frontend:${{ steps.fleet.outputs.tag }}
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: '1'
       - name: Roll Container Apps revisions
         run: |
           server="${{ steps.fleet.outputs.server }}"
