@@ -103,7 +103,12 @@ if ($LASTEXITCODE -ne 0) { throw "az acr login failed" }
 
 function Test-AppExists {
     param([Parameter(Mandatory)] [string]$Name)
+    # Localized EAP dance: the containerapp CLI extension prints a WARNING to
+    # stderr on every call, and under 'Stop' the 2>$null redirect turns that
+    # into a terminating error - which silently killed the roll step after push.
+    $eap = $ErrorActionPreference; $ErrorActionPreference = 'SilentlyContinue'
     az containerapp show --name $Name --resource-group $ResourceGroup --query name -o tsv 2>$null | Out-Null
+    $ErrorActionPreference = $eap
     return ($LASTEXITCODE -eq 0)
 }
 
