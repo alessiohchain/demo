@@ -44,6 +44,18 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<!-- Batch runtime for the engine's scheduler (BJOB/BRUN) — needed for the
+		     nightly logRetentionTask that purges this module's integration logs. -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-batch</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
@@ -90,7 +102,7 @@
 		<dependency>
 			<groupId>za.co.csnx</groupId>
 			<artifactId>csnx-engine-spring</artifactId>
-			<version>0.3.3</version>
+			<version>0.3.4</version>
 		</dependency>
 		<dependency>
 			<groupId>za.co.csnx</groupId>

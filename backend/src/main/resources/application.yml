@@ -3,6 +3,12 @@ spring:
     name: demo-backend
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
+  batch:
+    job:
+      # Never auto-run jobs on boot — the engine scheduler owns every launch.
+      enabled: false
+    jdbc:
+      initialize-schema: always
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/demo}
     username: ${DB_USER:demo}
@@ -178,12 +184,12 @@ csnx:
       jwks-uri: ${PLATFORM_JWKS_URI:${PLATFORM_ISSUER:http://localhost:8090}/oauth2/jwks}
     # Service Call Log (SCLG) — record inbound + outbound service calls into
     # demo.service_call_log; admin-enabled surfaces the integration.callLog viewer.
+    # Retention is the engine's nightly logRetentionTask (BJOB), not a switch here.
     call-log:
       enabled: ${CSNX_CALL_LOG_ENABLED:true}
       schema: ${APP_SCHEMA:demo}
       max-payload-chars: ${CSNX_CALL_LOG_MAX_PAYLOAD_CHARS:32768}
       display-payload-chars: ${CSNX_CALL_LOG_DISPLAY_PAYLOAD_CHARS:1000}
-      retention-days: ${CSNX_CALL_LOG_RETENTION_DAYS:30}
       admin-enabled: ${CSNX_CALL_LOG_ADMIN_ENABLED:true}
       retry:
         enabled: ${CSNX_CALL_LOG_RETRY_ENABLED:true}
@@ -214,6 +220,16 @@ csnx:
     # int_cdc_state lands.
     cdc:
       enabled: ${CSNX_ENGINE_CDC_ENABLED:false}
+      schema: ${APP_SCHEMA:demo}
+    # Engine batch runtime (scheduler + runner). Demo declares no domain jobs —
+    # this is here for the engine's own nightly logRetentionTask, which purges
+    # this module's integration log tables (event ledgers, SCLG, BRUN) to the
+    # 7-day horizon in its params_json. Seeded ENABLED; re-tune or pause it on
+    # BJOB. admin-enabled surfaces the BJOB/BRUN screens (the fastpaths are not
+    # seeded on demo, so they're reachable by URL only).
+    batch:
+      enabled: ${CSNX_BATCH_ENABLED:true}
+      admin-enabled: ${CSNX_BATCH_ADMIN_ENABLED:true}
       schema: ${APP_SCHEMA:demo}
     # Track the platform's global settings (search limit) — fetch over Channel 1
     # on boot + refresh. Off by default; requires service-client.enabled=true.
