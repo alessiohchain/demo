@@ -1,15 +1,12 @@
 {
   "mcpServers": {
-    "atlassian": {
-      "type": "sse",
-      "url": "https://mcp.atlassian.com/v1/sse"
-    },
     "jdbc-db2": {
       "type": "stdio",
-      "command": "C:/Program Files/Eclipse Adoptium/jdk-21.0.9.10-hotspot/bin/java.exe",
+      "command": "C:/Program Files/Eclipse Adoptium/jdk-21.0.11.10-hotspot/bin/java.exe",
       "args": [
         "-cp",
         "C:/software/mcp-servers/MCPServer-1.0.0-runner.jar;C:/software/mcp-servers/db2jcc4.jar",
+        "-Dquarkus.log.file.path=C:/software/mcp-servers/logs/jdbc-server.log",
         "io.quarkus.runner.GeneratedMain"
       ],
       "env": {
@@ -30,7 +27,7 @@
         "--access-mode=unrestricted"
       ],
       "env": {
-        "DATABASE_URI": "postgresql://demo:demo@host.docker.internal:5432/demo"
+        "DATABASE_URI": "postgresql://demo:demo@host.docker.internal:5435/demo"
       }
     },
     "azure": {
