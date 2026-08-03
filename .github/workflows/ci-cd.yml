@@ -15,6 +15,13 @@ name: CI/CD
 # (writes ~/.m2/settings.xml with the github-csnx server matching backend/
 # pom.xml's <repositories> id), npm auth from the GH_PACKAGES_TOKEN env
 # that frontend/.npmrc reads.
+#
+# Both are fed the built-in GITHUB_TOKEN, not a PAT. That works only because the
+# engine packages (private, owned by alessiohchain/platform) grant this repo read
+# access under their "Manage Actions access" setting — a repo's own GITHUB_TOKEN
+# cannot otherwise read another repo's private packages. With the grant in place
+# there is no secret to create or rotate here. (The env var keeps the name
+# GH_PACKAGES_TOKEN because .npmrc reads that name; only its value changed.)
 
 on:
   pull_request:
@@ -57,7 +64,7 @@ jobs:
         run: mvn -B -ntp -f backend/pom.xml verify
         env:
           MAVEN_USERNAME: ${{ github.actor }}
-          MAVEN_PASSWORD: ${{ secrets.GH_PACKAGES_TOKEN }}
+          MAVEN_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
   frontend:
     runs-on: ubuntu-latest
@@ -74,7 +81,7 @@ jobs:
       # Pulls @alessiohchain/csnx-engine from GitHub Packages (see .npmrc).
       - run: npm ci
         env:
-          GH_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+          GH_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm run build
 
   deploy:
@@ -130,12 +137,12 @@ jobs:
         run: mvn -B -ntp -f backend/pom.xml -DskipTests package
         env:
           MAVEN_USERNAME: ${{ github.actor }}
-          MAVEN_PASSWORD: ${{ secrets.GH_PACKAGES_TOKEN }}
+          MAVEN_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push images
         env:
           # BuildKit secret for the frontend's npm ci (engine from GitHub Packages).
-          GH_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+          GH_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           az acr login --name "${{ steps.fleet.outputs.acr }}"
           server="${{ steps.fleet.outputs.server }}"
