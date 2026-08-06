@@ -13,6 +13,8 @@ backend/src/main/resources/db/migration/
     ...
     V22__rename_demoschema_to_demo.sql
     V20260707143000__some_new_thing.sql
+    undo/                    <- one U-script per forward script (required)
+        U20260810101500__add_widget_table.sql
 ```
 
 Naming: `V<version>__<snake_case_description>.sql`. Two underscores between
@@ -176,6 +178,63 @@ restart backend container" — Flyway picks it up on the next boot.
 | Add a new menu entry | No — `registry/menu.json`. |
 | Backfill / one-off data fix | Yes. |
 | Rename a column on a released table | Yes — write a new `V<n+1>`. Never edit the original migration. |
+
+Whichever row applies: **the migration ships with an undo script** under
+`db/migration/undo/`. See §"Every migration ships an undo script" below — enforced by
+`UndoScriptCoverageTest`, so a missing one fails `mvnw test`.
+
+## Every migration ships an undo script
+
+**A new migration is not finished until its undo script exists.** Same name,
+`U` instead of `V`, in an `undo/` folder directly under the folder holding the
+forward scripts:
+
+```
+db/migration/V20260810101500__add_widget_table.sql        forward
+db/migration/undo/U20260810101500__add_widget_table.sql   its undo
+```
+
+This is a fleet-wide rule — every module carries the same
+`UndoScriptCoverageTest`. The canonical write-up is
+[platform/docs/migrations.md](../../platform/docs/migrations.md) §"Every
+migration ships an undo script"; what follows is the short form.
+
+**Flyway does not run these for you.** Unlike MyBatis Migrations, where the
+rollback is a `-- //@UNDO` section of the same file that `migrate down`
+executes, Flyway keeps undo in a separate `U`-prefixed file *and* gates
+`flyway undo` behind the Teams edition. This build is Community, so an undo
+script is executed by hand. That does not make it optional — what it buys is
+that the reverse statement was written by the person who understood the forward
+one and reviewed in the same merge request, instead of being composed at 02:00
+by someone reading DDL under pressure.
+
+Because Flyway scans a location **recursively**, `undo/` is excluded from the
+packaged artifact in `backend/pom.xml` — nothing in it reaches
+`target/classes`, so a `U`-file can never be picked up as a migration.
+
+**What to write.** Reverse the forward script statement for statement, in the
+opposite order: drop what it created, re-create what it dropped, delete exactly
+the seed keys it inserted (by key — never a wholesale `DELETE FROM`). Head the
+file with the forward script's name and one line on what it reverses. **A change
+that cannot be fully undone still gets a file**: undo what you can, and say in
+the header, in one line, what is gone for good and that a restore is the only
+route back to it.
+
+**Running one.** Newest version first, then back to the point you want to reach.
+After each script, delete its row from `flyway_schema_history` — otherwise the
+next `migrate` sees a version it believes is applied and `validate` fails on the
+gap.
+
+**Enforced** by `UndoScriptCoverageTest` — missing, orphaned, misnamed or empty
+undo, pure file inspection, no database, part of the ordinary `mvnw test`. The
+rule applies from `V20260808000000` on, and to anything above the frozen
+sequential band (`V23`) so a habitual `V24` can't slip past a cutoff
+written as a timestamp. Everything earlier is grandfathered.
+
+Undo un-deploys a change still in your hands — your machine, a dev stack, one
+environment not yet handed over. Something already released across environments
+still gets a compensating **forward** migration; released scripts stay immutable
+either way.
 
 ## Anti-patterns
 

@@ -230,6 +230,37 @@
 	</repositories>
 
 	<build>
+		<!-- Restates spring-boot-starter-parent's own resource handling (filtered
+		     application*.yml with @..@ delimiters, everything else verbatim) so one
+		     exclusion can be added: db/migration/undo/** must NOT be packaged.
+		     Flyway scans a location RECURSIVELY, so any subfolder of db/migration is
+		     part of the migration set unless it is kept out of the artifact — and
+		     these are U<version>__… rollback scripts, not migrations. Flyway's own
+		     undo is a Teams-edition feature this build does not have; a stray U-file
+		     in a scanned location is at best noise in `flyway info` and at worst a
+		     hard failure on a version bump. Rollback is a deliberate manual act, run
+		     from the repo (or a release tag), never by the app on boot. See
+		     platform/docs/migrations.md §"Every migration ships an undo script". -->
+		<resources>
+			<resource>
+				<directory>${basedir}/src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>**/application*.yml</include>
+					<include>**/application*.yaml</include>
+					<include>**/application*.properties</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>${basedir}/src/main/resources</directory>
+				<excludes>
+					<exclude>**/application*.yml</exclude>
+					<exclude>**/application*.yaml</exclude>
+					<exclude>**/application*.properties</exclude>
+					<exclude>db/migration/undo/**</exclude>
+				</excludes>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

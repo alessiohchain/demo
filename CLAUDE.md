@@ -96,6 +96,21 @@ docker compose up --build   # frontend http://localhost:8081, backend :8080, db 
   via Flyway — the engine registrar registers `screens/*.json` +
   `registry/*.json` with the central platform metadata store on boot; role
   grants live platform-side (`module_grant`).
+  **EVERY new migration ships an undo script — enforced, fleet-wide rule.**
+  Flyway is not MyBatis: there is no `-- //@UNDO` section, undo lives in a
+  separate `U`-prefixed file, and `flyway undo` is Teams-only — so these are run
+  by hand and are excluded from the packaged Flyway location (Flyway scans it
+  recursively) by `backend/pom.xml`. Write `db/migration/undo/U<same name as the
+  forward script>.sql`, reversing the forward script statement for statement in
+  the opposite order. An irreversible change still gets the file: undo what you
+  can, and state in the header what is gone for good. `UndoScriptCoverageTest`
+  fails the ordinary `mvnw test` on a missing, orphaned, misnamed or empty undo,
+  from `V20260808000000` on and on anything above the frozen sequential band
+  (`V23`) so a habitual `V24` can't slip past a timestamp cutoff. Undo
+  un-deploys a change still in your hands; something already released still gets
+  a compensating *forward* migration. See
+  [platform/docs/migrations.md](../platform/docs/migrations.md) §"Every
+  migration ships an undo script".
 - **Three layers: ActivityService → ActivityBean → Repository.** Mirrors
   CSnx's `BaseActivityService → BusinessHelper.getXxxActivity() → DAO`.
   The service does wire-shape work (toData/fromData, command routing,
