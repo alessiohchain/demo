@@ -9,7 +9,9 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Logger name="za.co.csnx.demo" level="DEBUG"/>
+        <!-- Module log level is set per-profile via logging.level.za.co.csnx.demo
+             (DEBUG in dev, INFO in prod) — not pinned here, so prod isn't forced to DEBUG. -->
+
         <Logger name="org.springframework" level="INFO"/>
         <Root level="INFO">
             <AppenderRef ref="Console"/>

@@ -239,6 +239,14 @@ resource backendApp 'Microsoft.App/containerApps@2025-01-01' = {
               name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
               value: appInsights.properties.ConnectionString
             }
+            {
+              // cloud_RoleName in Application Insights. Without it every
+              // backend on the fleet reports as "unknown_service:java" and
+              // Application Map / per-module failure panels can't tell
+              // them apart.
+              name: 'OTEL_SERVICE_NAME'
+              value: '${appName}-backend'
+            }
           ]
           probes: [
             {

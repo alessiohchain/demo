@@ -1,6 +1,9 @@
 logging:
   level:
     root: INFO
+    # Explicit INFO for the module (the DEBUG default is dev-only, set in
+    # application-dev.yml). Keeps prod logs quiet + cheaper in Log Analytics.
+    za.co.csnx.demo: INFO
 spring:
   jpa:
     show-sql: false
