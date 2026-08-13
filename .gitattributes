@@ -1,0 +1,7 @@
+
+# A checked-in Maven repository must be BYTE-EXACT: git text normalisation
+# rewrites .pom line endings, which invalidates the .sha1 sidecars and makes Maven
+# report "Could not validate integrity of download" (and fail under
+# --strict-checksums).
+backend/vendor-repo/** -text
+frontend/vendor/*.tgz binary

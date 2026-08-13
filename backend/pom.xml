@@ -102,7 +102,7 @@
 		<dependency>
 			<groupId>za.co.csnx</groupId>
 			<artifactId>csnx-engine-spring</artifactId>
-			<version>0.3.7</version>
+			<version>0.3.9</version>
 		</dependency>
 		<dependency>
 			<groupId>za.co.csnx</groupId>
@@ -223,6 +223,23 @@
 	     Packages. Auth: the github-csnx server in ~/.m2/settings.xml (local) or
 	     the GH_PACKAGES_TOKEN secret wired into CI. -->
 	<repositories>
+		<!-- Vendored FIRST so a build never depends on the registry being
+		     reachable or on credentials being present. backend/vendor-repo is a
+		     checked-in, file-based Maven repository holding the exact engine
+		     versions this module pins — including the engine-spring version that
+		     csnx-engine-ai pins transitively, which Maven reads even though the
+		     direct dependency wins mediation.
+		
+		     It exists because the engine cannot currently be published. Refresh
+		     with scripts/vendor-engine.ps1 after bumping an engine version;
+		     delete this entry and the directory once a reachable registry exists.
+		     See docs/engine-sharing.md. -->
+		<repository>
+			<id>vendored-engine</id>
+			<url>file://${project.basedir}/vendor-repo</url>
+			<releases><enabled>true</enabled></releases>
+			<snapshots><enabled>false</enabled></snapshots>
+		</repository>
 		<repository>
 			<id>github-csnx</id>
 			<url>https://maven.pkg.github.com/alessiohchain/platform</url>

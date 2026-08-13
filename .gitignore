@@ -78,3 +78,9 @@ tfplan.bin
 
 # Local secrets (docker build token; written by scripts/redeploy.ps1)
 .secrets/
+
+# ...except the vendored engine repository, which must be checked in so the
+# backend builds with no registry and no credentials. The `*.jar` rule above
+# otherwise swallows its jars, leaving only .pom/.sha1 committed — a fresh clone
+# then resolves the poms and fails on the missing artifact.
+!backend/vendor-repo/**/*.jar

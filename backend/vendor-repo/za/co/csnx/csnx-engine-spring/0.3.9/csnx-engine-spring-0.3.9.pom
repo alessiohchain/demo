@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.5.14</version>
+		<relativePath/>
+	</parent>
+
+	<groupId>za.co.csnx</groupId>
+	<artifactId>csnx-engine-spring</artifactId>
+	<version>0.3.9</version>
+	<name>csnx-engine-spring</name>
+	<description>CSnx metadata-driven UI engine - shared Spring backend framework
+		(activity services, wire DTOs, base entity/repository, section-16 grant
+		enforcement, exception handling). Consumed by every CSnx module;
+		source of truth lives in the platform repo.</description>
+
+	<properties>
+		<java.version>21</java.version>
+		<!-- Spring Cloud release train aligned to Spring Boot 3.5 (Northfields). -->
+		<spring-cloud.version>2025.0.0</spring-cloud.version>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<distributionManagement>
+		<repository>
+			<id>github-csnx</id>
+			<url>https://maven.pkg.github.com/alessiohchain/platform</url>
+		</repository>
+	</distributionManagement>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<!-- JWKS validation for the Channel 1 service-process chain (callee side):
+		     NimbusJwtDecoder + the oauth2ResourceServer DSL. -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<!-- Inter-module event infrastructure (Transactional Outbox + relay).
+		     Optional so it is NOT inherited transitively: a module activates
+		     events by adding a Spring Cloud Stream binder itself (which brings
+		     this back in). The engine event beans gate on StreamBridge being
+		     present, so non-participating modules are unaffected. -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-stream</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<!-- Channel 3 bulk building block (ProcessPageReader). Optional for the
+		     same reason as spring-cloud-stream: only modules that add
+		     spring-boot-starter-batch themselves ever classload the reader; it
+		     is a plain class (no bean), so non-participating modules are
+		     unaffected. -->
+		<dependency>
+			<groupId>org.springframework.batch</groupId>
+			<artifactId>spring-batch-infrastructure</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<!-- Batch registry runtime (BatchJobRunner/BatchJobScheduler/
+		     BatchRunLogListener): JobLauncher/JobRegistry/JobExecutionListener
+		     live in spring-batch-core, not -infrastructure. Same optional
+		     pattern — the runtime beans are wired by BatchRuntimeConfig gated
+		     on @ConditionalOnClass(JobLauncher.class), so modules without
+		     spring-boot-starter-batch never classload them. -->
+		<dependency>
+			<groupId>org.springframework.batch</groupId>
+			<artifactId>spring-batch-core</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<!-- Two folders under db/engine must NOT be packaged at their authoring
+		     path, because Flyway scans a location recursively:
+
+		     - db/engine/db2 — an override left inside classpath:db/engine would
+		       collide with the very script it overrides (duplicate version). The
+		       overrides reach the jar only through the merged db/engine-db2 copy
+		       built below.
+		     - db/engine/undo — the U<version>__… rollback scripts. Flyway's undo is
+		       a Teams-edition feature this build does not have, and these run by
+		       hand from the repo, never from the jar on boot. An unpackaged folder
+		       also cannot leak an undo into a CONSUMING module's Flyway run, which
+		       is the failure that would matter: the engine band ships in every
+		       module. See platform/docs/migrations.md.
+
+		     See docs/db2-support.md. -->
+		<resources>
+			<resource>
+				<directory>${basedir}/src/main/resources</directory>
+				<excludes>
+					<exclude>db/engine/db2/**</exclude>
+					<exclude>db/engine/undo/**</exclude>
+				</excludes>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<!-- Ship BOTH engine migration sets in the one artifact: db/engine
+				     (postgres, unchanged) and db/engine-db2 (vanilla scripts with the
+				     same-named db2/ scripts overlaid). Consuming modules select a set
+				     via spring.flyway.locations, so pom/demo are unaffected — they
+				     keep pointing at classpath:db/engine.
+
+				     Runs on every build, no profile. NB incremental builds only add
+				     and overwrite — after DELETING an override, run `clean`. -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>db2-engine-base</id>
+						<phase>process-resources</phase>
+						<goals><goal>copy-resources</goal></goals>
+						<configuration>
+							<outputDirectory>${project.build.outputDirectory}/db/engine-db2</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${basedir}/src/main/resources/db/engine</directory>
+									<excludes>
+										<exclude>db2/**</exclude>
+										<exclude>undo/**</exclude>
+									</excludes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+					<execution>
+						<!-- Declared second, so it runs second within the phase. -->
+						<id>db2-engine-override</id>
+						<phase>process-resources</phase>
+						<goals><goal>copy-resources</goal></goals>
+						<configuration>
+							<outputDirectory>${project.build.outputDirectory}/db/engine-db2</outputDirectory>
+							<overwrite>true</overwrite>
+							<resources>
+								<resource>
+									<directory>${basedir}/src/main/resources/db/engine/db2</directory>
+									<!-- db2/undo is the DB2 half of the manual rollback set. -->
+									<excludes>
+										<exclude>undo/**</exclude>
+									</excludes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

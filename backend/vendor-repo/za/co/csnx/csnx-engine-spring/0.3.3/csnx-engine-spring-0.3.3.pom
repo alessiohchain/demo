@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.5.14</version>
+		<relativePath/>
+	</parent>
+
+	<groupId>za.co.csnx</groupId>
+	<artifactId>csnx-engine-spring</artifactId>
+	<version>0.3.3</version>
+	<name>csnx-engine-spring</name>
+	<description>CSnx metadata-driven UI engine - shared Spring backend framework
+		(activity services, wire DTOs, base entity/repository, section-16 grant
+		enforcement, exception handling). Consumed by every CSnx module;
+		source of truth lives in the platform repo.</description>
+
+	<properties>
+		<java.version>21</java.version>
+		<!-- Spring Cloud release train aligned to Spring Boot 3.5 (Northfields). -->
+		<spring-cloud.version>2025.0.0</spring-cloud.version>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<distributionManagement>
+		<repository>
+			<id>github-csnx</id>
+			<url>https://maven.pkg.github.com/alessiohchain/platform</url>
+		</repository>
+	</distributionManagement>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<!-- JWKS validation for the Channel 1 service-process chain (callee side):
+		     NimbusJwtDecoder + the oauth2ResourceServer DSL. -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<!-- Inter-module event infrastructure (Transactional Outbox + relay).
+		     Optional so it is NOT inherited transitively: a module activates
+		     events by adding a Spring Cloud Stream binder itself (which brings
+		     this back in). The engine event beans gate on StreamBridge being
+		     present, so non-participating modules are unaffected. -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-stream</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<!-- Channel 3 bulk building block (ProcessPageReader). Optional for the
+		     same reason as spring-cloud-stream: only modules that add
+		     spring-boot-starter-batch themselves ever classload the reader; it
+		     is a plain class (no bean), so non-participating modules are
+		     unaffected. -->
+		<dependency>
+			<groupId>org.springframework.batch</groupId>
+			<artifactId>spring-batch-infrastructure</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<!-- Batch registry runtime (BatchJobRunner/BatchJobScheduler/
+		     BatchRunLogListener): JobLauncher/JobRegistry/JobExecutionListener
+		     live in spring-batch-core, not -infrastructure. Same optional
+		     pattern — the runtime beans are wired by BatchRuntimeConfig gated
+		     on @ConditionalOnClass(JobLauncher.class), so modules without
+		     spring-boot-starter-batch never classload them. -->
+		<dependency>
+			<groupId>org.springframework.batch</groupId>
+			<artifactId>spring-batch-core</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+</project>

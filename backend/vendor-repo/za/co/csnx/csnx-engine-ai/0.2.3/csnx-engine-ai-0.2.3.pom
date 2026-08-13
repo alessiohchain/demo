@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.5.14</version>
+		<relativePath/>
+	</parent>
+
+	<groupId>za.co.csnx</groupId>
+	<artifactId>csnx-engine-ai</artifactId>
+	<version>0.2.3</version>
+	<name>csnx-engine-ai</name>
+	<description>CSnx shared AI / smart-navigation engine — natural-language prompt →
+		validated catalog-driven search → navigate. Provider-swappable LLM client,
+		metadata-driven catalog, generic JPA search pipeline, and per-module SPI
+		seams (tenant context, query-log store, knowledge/context provider, skills).
+		Optional add-on to csnx-engine-spring; only modules that want an assistant
+		pull the spring-ai stack.</description>
+
+	<properties>
+		<java.version>21</java.version>
+		<spring-ai.version>1.1.7</spring-ai.version>
+	</properties>
+
+	<distributionManagement>
+		<repository>
+			<id>github-csnx</id>
+			<url>https://maven.pkg.github.com/alessiohchain/platform</url>
+		</repository>
+	</distributionManagement>
+
+	<!-- Resolve the shared engine from GitHub Packages (it isn't on Maven
+	     Central). The github-csnx server in settings.xml supplies the token. -->
+	<repositories>
+		<repository>
+			<id>github-csnx</id>
+			<url>https://maven.pkg.github.com/alessiohchain/platform</url>
+		</repository>
+	</repositories>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.ai</groupId>
+				<artifactId>spring-ai-bom</artifactId>
+				<version>${spring-ai.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<dependencies>
+		<!-- Core shared engine: brings web / data-jpa / security / validation
+		     transitively, plus the activity framework, wire DTOs and metadata
+		     source the AI engine reads from. -->
+		<dependency>
+			<groupId>za.co.csnx</groupId>
+			<artifactId>csnx-engine-spring</artifactId>
+			<version>0.3.3</version>
+		</dependency>
+
+		<!-- Spring AI (provider-swappable; Google GenAI = Gemini). OPTIONAL so it
+		     does NOT propagate to consumers: a module that wants an LLM re-declares
+		     this starter; a keyless module still boots (LlmClient degrades). -->
+		<dependency>
+			<groupId>org.springframework.ai</groupId>
+			<artifactId>spring-ai-starter-model-google-genai</artifactId>
+			<optional>true</optional>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+</project>
