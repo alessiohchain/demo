@@ -77,6 +77,44 @@ public method on a `CrudActivity` impl declares its own
 annotation. Mirrors CSnx; keeps the boundary visible at each call
 site, survives method extraction.
 
+### Trap: a self-invoked `@Transactional` method does nothing
+
+`@Transactional` is delivered by a **proxy around the bean**. A call that
+does not leave the object never touches that proxy, so the annotation
+never fires — silently. No warning, no log line, and the method still
+runs. You only find out when something that needed atomicity wasn't, or
+when a write that needed an ambient transaction throws
+`TransactionRequiredException` on the first real click.
+
+Two shapes of it, both of which have shipped in this fleet:
+
+1. **`cmdX` on an activity service.** `ActivityService.process` is a
+   **default interface method** that dispatches with `this`, so it
+   bypasses the proxy — and `ProcessController` only ever calls
+   `process`. An annotated `cmdDelete` therefore runs with no
+   transaction in the browser, while a test that calls
+   `service.cmdDelete(...)` directly goes *through* the proxy and passes.
+   **Put the annotation on an override of `process` instead, and drive
+   activity tests through `process(request)`.**
+2. **A private/`protected` helper in the same bean.** Extracting
+   "validate, then write, then notify" into a `@Transactional` helper and
+   calling it from the public entry point in the same class buys exactly
+   nothing. **Move the write to a separate bean** so the call crosses a
+   proxy — or annotate the public entry point and keep the helper
+   unannotated.
+
+What still works without an ambient transaction, and is why plenty of
+code gets away with this: anything whose write is a single
+`SimpleJpaRepository` method (each is transactional on its own), and any
+call into a genuinely separate `@Transactional` bean. What does **not**
+work is a derived `deleteBy…` query, or any multi-write atomicity you
+thought the annotation bought you.
+
+The same proxy rule is why a helper that must share the caller's
+transaction is deliberately left unannotated — see
+`vendor-portal/docs/java-spring-best-practices.md` §3. That is the benign
+face of this trap; the two above are the harmful ones.
+
 ## The required hooks
 
 `AbstractCrudActivityService` is a template-method class. A subclass

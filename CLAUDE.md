@@ -83,6 +83,20 @@ docker compose up --build   # frontend http://localhost:8081, backend :8080, db 
 - **Activity services** for engine workflows: see
   [docs/activity-services.md](docs/activity-services.md). Extend
   `AbstractCrudActivityService<T, ID>` for CRUD-shaped screens.
+- **A self-invoked `@Transactional` method does NOTHING — and no test that calls
+  it directly will tell you.** The annotation is delivered by a proxy around the
+  bean, so a call that never leaves the object never reaches it: no warning, no
+  log line, the method just runs untransacted. Two shapes have shipped in this
+  fleet. (1) `@Transactional` on a `cmdX` — `ActivityService.process` is a
+  **default interface method** dispatching with `this`, and `ProcessController`
+  only ever calls `process`; annotate an override of `process` instead, and drive
+  activity tests through `process(request)`. (2) A `@Transactional` helper called
+  from a public entry point in the SAME bean — move the write to a separate bean
+  so the call crosses a proxy. Single `SimpleJpaRepository` calls still commit on
+  their own, which is why this hides for so long; derived `deleteBy…` queries and
+  any multi-write atomicity do not. Full note:
+  [docs/activity-services.md](docs/activity-services.md)
+  §"Trap: a self-invoked `@Transactional` method does nothing".
 - **Migrations**: see [docs/migrations.md](docs/migrations.md). Flyway under
   `backend/src/main/resources/db/migration/V<version>__<snake_case>.sql`.
   **New migrations use a timestamp version** (`V<yyyyMMddHHmmss>`, UTC at
