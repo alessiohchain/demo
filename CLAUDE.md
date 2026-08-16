@@ -369,3 +369,32 @@ Ticket: <https://worldwidechainstores.atlassian.net/browse/CSNX-13935>. The
 origin plan and follow-on audit work live under that ticket and its linked
 epic CSNX-14044 (see `audits/2026-05-26/jira-ticket-mapping.md` for the
 audit-driven sub-tasks).
+## Engine version — keep the registry in sync
+
+This module renders through the shared UI engine, vendored as a tarball:
+`frontend/vendor/alessiohchain-csnx-engine-<version>.tgz` with a `file:`
+dependency in `frontend/package.json`. Currently **0.3.52**.
+
+Two things follow, and both are easy to get wrong:
+
+- **Publishing does not move this module.** The `file:` tarball is the only
+  thing that decides which engine we run, so a new version on the registry
+  changes nothing here until someone re-vendors it: `npm pack` the engine in
+  `../platform/packages/engine`, copy the tgz into `frontend/vendor/`,
+  `npm install file:vendor/…<version>.tgz`, **delete the superseded tgz**, then
+  `npm run build` — the `tsc -b` in it is what catches an API break.
+- **Bumping the engine version does not publish it.** The publish workflows are
+  tag-triggered (`engine-npm-v<version>` / `engine-maven-v<version>`); a bump
+  merged without the tag leaves the registry behind. The full rule lives in
+  `../platform/CLAUDE.md` → *Releasing the engine — a version bump is not a
+  release*.
+
+These drift silently: on 2026-08-16 this module was nine versions behind
+(`0.3.43` against the engine's `0.3.52`) and five engine versions had never been
+published at all. Check before assuming:
+
+```bash
+grep csnx-engine frontend/package.json                            # what we run
+git -C ../platform tag -l 'engine-npm-v*' | sort -V | tail -1     # what is published
+node -e "console.log(require('../platform/packages/engine/package.json').version)"  # what exists
+```
