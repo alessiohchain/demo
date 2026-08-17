@@ -115,6 +115,26 @@ transaction is deliberately left unannotated — see
 `vendor-portal/docs/java-spring-best-practices.md` §3. That is the benign
 face of this trap; the two above are the harmful ones.
 
+### Trap: a custom command loads its row from the WIRE
+
+For a company-scoped screen the base class scopes `findForSearch` and checks
+ownership on update and delete. A CUSTOM command does neither. It takes an id
+out of the request, loads the row, and then produces something — a file, a
+URL, an email, a new record derived from it — so none of the update path's
+checks are on that route.
+
+No screen can send another company's id: the grid feeding the selection is
+already scoped. A hand-built POST can, and "unreachable from the UI" is not
+the same as "refused". One real instance, found by a two-company test: an
+Open command answered a crafted request with a download URL for another
+company's document.
+
+So load through a helper that asserts ownership — not
+`crudActivity.findByIdOrThrow(id)` directly — and the next custom command
+somebody writes inherits the check by loading a row the ordinary way. Loads
+on OTHER repositories inside the same command stay individual assertions: the
+id that arrived on the wire is not always the entity the screen is over.
+
 ## The required hooks
 
 `AbstractCrudActivityService` is a template-method class. A subclass
