@@ -313,6 +313,31 @@ coerced back to typed wire shapes on submit using `fieldTypes` from
 
 ---
 
+### `uiType: "file"` — the field that needs an endpoint
+
+A file field cannot ship its bytes on the ordinary JSON submit, so `FileField`
+uploads the picked file IMMEDIATELY (multipart, form part `uploadFormElement`)
+to the endpoint named on the field's **`uploadEndpoint`**, and stores the scalar
+reference the endpoint returns as the value. That reference rides the normal
+submit and the back end resolves it to the staged bytes.
+
+**Without `uploadEndpoint` the field silently does nothing.** `onPick` toasts and
+returns, so no file can ever be attached — by click or by drop — while the form
+still renders a perfectly ordinary "Choose file" control. One module shipped a new
+upload screen cloned from a working one with the form fields replaced, and the
+property went with them.
+
+The endpoint must answer `{ reference, fileName }`. Since engine 0.3.53 the control
+also accepts a DROPPED file (one at a time; dropping several attaches the first and
+says so), running the same upload path as the picker.
+
+**Testing it:** a real file CHOOSER cannot be driven by automation, but the input
+can — `setInputFiles`, or dispatching a `DataTransfer` at the control for the drop
+path. A scripted upload that does nothing is far more likely to be missing metadata
+than to be a harness limitation.
+
+---
+
 ## 6. modelType routing
 
 When a non-local button fires, `engine/toolbar/buttonPayload.ts`
