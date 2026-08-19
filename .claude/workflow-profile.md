@@ -48,6 +48,11 @@ process; this file holds this project's facts.
 - **Test conventions**: JUnit 5 + Testcontainers for backend integration tests.
 - **Regression suite**: `frontend/tests/e2e/` (Playwright) — a ticket adds one spec.
 
+- **What a change owes** (*Test coverage* in `conventions.md`): backend logic → code-level
+  tests; a screen → browser verification plus an e2e spec; **a change touching both owes
+  both**. An e2e spec is not coverage of backend logic, and green unit tests say nothing
+  about whether the screen works.
+
 ## Local run
 
 ```bash
