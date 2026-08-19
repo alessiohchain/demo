@@ -86,14 +86,25 @@ docker compose up --build               # frontend :8081, backend :8080, db :543
 
 ## Docs & deliverables
 
+**Everything for a ticket goes in `docs/tickets/<TICKET>/`** — create it if it does not exist.
+Working `.md` files drop the ticket key (the folder carries it); rendered `.docx` keep it,
+because those get attached to Jira and downloaded where the folder name is lost.
+
 | Artifact | Path |
 |---|---|
-| Implementation plan | `docs/plans/<TICKET>-plan.md` |
-| Developer handover guide | `docs/<TICKET>-developer-guide.md` / `.docx` |
-| UAT handover guide | `docs/<TICKET>-uat-guide.md` / `.docx` |
-| Test plan | `docs/testplans/<TICKET>-testplan.md` |
-| Estimate | `docs/<NAME>-estimate.md` / `.docx` |
+| Implementation plan | `docs/tickets/<TICKET>/plan.md` |
+| Epic tracker | `docs/tickets/<EPIC>/epic-plan.md` |
+| Developer handover guide | `docs/tickets/<TICKET>/developer-guide.md` → `<TICKET>-developer-guide.docx` |
+| UAT handover guide | `docs/tickets/<TICKET>/uat-guide.md` → `<TICKET>-uat-guide.docx` |
+| Test plan | `docs/tickets/<TICKET>/testplan.md` |
+| Test doc source + evidence | `docs/tickets/<TICKET>/testdoc.md`, `evidence/` |
+| Customer test document | `docs/tickets/<TICKET>/Test_Doc_<TICKET>Processing.docx` → `...Final.docx` / `...Failed.docx` |
+| Estimate (from a ticket) | `docs/tickets/<TICKET>/estimate.md` → `<TICKET>-estimate.docx` |
+| Estimate (from a document) | `docs/estimates/<NAME>-estimate.md` / `.docx` |
 
+- **Legacy locations — read, never move.** Anything produced before this convention stays put
+  (`docs/plans/`, `docs/testplans/`, loose `docs/<TICKET>-*` files). If a ticket folder is
+  empty, check there before concluding a document does not exist.
 - **Retention**: `docs/plans/` is committed and kept; `docs/gaps/` is scratch and not committed.
 - **Renderer**: pandoc, `--toc --toc-depth=2` for long guides.
 - **Exemplar documents**: none in this repo yet — model on the CSnx repo's exemplars
