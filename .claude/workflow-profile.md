@@ -86,20 +86,26 @@ docker compose up --build               # frontend :8081, backend :8080, db :543
 
 ## Docs & deliverables
 
-**Everything for a ticket goes in `docs/tickets/<TICKET>/`** — create it if it does not exist.
-Working `.md` files drop the ticket key (the folder carries it); rendered `.docx` keep it,
-because those get attached to Jira and downloaded where the folder name is lost.
+**Everything for a ticket lives in one folder, and an epic's subtickets nest inside the
+epic's folder.** Below, **`<TICKET_DIR>`** means:
+
+- `docs/tickets/<EPIC>/<TICKET>/` — ticket with an epic parent
+- `docs/tickets/<TICKET>/` — standalone ticket
+
+Create any missing folders. Working `.md` files drop the ticket key (the folder carries it);
+rendered `.docx` keep it, because those get attached to Jira and downloaded where the folder
+name is lost.
 
 | Artifact | Path |
 |---|---|
-| Implementation plan | `docs/tickets/<TICKET>/plan.md` |
+| Implementation plan | `<TICKET_DIR>/plan.md` |
 | Epic tracker | `docs/tickets/<EPIC>/epic-plan.md` |
-| Developer handover guide | `docs/tickets/<TICKET>/developer-guide.md` → `<TICKET>-developer-guide.docx` |
-| UAT handover guide | `docs/tickets/<TICKET>/uat-guide.md` → `<TICKET>-uat-guide.docx` |
-| Test plan | `docs/tickets/<TICKET>/testplan.md` |
-| Test doc source + evidence | `docs/tickets/<TICKET>/testdoc.md`, `evidence/` |
-| Customer test document | `docs/tickets/<TICKET>/Test_Doc_<TICKET>Processing.docx` → `...Final.docx` / `...Failed.docx` |
-| Estimate (from a ticket) | `docs/tickets/<TICKET>/estimate.md` → `<TICKET>-estimate.docx` |
+| Developer handover guide | `<TICKET_DIR>/developer-guide.md` → `<TICKET>-developer-guide.docx` |
+| UAT handover guide | `<TICKET_DIR>/uat-guide.md` → `<TICKET>-uat-guide.docx` |
+| Test plan | `<TICKET_DIR>/testplan.md` |
+| Test doc source + evidence | `<TICKET_DIR>/testdoc.md`, `evidence/` |
+| Customer test document | `<TICKET_DIR>/Test_Doc_<TICKET>Processing.docx` → `...Final.docx` / `...Failed.docx` |
+| Estimate (from a ticket) | `<TICKET_DIR>/estimate.md` → `<TICKET>-estimate.docx` |
 | Estimate (from a document) | `docs/estimates/<NAME>-estimate.md` / `.docx` |
 
 - **Legacy locations — read, never move.** Anything produced before this convention stays put
