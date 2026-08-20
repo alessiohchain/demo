@@ -106,7 +106,8 @@ name is lost.
 | Implementation plan | `<TICKET_DIR>/plan.md` |
 | Epic tracker | `docs/tickets/<EPIC>/epic-plan.md` |
 | Questions & concerns (blockers, decisions taken without you) | `<TICKET_DIR>/questions-concerns.html` |
-| Automation evaluation | `<TICKET_DIR>/evaluation.md` |
+| Automation evaluation (for skills) | `<TICKET_DIR>/evaluation.md` |
+| Automation evaluation (human view) | `<TICKET_DIR>/evaluation.html` |
 | Developer handover guide | `<TICKET_DIR>/developer-guide.md` → `<TICKET>-developer-guide.docx` |
 | UAT handover guide | `<TICKET_DIR>/uat-guide.md` → `<TICKET>-uat-guide.docx` |
 | Test plan | `<TICKET_DIR>/testplan.md` |
