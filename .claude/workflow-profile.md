@@ -123,7 +123,33 @@ name is lost.
 - **Renderer**: pandoc, `--toc --toc-depth=2` for long guides.
 - **Exemplar documents**: none in this repo yet — model on the CSnx repo's exemplars
   (`C:\software\projects\csnx\docs\`), listed in that repo's workflow profile.
-- **Pattern guides**: read `CLAUDE.md` and the `docs/` tree in this repo before coding.
+
+## Standards
+
+Shared rulebooks live in the plugin (`${CLAUDE_PLUGIN_ROOT}/skills/workflow-shared/standards/<name>.md`).
+Precedence: repo guide > stack file > universal — see *Standards library* in `conventions.md`.
+
+- **Stack files**:
+  - `universal: always`
+  - `springboot: backend/**`
+  - `react: frontend/**`
+- **Repo guides** — change kind → guide:
+
+  | Change kind | Guide |
+  |---|---|
+  | Backend conventions | `CLAUDE.md` §Conventions — backend |
+  | Frontend conventions | `CLAUDE.md` §Conventions — frontend (tightens RCT-06/11) |
+  | Entity / repository | `docs/dao-patterns.md` |
+  | Activity service (incl. the self-invoked @Transactional trap) | `docs/activity-services.md` (tightens SB-06) |
+  | DB migration + undo scripts | `docs/migrations.md` |
+  | Architecture / decisions | `docs/architecture.md`, `docs/decisions.md` |
+
+- **Reusable helpers** — check before writing a local one: the `BaseEntity`/`BaseRepository`
+  hierarchy and `AbstractCrudActivityBean`/`AbstractCrudActivityService` hooks (see the DAO and
+  activity-service guides above); the shared engine client on the frontend; shadcn primitives
+  in `components/ui/` — install via CLI, never hand-roll (RCT-06).
+- **Constants homes** — single-seam values on the owning entity/service; wire command names
+  lowercase and never engine-reserved (SB-17); user-facing text per UNI-06.
 
 ## Confluence
 
