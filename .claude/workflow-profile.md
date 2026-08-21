@@ -137,8 +137,8 @@ Precedence: repo guide > stack file > universal — see *Standards library* in `
 
   | Change kind | Guide |
   |---|---|
-  | Backend conventions | `CLAUDE.md` §Conventions — backend |
-  | Frontend conventions | `CLAUDE.md` §Conventions — frontend (tightens RCT-06/11) |
+  | Backend conventions | `AGENTS.md` §Conventions |
+  | Frontend conventions | `AGENTS.md` §Conventions (tightens RCT-06/11) |
   | Entity / repository | `docs/dao-patterns.md` |
   | Activity service (incl. the self-invoked @Transactional trap) | `docs/activity-services.md` (tightens SB-06) |
   | DB migration + undo scripts | `docs/migrations.md` |
