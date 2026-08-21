@@ -11,7 +11,7 @@
 
 	<groupId>za.co.csnx</groupId>
 	<artifactId>csnx-engine-spring</artifactId>
-	<version>0.3.3</version>
+	<version>0.3.7</version>
 	<name>csnx-engine-spring</name>
 	<description>CSnx metadata-driven UI engine - shared Spring backend framework
 		(activity services, wire DTOs, base entity/repository, section-16 grant
@@ -134,5 +134,68 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<build>
+		<!-- db/engine/db2 must NOT be packaged at its authoring path: Flyway scans
+		     a location recursively, so an override left inside classpath:db/engine
+		     would collide with the very script it overrides (duplicate version).
+		     The overrides reach the jar only through the merged db/engine-db2 copy
+		     built below. See docs/db2-support.md. -->
+		<resources>
+			<resource>
+				<directory>${basedir}/src/main/resources</directory>
+				<excludes>
+					<exclude>db/engine/db2/**</exclude>
+				</excludes>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<!-- Ship BOTH engine migration sets in the one artifact: db/engine
+				     (postgres, unchanged) and db/engine-db2 (vanilla scripts with the
+				     same-named db2/ scripts overlaid). Consuming modules select a set
+				     via spring.flyway.locations, so pom/demo are unaffected — they
+				     keep pointing at classpath:db/engine.
+
+				     Runs on every build, no profile. NB incremental builds only add
+				     and overwrite — after DELETING an override, run `clean`. -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>db2-engine-base</id>
+						<phase>process-resources</phase>
+						<goals><goal>copy-resources</goal></goals>
+						<configuration>
+							<outputDirectory>${project.build.outputDirectory}/db/engine-db2</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${basedir}/src/main/resources/db/engine</directory>
+									<excludes>
+										<exclude>db2/**</exclude>
+									</excludes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+					<execution>
+						<!-- Declared second, so it runs second within the phase. -->
+						<id>db2-engine-override</id>
+						<phase>process-resources</phase>
+						<goals><goal>copy-resources</goal></goals>
+						<configuration>
+							<outputDirectory>${project.build.outputDirectory}/db/engine-db2</outputDirectory>
+							<overwrite>true</overwrite>
+							<resources>
+								<resource>
+									<directory>${basedir}/src/main/resources/db/engine/db2</directory>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>
