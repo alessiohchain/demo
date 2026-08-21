@@ -11,7 +11,7 @@
 
 	<groupId>za.co.csnx</groupId>
 	<artifactId>csnx-engine-ai</artifactId>
-	<version>0.2.3</version>
+	<version>0.2.4</version>
 	<name>csnx-engine-ai</name>
 	<description>CSnx shared AI / smart-navigation engine — natural-language prompt →
 		validated catalog-driven search → navigate. Provider-swappable LLM client,
@@ -60,7 +60,7 @@
 		<dependency>
 			<groupId>za.co.csnx</groupId>
 			<artifactId>csnx-engine-spring</artifactId>
-			<version>0.3.3</version>
+			<version>0.3.7</version>
 		</dependency>
 
 		<!-- Spring AI (provider-swappable; Google GenAI = Gemini). OPTIONAL so it
