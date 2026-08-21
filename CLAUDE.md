@@ -398,3 +398,18 @@ grep csnx-engine frontend/package.json                            # what we run
 git -C ../platform tag -l 'engine-npm-v*' | sort -V | tail -1     # what is published
 node -e "console.log(require('../platform/packages/engine/package.json').version)"  # what exists
 ```
+
+## Jira / Confluence attachments
+
+The Atlassian MCP can *find* attachments but transfers no bytes — it can neither download a
+spec nor upload a guide or test document. The `team-workflow` plugin ships a script that does
+both, usable in any session:
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/skills/workflow-shared/scripts/atlassian-attachments.js check
+#   jira list|download|upload|delete <TICKET>   ·   confluence list|download|upload <pageId>
+```
+
+It authenticates with the `JIRA_EMAIL` / `JIRA_API_TOKEN` environment variables (Basic auth, so
+it works unattended). Uploads skip a file already attached, so re-running is safe; `--replace`
+supersedes a regenerated document.
