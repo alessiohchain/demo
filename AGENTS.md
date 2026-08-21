@@ -136,3 +136,13 @@ Origin ticket: CSNX-13935 (linked epic CSNX-14044; audit sub-tasks:
 `audits/2026-05-26/jira-ticket-mapping.md`). Attachment transfers use the
 `team-workflow` plugin script (`atlassian-attachments.js`) — usage in
 `../platform/docs/fleet.md` §Tickets & attachments.
+
+## Maintaining these instructions
+
+`CLAUDE.md` and `GEMINI.md` are one-line `@AGENTS.md` imports — **never write
+content into them**. New rules, context or lessons go into the most specific
+reference doc for the topic (under `docs/`), with a pointer added here if
+agents need to know it exists. Add text directly to this file only when it
+must ALWAYS be in an agent's context (a hard rule, a trap index line, a run
+command) — this file is deliberately slim, and every line added here is a
+line loaded into every session.
