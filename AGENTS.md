@@ -108,9 +108,21 @@ be up (the one-shot `demo-pg` on 5432 is NOT what it connects to).
 
 ## Engine version
 
-Vendored as a `file:` tarball in `frontend/vendor/` — publishing moves
-nothing here, bumping publishes nothing. Never assume a version; check with
-the drift commands. Procedure:
+Two halves, resolved differently — a bump in one says nothing about the other,
+and **publishing moves nothing**: every consumer is re-pinned by hand.
+
+- **Frontend** (`@alessiohchain/csnx-engine`) resolves from **GitHub Packages**
+  — a `^` range in `frontend/package.json` plus `.npmrc`
+  (`GH_PACKAGES_TOKEN`; the Dockerfile passes it as a BuildKit secret). The
+  old `frontend/vendor/*.tgz` tarball is gone; don't reintroduce it.
+- **Backend** (`csnx-engine-spring`, `csnx-engine-ai`) still resolves from the
+  checked-in `backend/vendor-repo`, because Maven publishing is blocked.
+  Refresh it with `scripts/vendor-engine.ps1` after bumping `backend/pom.xml`
+  — and note `csnx-engine-ai` pins its own `csnx-engine-spring` transitively,
+  which the script vendors too (that is why an older version dir stays behind
+  alongside the current one).
+
+Never state a version in docs. Re-vendor procedure + drift-check commands:
 [../platform/docs/engine-versioning.md](../platform/docs/engine-versioning.md).
 
 ## Reference docs

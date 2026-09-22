@@ -7,8 +7,8 @@
     Why this exists: the engine is published to GitHub Packages, which needs a
     token and a reachable registry. While publishing is blocked, or on any
     machine without a `read:packages` token, `mvnw package` would fail with a 401.
-    vendor-repo removes that dependency - same approach as
-    frontend/vendor/*.tgz for the npm engine.
+    vendor-repo removes that dependency. (The npm engine no longer does this -
+    the frontend resolves @alessiohchain/csnx-engine from GitHub Packages.)
 
     Copies the versions backend/pom.xml declares out of the local ~/.m2 into a
     proper Maven repository layout, with sha1 sidecars.

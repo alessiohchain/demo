@@ -25,7 +25,15 @@ services:
     build:
       context: ./infra/postgres-wal2json
     image: ${DEMO_DB_IMAGE:-demo-postgres-wal2json:16}
-    command: postgres -c wal_level=logical
+    # output_plugin_libraries is NOT optional from postgres 16.15 on. That
+    # release added an allow-list for logical-decoding output plugins, empty
+    # by default, and wal2json is refused without it:
+    #   ERROR: library "wal2json" may not be used as an output plugin
+    # `postgres:16` is a moving tag, so this surfaces the day the base image
+    # rolls (16.14 -> 16.15 did it) and looks like a broken plugin install
+    # rather than a new security control. The GUC does not exist before 16.15.
+    # Found on platform CSNX-14741; keep in step with platform/docker-compose.yml.
+    command: postgres -c wal_level=logical -c output_plugin_libraries=wal2json
     environment:
       POSTGRES_DB: ${DEMO_DB_NAME:-demo}
       POSTGRES_USER: ${DEMO_DB_USER:-demo}
