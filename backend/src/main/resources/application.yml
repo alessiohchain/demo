@@ -212,15 +212,22 @@ csnx:
       client-id: demo-service
       client-secret: ${DEMO_SERVICE_SECRET:demo-service-dev-secret}
     # WAL CDC producer (WalCdcPoller). Demo captures its OWN tables named in
-    # int_cdc_config (module_cd=DEMO, e.g. demo.scwt_trader) off a logical slot
-    # (csnx_cdc_demo) into the outbox. The config set is fetched from the PLATFORM
-    # over Channel 1 (service-client above; the Docker URL-split env in compose
-    # points the token mint + config fetch at the platform stack). Needs
-    # wal_level=logical on postgres + csnx.events (enabled above). schema = where
-    # int_cdc_state lands.
+    # demo.int_cdc_capture (e.g. demo.scwt_trader) off a logical slot
+    # (csnx_cdc_demo) into the outbox. The config set is read from THIS module's own
+    # table (CSNX-14756); it used to be fetched from the PLATFORM over Channel 1.
+    # Needs wal_level=logical on postgres + csnx.events (enabled above).
+    # schema = where int_cdc_state and int_cdc_capture land.
     cdc:
       enabled: ${CSNX_ENGINE_CDC_ENABLED:false}
       schema: ${APP_SCHEMA:demo}
+      # CDCC (integration.cdcConfig): this module maintains its own captures.
+      admin-enabled: ${CSNX_CDC_ADMIN_ENABLED:true}
+      # local = read demo.int_cdc_capture directly. Removes CDC's runtime dependency
+      # on the platform being reachable, and puts the capture config in the same
+      # schema as its own run state — which is what lets CDCC answer "is this
+      # capture actually working?". remote (the engine default) still fetches the
+      # platform's central registry; that path is retired in CSNX-14757 Phase 3.
+      config-source: ${CSNX_CDC_CONFIG_SOURCE:local}
     # Engine batch runtime (scheduler + runner). Demo declares no domain jobs —
     # this is here for the engine's own nightly logRetentionTask, which purges
     # this module's integration log tables (event ledgers, SCLG, BRUN) to the

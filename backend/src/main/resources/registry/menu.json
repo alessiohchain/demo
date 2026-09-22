@@ -70,5 +70,13 @@
     "workflow": "integration.serviceConfig",
     "parentCode": "integration",
     "sortOrder": 20
+  },
+  {
+    "code": "CDCC",
+    "label": "CDC Config",
+    "fastpath": "CDCC",
+    "workflow": "integration.cdcConfig",
+    "parentCode": "integration",
+    "sortOrder": 25
   }
 ]

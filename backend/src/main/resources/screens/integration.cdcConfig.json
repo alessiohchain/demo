@@ -1,0 +1,91 @@
+{
+    "$schema": "./_schema.json",
+    "name": "integration.cdcConfig",
+    "action": "cmd_search",
+    "version": 1,
+    "language": "EN",
+    "shortName": "CDCC",
+    "metadataList": [
+        {
+            "kind": "search",
+            "name": "integration.cdcConfig",
+            "workflow": "integration.cdcConfig",
+            "formMetadata": {
+                "kind": "form",
+                "name": "integration.cdcConfig",
+                "columns": 2,
+                "workflow": "integration.cdcConfig",
+                "fieldList": [
+                    { "id": "8801", "name": "id",             "type": "Integer", "label": "Id",              "maxlength": 18,  "sectionName": "Identity", "defaultVisibleState": false, "defaultEditableState": false },
+                    { "id": "8811", "name": "companyCode",    "type": "String",  "label": "Company",         "uiType": "ComboBox", "lookupDataKey": "Company", "emptyRow": true, "maxlength": 32, "sectionName": "Identity", "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8802", "name": "moduleCd",       "type": "String",  "label": "Module",          "maxlength": 16,  "nullable": false, "sectionName": "Identity", "defaultVisibleState": false, "defaultEditableState": false },
+                    { "id": "8803", "name": "configName",     "type": "String",  "label": "Config Name",     "maxlength": 60,  "nullable": false, "sectionName": "Identity", "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8804", "name": "enabled",        "type": "Boolean", "label": "Enabled",         "sectionName": "Capture", "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8809", "name": "logEnabled",     "type": "Boolean", "label": "Log",             "sectionName": "Capture", "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8805", "name": "sourceTable",    "type": "String",  "label": "Source Table",    "maxlength": 120, "nullable": false, "sectionName": "Capture", "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8806", "name": "eventType",      "type": "String",  "label": "Event Type",      "maxlength": 120, "nullable": false, "sectionName": "Capture", "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8807", "name": "subjectColumns", "type": "String",  "label": "Subject Columns", "maxlength": 255, "nullable": false, "sectionName": "Capture", "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8808", "name": "notes",          "type": "String",  "label": "Notes",           "maxlength": 255, "sectionName": "Options", "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8810", "name": "paramsJson",     "type": "String",  "label": "Params (JSON)",   "uiType": "json", "maxlength": 2000, "sectionName": "Options", "defaultVisibleState": true, "defaultEditableState": true },
+
+                    { "id": "8812", "name": "lastRunAt",      "type": "Instant", "label": "Last Run",        "sectionName": "Last Run", "stateVisibleMap": { "create": false }, "stateEditableMap": { "create": false, "update": false }, "defaultVisibleState": true, "defaultEditableState": false },
+                    { "id": "8813", "name": "lastEmitCount",  "type": "Integer", "label": "Events",          "maxlength": 18, "sectionName": "Last Run", "stateVisibleMap": { "create": false }, "stateEditableMap": { "create": false, "update": false }, "defaultVisibleState": true, "defaultEditableState": false },
+                    { "id": "8814", "name": "lastError",      "type": "String",  "label": "Last Error",      "uiType": "textarea", "maxlength": 500, "sectionName": "Last Run", "grouping": true, "stateVisibleMap": { "create": false }, "stateEditableMap": { "create": false, "update": false }, "defaultVisibleState": true, "defaultEditableState": false }
+                ],
+                "footerAlignment": "left",
+                "headerAlignment": "left",
+                "fieldNamesNoRights": [],
+                "defaultVisibleState": true,
+                "defaultEditableState": true
+            },
+            "gridMetadata": {
+                "kind": "grid",
+                "name": "integration.cdcConfig",
+                "rows": 50,
+                "title": "",
+                "workflow": "integration.cdcConfig",
+                "fieldList": [
+                    { "id": "8801", "name": "id",             "type": "Integer", "label": "Id",              "maxlength": 18,  "defaultVisibleState": false, "defaultEditableState": false },
+                    { "id": "8811", "name": "companyCode",    "type": "String",  "label": "Company",         "uiType": "ComboBox", "lookupDataKey": "Company", "emptyRow": true, "align": "center", "maxlength": 32, "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8802", "name": "moduleCd",       "type": "String",  "label": "Module",          "maxlength": 16, "align": "center", "defaultVisibleState": false, "defaultEditableState": false },
+                    { "id": "8803", "name": "configName",     "type": "String",  "label": "Config Name",     "maxlength": 60,  "defaultVisibleState": true, "defaultEditableState": false },
+                    { "id": "8804", "name": "enabled",        "type": "Boolean", "label": "Enabled",         "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8809", "name": "logEnabled",     "type": "Boolean", "label": "Log",             "align": "center", "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8805", "name": "sourceTable",    "type": "String",  "label": "Source Table",    "maxlength": 120, "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8806", "name": "eventType",      "type": "String",  "label": "Event Type",      "maxlength": 120, "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8807", "name": "subjectColumns", "type": "String",  "label": "Subject Columns", "maxlength": 255, "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8808", "name": "notes",          "type": "String",  "label": "Notes",           "length": 30, "maxlength": 255, "defaultVisibleState": true, "defaultEditableState": true },
+                    { "id": "8810", "name": "paramsJson",     "type": "String",  "label": "Params (JSON)",   "uiType": "json", "length": 30, "maxlength": 2000, "defaultVisibleState": true, "defaultEditableState": true },
+
+                    { "id": "8812", "name": "lastRunAt",      "type": "Instant", "label": "Last Run",        "defaultVisibleState": true, "defaultEditableState": false },
+                    { "id": "8813", "name": "lastEmitCount",  "type": "Integer", "label": "Events",          "maxlength": 18, "align": "right", "defaultVisibleState": true, "defaultEditableState": false },
+                    { "id": "8814", "name": "lastError",      "type": "String",  "label": "Last Error",      "length": 30, "maxlength": 500, "defaultVisibleState": true, "defaultEditableState": false }
+                ],
+                "overrideState": false,
+                "inlineEdit": true,
+                "toolbarMetadata": {
+                    "kind": "toolbar",
+                    "large": false,
+                    "actionButtons": [
+                        { "id": "8820", "name": "cmd_create", "local": true,  "value": "Add",    "command": "cmd_create", "validate": true, "accessKey": "A", "modelType": "none",     "clearCacheType": "LOOKUP" },
+                        { "id": "8821", "name": "cmd_copy",   "local": true,  "value": "Copy",   "command": "cmd_copy",   "validate": true, "accessKey": "C", "modelType": "selected", "clearCacheType": "LOOKUP" },
+                        { "id": "8822", "name": "cmd_delete", "local": false, "value": "Delete", "command": "cmd_delete", "validate": true, "accessKey": "R", "modelType": "selected", "clearCacheType": "LOOKUP" },
+                        { "id": "8823", "name": "cmd_update", "local": false, "value": "Update", "command": "cmd_update", "validate": true, "accessKey": "U", "modelType": "selected", "clearCacheType": "LOOKUP" },
+                        { "id": "8824", "name": "cmd_close",  "local": true,  "value": "Close",  "command": "cmd_close",  "validate": true, "accessKey": "X", "modelType": "selected" }
+                    ],
+                    "navigationButtons": [
+                        { "id": "8825", "name": "cmd_search", "local": true, "value": "Search", "command": "cmd_search", "validate": true, "accessKey": "S", "modelType": "none" }
+                    ],
+                    "defaultVisibleState": true,
+                    "defaultEditableState": true
+                },
+                "checkboxSelection": true,
+                "defaultVisibleState": true,
+                "defaultEditableState": true
+            },
+            "defaultVisibleState": true,
+            "defaultEditableState": true
+        }
+    ],
+    "autoRefreshTime": 0
+}
