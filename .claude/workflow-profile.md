@@ -10,6 +10,30 @@ process; this file holds this project's facts.
 > marked `TODO (not onboarded)` — this project does not yet run the full ticket lifecycle.
 > Run `/setup-workflow-profile` to complete them when it does.
 
+## ⛔ Do NOT run `/uat-handover` on this module (decision, 2026-09-19)
+
+**The developer lifecycle for the new modules currently ends at `/merge-ticket`.** Stop
+there: the ticket is merged, CI is green, and that is the finished state for now. Three
+things the skill depends on are deliberately absent — none is a gap to work around:
+
+1. **No Azure deploy.** We are not deploying to Azure at the moment, so CI's `deploy` job
+   is **skipped, not failed**. A green pipeline is expected and does not mean a deployed
+   build; do not treat the skipped job as a problem to fix.
+2. **No UAT testing.** Nobody tests these modules through UAT yet, so there is no
+   environment to point a tester at and no guide worth writing.
+3. **No *handed to QA* status.** The CSNX Task workflow is `Open → In Progress → Done`,
+   where *Done* means finished — there is nothing to hand a ticket over *to*.
+
+**What still happens:** `/implement-plan` writes the developer guide and attaches it, and
+`/merge-ticket` refreshes it if the code moved. That guide IS the handover document and it
+is enough; only the tester-facing guide is skipped.
+
+**Revisit when the Azure environments for UAT are sorted.** That is the gating decision —
+the Jira QA status and the tester guides follow from it. Then re-run
+`/setup-workflow-profile` and delete this section.
+
+*(Fleet-wide decision; originates in `platform/.claude/workflow-profile.md`.)*
+
 ## Identity
 
 - **Issue tracker**: `TODO (not onboarded)` — confirm whether this project's work is tracked in

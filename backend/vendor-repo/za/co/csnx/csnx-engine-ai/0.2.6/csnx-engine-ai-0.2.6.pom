@@ -11,7 +11,7 @@
 
 	<groupId>za.co.csnx</groupId>
 	<artifactId>csnx-engine-ai</artifactId>
-	<version>0.2.4</version>
+	<version>0.2.6</version>
 	<name>csnx-engine-ai</name>
 	<description>CSnx shared AI / smart-navigation engine — natural-language prompt →
 		validated catalog-driven search → navigate. Provider-swappable LLM client,
