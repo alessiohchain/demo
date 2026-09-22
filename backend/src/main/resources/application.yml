@@ -221,13 +221,13 @@ csnx:
       enabled: ${CSNX_ENGINE_CDC_ENABLED:false}
       schema: ${APP_SCHEMA:demo}
       # CDCC (integration.cdcConfig): this module maintains its own captures.
-      admin-enabled: ${CSNX_CDC_ADMIN_ENABLED:true}
+      admin-enabled: ${CSNX_ENGINE_CDC_ADMIN_ENABLED:true}
       # local = read demo.int_cdc_capture directly. Removes CDC's runtime dependency
       # on the platform being reachable, and puts the capture config in the same
       # schema as its own run state — which is what lets CDCC answer "is this
       # capture actually working?". remote (the engine default) still fetches the
       # platform's central registry; that path is retired in CSNX-14757 Phase 3.
-      config-source: ${CSNX_CDC_CONFIG_SOURCE:local}
+      config-source: ${CSNX_ENGINE_CDC_CONFIG_SOURCE:local}
     # Engine batch runtime (scheduler + runner). Demo declares no domain jobs —
     # this is here for the engine's own nightly logRetentionTask, which purges
     # this module's integration log tables (event ledgers, SCLG, BRUN) to the

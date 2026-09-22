@@ -17,7 +17,10 @@
 -- that the band bans. cpy_cd, enabled and log_enabled do keep their defaults.
 --
 -- Idempotent by config_name so the seed is safe on a database that already has the
--- row, and portable: no ON CONFLICT (postgres-only), no MERGE needed for one row.
+-- row. Portable, and that takes the odd-looking FROM: no ON CONFLICT (postgres-only),
+-- and a bare SELECT of literals with no FROM is rejected by DB2. (VALUES(1)) is the
+-- same one-row dummy source the engine's own claim uses on both vendors. The engine
+-- ships a db2 twin of this table, so the seed has to be able to follow it there.
 
 INSERT INTO demo.int_cdc_capture
     (cpy_cd, module_cd, config_name, enabled, source_table, event_type,
@@ -26,6 +29,7 @@ SELECT 'WCS', 'DEMO', 'demo-trader', TRUE, 'demo.scwt_trader', 'demo.trader.chan
        'cpy_cd,trader_type,trader_code',
        'Trader master -> pom.int_trader mirror (WAL CDC)', TRUE,
        NOW(), NOW(), 'system'
-WHERE NOT EXISTS (
+  FROM (VALUES(1)) AS dual(x)
+ WHERE NOT EXISTS (
     SELECT 1 FROM demo.int_cdc_capture WHERE config_name = 'demo-trader'
 );
