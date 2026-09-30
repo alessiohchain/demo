@@ -33,7 +33,8 @@ forward-slash path survives the shell and resolves correctly.
 | **logs** (add `-Service backend` / `-Follow`) | `scripts/stack.ps1 -Action logs` |
 | **tear down** (remove containers, keep DB volume) | `scripts/stack.ps1 -Action down` |
 
-`-Service` takes `backend` \| `frontend` \| `postgres`.
+`-Service` takes `backend` \| `frontend` \| `postgres` on `stack.ps1`;
+`redeploy.ps1` accepts only `backend` \| `frontend`.
 
 ## What `redeploy.ps1` does (and why it's needed)
 
@@ -41,7 +42,8 @@ forward-slash path survives the shell and resolves correctly.
 2. builds the backend fat-jar on the host with **JDK 21** — required because the
    backend Dockerfile COPYs a pre-built `target/demo-backend-*.jar`,
 3. `docker compose up -d --build` — the frontend image re-runs `npm ci` against
-   the vendored engine and rebuilds the Vite bundle, so this is the **only** way
+   GitHub Packages (engine via the `gh_token` build secret) and rebuilds the
+   Vite bundle, so this is the **only** way
    UI changes reach the running container (it serves the bundle baked at
    image-build time),
 4. prints `docker compose ps`.
@@ -52,9 +54,9 @@ JDK 8), so you do not need to set it.
 ## Shared-engine changes
 
 If the change is in the shared engine (`@alessiohchain/csnx-engine` npm package
-or the `csnx-engine-spring` / `csnx-engine-ai` maven artifacts), those are owned
-by the **platform** repo — build + propagate them there first
-(`platform/scripts/build-shared.ps1`), then run `scripts/redeploy.ps1` here.
+or the `csnx-engine-spring` / `csnx-engine-ai` maven artifacts), it is made and
+published in the **platform** repo and reaches this repo only once the pin here
+is bumped (AGENTS.md §Engine version); then run `scripts/redeploy.ps1`.
 
 ## Rules
 
@@ -62,7 +64,7 @@ by the **platform** repo — build + propagate them there first
   pulls main onto a dirty tree — surface what will happen first.
 - After any action, run `scripts/stack.ps1 -Action status` (or rely on
   redeploy's trailing `ps`) and report which containers are healthy + their
-  host ports (backend 8092, frontend 8082, postgres 5434).
+  host ports (backend 8092, frontend 8085, postgres 5435).
 - If a deploy fails, show the failing step's output; do not silently retry.
 - These scripts manage the **local Docker stack only** — for GCP/Cloud Run use
   `scripts/deploy-gcp.ps1`.
