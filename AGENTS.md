@@ -17,8 +17,7 @@ Backend, frontend, screen-authoring and master-detail conventions are
 fleet-canonical: **read
 [../platform/docs/module-conventions.md](../platform/docs/module-conventions.md)**
 before writing code here. Module package root: `za.co.csnx.demo`
-(`service.activity.*` / `business.activity.*`; no backend `engine` package —
-`web.dto.engine` remains for wire DTOs).
+(`service.activity.*` / `business.activity.*`; no backend `engine` package).
 
 ## Ports & run
 
@@ -59,7 +58,7 @@ security context for audit fields.
 Base stack: [../platform/docs/fleet.md](../platform/docs/fleet.md) §Base
 stack. Demo-specific rows: Auth = relying party on the platform IdP (above);
 Frontend client = `frontend/src/app/api/client.ts` (import it — never call
-`fetch`/`axios` directly in components); React 18 / Tailwind 3.
+`fetch`/`axios` directly in components); React 19 / Tailwind 4.
 
 ## Migrations
 
