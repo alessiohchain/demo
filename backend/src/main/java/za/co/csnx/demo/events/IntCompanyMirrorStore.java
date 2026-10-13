@@ -17,6 +17,10 @@ import org.springframework.stereotype.Component;
  * <p>Source: the platform's company master, captured from its Postgres WAL
  * (Channel 2b CDC, {@code platform.company.changed}, configured centrally on the
  * platform's CDCC screen).
+ *
+ * <p><b>JDBC:</b> a CDC mirror store — state-based INSERT … ON CONFLICT upserts applying
+ * change events to an entity-free read-model (platform/docs/cdc-event-integration.md
+ * §"Mirror store").
  */
 @Component
 public class IntCompanyMirrorStore {

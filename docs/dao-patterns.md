@@ -173,7 +173,9 @@ these reasons, and **the class says which in a `JDBC:` line of its javadoc**
 4. a committed compare-and-swap claim, or an insert-if-absent, whose **rowcount**
    is the contract;
 5. a `REQUIRES_NEW` append that must survive the caller's rollback;
-6. a CDC/WAL reader, or a table only known at runtime;
+6. a CDC/WAL reader, a CDC **mirror store** (state-based `INSERT … ON CONFLICT`
+   upserts into an entity-free read-model — `platform/docs/cdc-event-integration.md`
+   §"Mirror store"), or a table only known at runtime;
 7. a retention purge (one set-based `DELETE`);
 8. a framework store (Spring Authorization Server's JDBC services);
 9. a LOB deliberately kept off the entity, read by key;
@@ -189,11 +191,11 @@ here. Multi-row JDBC reads are bounded in SQL like any other, and native SQL
 through JPA (`createNativeQuery`, `@Query(nativeQuery = true)`) is held to the
 same rule.
 
-**Not yet enforced by a test here.** This module has no `DataAccessTest`;
-its engine (0.3.47) already ships `DataAccessScanner`, so adding one is a
-~30-line copy of vendor-portal's (`platform/docs/module-performance-plan.md`
-§3.C). Until then the rules hold by review — `/review-ticket` checks them as
-SB-22 and SB-23.
+**Both rules are enforced** by `DataAccessTest`, which calls the engine's
+`DataAccessScanner`: a JDBC import with no `JDBC:` reason, or a
+load-then-reduce chain, fails the ordinary `mvnw test`. The load-then-reduce
+check is a regex, so it sees the one-statement shape only — the rule still
+applies to the split form it cannot see.
 
 ## Naming finder methods
 
