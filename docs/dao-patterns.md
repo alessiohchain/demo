@@ -136,6 +136,65 @@ in services.** All data access goes through a repository. The activity
 services and domain services hold repository references; they don't reach
 past them to JPA primitives.
 
+## Never load rows and then reduce them in Java
+
+**Filtering, the row limit and the offset go into the query** — a `WHERE`, a
+derived `findTop…`/`existsBy…`/`countBy…`, a `Specification`, Spring Data's
+`Limit` or `Pageable`, `setFirstResult`/`setMaxResults`, or
+`OFFSET … FETCH FIRST` in native SQL. Paging passes the **start index and the
+number of rows** to the query; it never fetches everything and slices. A
+`findAll(…)` / `getResultList()` / `queryForList(…)` whose result is then
+`.stream().filter(…)`, `.limit(…)`, `.skip(…)`, `.findFirst()` or
+`.subList(…)` reads rows the database could have left behind — every row of a
+table that only grows, on every call. The two acceptable Java narrowings:
+
+- dropping the one look-ahead row a capped search fetches (`limit + 1`, so it
+  knows "more" without a `COUNT`);
+- a redundant safety net over a filter that is **already** in the query.
+
+Reading a whole table is fine only when the table is small configuration and the
+code genuinely needs all of it — a cache snapshot, a lookup bundle — and then
+plain iteration, not a narrowing stream. Grid searches go through the engine's
+`searchForGrid`, which puts the scope, the offset and the cap in SQL; an
+override that narrows rows puts that narrowing in the scope it passes, never in
+a post-filter.
+
+## JDBC is the exception
+
+**Application code uses JPA repositories; test code may use JDBC freely.** Plain
+JDBC in `src/main` (`JdbcTemplate`, `NamedParameterJdbcTemplate`,
+`JdbcClient`, a raw `DataSource`/`Connection`) is allowed only for one of
+these reasons, and **the class says which in a `JDBC:` line of its javadoc**
+(`<p><b>JDBC:</b> …`):
+
+1. a startup guard or Flyway callback that runs before JPA exists;
+2. a Flyway Java migration;
+3. DDL or catalogue inspection (`DatabaseMetaData`, `SYSCAT`);
+4. a committed compare-and-swap claim, or an insert-if-absent, whose **rowcount**
+   is the contract;
+5. a `REQUIRES_NEW` append that must survive the caller's rollback;
+6. a CDC/WAL reader, or a table only known at runtime;
+7. a retention purge (one set-based `DELETE`);
+8. a framework store (Spring Authorization Server's JDBC services);
+9. a LOB deliberately kept off the entity, read by key;
+10. the engine's entity-free runtime — stores that must work in a module that
+    does not `@EntityScan` the engine;
+11. wiring only — a `@Configuration` that hands the template to one of the above.
+
+The list is the fleet's and is closed: the canonical copy is
+`platform/docs/dao-patterns.md` §"JDBC is the exception". A class that fits none
+of the reasons moves to JPA — "it was quicker to write" is not a reason. A
+module that needs a twelfth reason raises it for the fleet rather than adding it
+here. Multi-row JDBC reads are bounded in SQL like any other, and native SQL
+through JPA (`createNativeQuery`, `@Query(nativeQuery = true)`) is held to the
+same rule.
+
+**Not yet enforced by a test here.** This module has no `DataAccessTest`;
+its engine (0.3.47) already ships `DataAccessScanner`, so adding one is a
+~30-line copy of vendor-portal's (`platform/docs/module-performance-plan.md`
+§3.C). Until then the rules hold by review — `/review-ticket` checks them as
+SB-22 and SB-23.
+
 ## Naming finder methods
 
 Spring Data derived finder methods follow standard convention
@@ -188,9 +247,12 @@ bean owns:
 - `beforeSave(entity, mode)` — default-value population, screen-tran
   stamping.
 - Probe-based `search(probe)` — default impl on
-  `AbstractCrudActivityBean` reflects over the probe's non-null bean
-  properties and filters `findAll()` in-memory. Override for SQL-backed
-  filtering when a dataset outgrows memory.
+  `AbstractCrudActivityBean` matches the probe's non-null bean properties
+  **in SQL** (`ProbeQuery`, engine-spring 0.3.43+). It is not row-limited;
+  grids use `searchForGrid`, which adds the scope, offset and cap.
+  `csnx.engine.search.sql.enabled=false` restores the old in-memory filter
+  over `findAll()` — a breach of §"Never load rows and then reduce them in
+  Java", kept only as a fallback.
 - Screen-specific finders (e.g. `TraderActivity.namesByCompany`) live
   on the interface + impl when they don't fit `search`'s shape.
 
