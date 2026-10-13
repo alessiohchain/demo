@@ -173,9 +173,10 @@ these reasons, and **the class says which in a `JDBC:` line of its javadoc**
 4. a committed compare-and-swap claim, or an insert-if-absent, whose **rowcount**
    is the contract;
 5. a `REQUIRES_NEW` append that must survive the caller's rollback;
-6. a CDC/WAL reader, a CDC **mirror store** (state-based `INSERT … ON CONFLICT`
-   upserts into an entity-free read-model — `platform/docs/cdc-event-integration.md`
-   §"Mirror store"), or a table only known at runtime;
+6. a CDC/WAL reader, an **event mirror store** (CDC or outbox change events applied as
+   idempotent `INSERT … ON CONFLICT` upserts to an entity-free read-model —
+   `platform/docs/cdc-event-integration.md` §"Step 3 — Add the consumer", item 3),
+   or a table only known at runtime;
 7. a retention purge (one set-based `DELETE`);
 8. a framework store (Spring Authorization Server's JDBC services);
 9. a LOB deliberately kept off the entity, read by key;
