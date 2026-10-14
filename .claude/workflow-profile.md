@@ -38,6 +38,8 @@ the Jira QA status and the tester guides follow from it. Then re-run
 
 - **Issue tracker**: `TODO (not onboarded)` — confirm whether this project's work is tracked in
   Jira (project key `CSNX`, site `worldwidechainstores.atlassian.net`) or elsewhere.
+- **Customer ticket keys**: none — customer reports for this module arrive as `CSNX` tickets.
+  WCSHD, the helpdesk, carried only CSnx incidents over the past year.
 - **Epics**: `TODO (not onboarded)`.
 - **Workflow statuses**: `TODO (not onboarded)`.
 - **Transitions that require a worklog**: `TODO (not onboarded)`.
@@ -103,6 +105,8 @@ docker compose up --build               # frontend :8081, backend :8080, db :543
 - **Who deploys the trunk**: `TODO (not onboarded)`.
 - **Shared-environment hard constraints**: `TODO (not onboarded)`.
 - **How to prove a change is deployed**: `TODO (not onboarded)`.
+- **Logs** — local (dev): the `./mvnw spring-boot:run` terminal. local (compose): `docker
+  compose logs backend` (container `demo-backend-1`).
 
 ## Data access
 
