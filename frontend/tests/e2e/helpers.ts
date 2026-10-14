@@ -2,13 +2,13 @@ import { expect, type Page } from '@playwright/test';
 
 /** Type a fastpath into the header input and press Enter. */
 export async function fastpathTo(page: Page, code: string): Promise<void> {
-  await page.getByRole('textbox', { name: /fastpath/i }).fill(code);
+  await page.getByRole('combobox', { name: /fastpath/i }).fill(code);
   // Click the autocomplete option (faster than Enter, avoids race with dropdown).
   const option = page.getByRole('option', { name: new RegExp(`^${code}\\b`) });
   if (await option.count()) {
     await option.first().click();
   } else {
-    await page.getByRole('textbox', { name: /fastpath/i }).press('Enter');
+    await page.getByRole('combobox', { name: /fastpath/i }).press('Enter');
   }
   await expect(page).toHaveURL(new RegExp(`/${code}$`));
 }
@@ -82,4 +82,17 @@ export async function expectProcessCommand(page: Page, command: string): Promise
       && r.request().method() === 'POST'
       && (r.request().postData() ?? '').includes(`"command":"${command}"`),
   );
+}
+
+/**
+ * The grid's empty-state row. The engine's empty state reads "Nothing to show",
+ * "Nothing matches these criteria" (criteria set — a detail grid scoped to its
+ * master counts) or "Search to see results" (not searched yet); the old
+ * "No rows" copy is gone from the table body ("No rows" now only appears in
+ * the pager footer, outside it).
+ */
+export function emptyGridRow(page: Page) {
+  return page.locator('tbody tr', {
+    hasText: /Nothing to show|Nothing matches these criteria|Search to see results/,
+  });
 }

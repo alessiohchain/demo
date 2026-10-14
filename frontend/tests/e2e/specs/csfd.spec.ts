@@ -2,6 +2,7 @@ import type { Page } from '@playwright/test';
 import { test, expect } from '../fixture';
 import {
   clickToolbarButton,
+  emptyGridRow,
   fastpathTo,
   runSearch,
   selectRowAndDetails,
@@ -38,7 +39,7 @@ test.describe('CSFD — Corporate Shipment Flow Details', () => {
     await selectRowAndDetails(page, 'A1');
     await expect(page).toHaveURL(/\/CSFD$/);
 
-    const initialRowCount = await page.locator('tbody tr').filter({ hasNotText: 'No rows.' }).count();
+    const initialRowCount = await page.locator('tbody tr').filter({ has: page.locator('input[type="checkbox"]') }).count();
 
     // Open Add dialog
     await clickToolbarButton(page, 'cmd_create');
@@ -246,7 +247,7 @@ test.describe('CSFD — Corporate Shipment Flow Details', () => {
     await expect(page).toHaveURL(/\/CSFD$/);
 
     // Children grid must be empty up front.
-    await expect(page.locator('tbody tr', { hasText: 'No rows' })).toBeVisible();
+    await expect(emptyGridRow(page)).toBeVisible();
 
     // Add the first child via the trader picker.
     await clickToolbarButton(page, 'cmd_create');
@@ -271,7 +272,7 @@ test.describe('CSFD — Corporate Shipment Flow Details', () => {
     // here.
     const newRow = page.locator('tbody tr', { hasText: 'WH-510' }).first();
     await expect(newRow).toBeVisible();
-    await expect(page.locator('tbody tr', { hasText: 'No rows' })).not.toBeVisible();
+    await expect(emptyGridRow(page)).not.toBeVisible();
 
     // Regression: the Trader Name column must be populated immediately —
     // the bean used to ship the saved entity with @Transient traderName
@@ -336,8 +337,8 @@ test.describe('CSFD — Corporate Shipment Flow Details', () => {
     const body = await resp.json();
     expect(body.exception, JSON.stringify(body.exception)).toBeFalsy();
 
-    // Grid must show "No rows" — the deleted last row should NOT linger.
-    await expect(page.locator('tbody tr', { hasText: 'No rows' })).toBeVisible();
+    // Grid must show its empty state — the deleted last row should NOT linger.
+    await expect(emptyGridRow(page)).toBeVisible();
     await expect(page.locator('tbody tr', { hasText: 'WH-101' })).toHaveCount(0);
 
     await cleanupFlow(page, flow);
