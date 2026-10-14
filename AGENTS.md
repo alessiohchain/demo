@@ -19,6 +19,17 @@ fleet-canonical: **read
 before writing code here. Module package root: `za.co.csnx.demo`
 (`service.activity.*` / `business.activity.*`; no backend `engine` package).
 
+**Data access:**
+
+- **Never load rows and then reduce them in Java; JDBC is for tests.** Filter,
+  sort, offset and row limit go into the query — never `findAll()` (or any
+  fetched list) followed by `.stream().filter/limit/skip`, `.findFirst()` or
+  `.subList()`; paging passes the start index and row count to the query.
+  Application code uses JPA repositories; a `src/main` class uses JDBC only for
+  one of the listed reasons, named in a `JDBC:` javadoc line. Rules, exceptions
+  and the reason list: [docs/dao-patterns.md](docs/dao-patterns.md)
+  §"Never load rows and then reduce them in Java" and §"JDBC is the exception".
+
 ## Ports & run
 
 Fleet ports registry: [../platform/docs/fleet.md](../platform/docs/fleet.md).
