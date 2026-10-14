@@ -14,6 +14,10 @@ import org.springframework.stereotype.Component;
  * tombstones while retaining the last-known fields (a D for a never-seen
  * vendor inserts a PK-only tombstone). Runs inside the idempotent consumer's
  * transaction.
+ *
+ * <p><b>JDBC:</b> an event mirror store — state-based INSERT … ON CONFLICT upserts applying
+ * CDC change events to an entity-free read-model (platform/docs/cdc-event-integration.md
+ * §"Step 3 — Add the consumer", item 3).
  */
 @Component
 public class IntVendorMirrorStore {
