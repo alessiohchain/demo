@@ -58,7 +58,8 @@ the Jira QA status and the tester guides follow from it. Then re-run
   ```
 
 - **Epic branches**: `TODO (not onboarded)`.
-- **Merge style**: `git merge --no-ff`.
+- **Merge style**: none — follows the shared rule (squash a ticket; `--no-ff` only for an epic
+  branch into `main`).
 - **Conflict-prone shared files**: `TODO (record them as they are found)`.
 
 ## Build & test
