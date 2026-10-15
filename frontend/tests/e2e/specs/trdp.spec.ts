@@ -15,7 +15,7 @@ import {
  * {@code clickForDetail} from the picker JSON so every cell click bubbles
  * to the row's onClick which performs the return.
  *
- * @see docs/engine.md §20.6
+ * @see platform/docs/engine.md §20.6
  */
 test.describe('TRDP — Trader picker return paths', () => {
   test.beforeEach(async ({ authedPage: page }) => {

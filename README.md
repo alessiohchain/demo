@@ -43,7 +43,7 @@ docker-compose.yml
 ```bash
 docker run --rm -d --name demo-pg \
   -e POSTGRES_DB=demo -e POSTGRES_USER=demo -e POSTGRES_PASSWORD=demo \
-  -p 5432:5432 postgres:16-alpine
+  -p 5432:5432 postgres:16-alpine   # the dev datasource default is localhost:5432/demo
 ```
 
 ### 2. Backend
@@ -53,9 +53,9 @@ cd backend
 JAVA_HOME=<path-to-jdk21> ./mvnw spring-boot:run
 ```
 
-- API: <http://localhost:8080/api/...>
-- Swagger UI: <http://localhost:8080/swagger-ui.html>
-- Actuator health: <http://localhost:8080/actuator/health>
+- API: <http://localhost:8092/api/...>
+- Swagger UI: <http://localhost:8092/swagger-ui.html>
+- Actuator health: <http://localhost:8092/actuator/health>
 
 ### 3. Frontend
 
@@ -65,8 +65,8 @@ npm install
 npm run dev
 ```
 
-- App: <http://localhost:5173>
-- Vite proxies `/api` → `http://localhost:8080`.
+- App: <http://localhost:5175>
+- Vite proxies `/api` → `http://localhost:8092`.
 
 ## Run end-to-end (Docker)
 
@@ -74,9 +74,9 @@ npm run dev
 docker compose up --build
 ```
 
-- Frontend: <http://localhost:8081>
-- Backend: <http://localhost:8080>
-- Postgres: localhost:5432 (demo / demo)
+- Frontend: <http://localhost:8085>
+- Backend: <http://localhost:8092>
+- Postgres: localhost:5435 (demo / demo)
 
 ## Tests
 
@@ -126,11 +126,8 @@ shipping a new fastpath/menu entry.
 ## Docs
 
 - [CLAUDE.md](CLAUDE.md) — project rules and conventions.
-- [docs/engine.md](docs/engine.md) — engine REST/wire contract.
-- [docs/activity-services.md](docs/activity-services.md) — how to write an activity service.
-- [docs/dao-patterns.md](docs/dao-patterns.md) — entity + repository conventions.
-- [docs/migrations.md](docs/migrations.md) — Flyway conventions.
-- [docs/architecture.md](docs/architecture.md) — single-module wiring end-to-end.
+- [docs/architecture.md](docs/architecture.md) — repo shape, packages, ports, env vars, CDC + event flows.
+- [docs/migrations.md](docs/migrations.md) — this module's migration values and invariants.
 - [docs/decisions.md](docs/decisions.md) — rationale behind every stack choice.
-- [docs/platform-architecture.md](docs/platform-architecture.md) — multi-module future direction.
+- Fleet-canonical (platform repo, cloned alongside): [engine.md](../platform/docs/engine.md), [activity-services.md](../platform/docs/activity-services.md), [dao-patterns.md](../platform/docs/dao-patterns.md), [migrations.md](../platform/docs/migrations.md), [platform-architecture.md](../platform/docs/platform-architecture.md), [fleet.md](../platform/docs/fleet.md) (ports).
 - [docs/demo-ops.md](docs/demo-ops.md) — GCP deployment runbook.

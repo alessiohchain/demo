@@ -4,6 +4,12 @@ server {
     root /usr/share/nginx/html;
     index index.html;
 
+    # nginx caps request bodies at 1 MB by default and answers anything bigger with a
+    # bare 413 before Spring sees it — no backend log (platform/docs/traps.md
+    # T-BUILD-04). Match the backend: it sets no spring.servlet.multipart limits, so
+    # Spring Boot's default max-request-size (10 MB) applies. Raise the two together.
+    client_max_body_size 10m;
+
     location /api/ {
         proxy_pass ${BACKEND_URL};
         proxy_http_version 1.1;
@@ -29,7 +35,19 @@ server {
         add_header Cache-Control "no-store";
     }
 
+    # Vite's output is content-hashed: a changed file gets a new name, so a browser
+    # may keep these forever and never revalidate. A miss is a real 404, never the
+    # SPA shell (HTML parsed as JavaScript).
+    location /assets/ {
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        try_files $uri =404;
+    }
+
+    # The shell (and every client-side route that falls back to it) is revalidated
+    # on each load, or a browser keeps an old index.html pointing at assets a
+    # redeploy has removed (platform/docs/traps.md T-BUILD-03).
     location / {
+        add_header Cache-Control "no-cache";
         try_files $uri $uri/ /index.html;
     }
 }

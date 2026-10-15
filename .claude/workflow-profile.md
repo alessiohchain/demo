@@ -1,9 +1,12 @@
 # Workflow profile — Demo module
+**Inherits**: ../platform/.claude/fleet-profile.md
 
 A CSnx-native demo module on the CSnx module platform (Spring Boot backend + React metadata-driven UI engine, Postgres), used as a **reference template** for scaffolding new modules.
 
 This file is the per-project half of the `team-workflow` plugin skills. The skills hold the
-process; this file holds this project's facts.
+process; this file holds this project's facts. What is the same across the fleet (the ticket
+folder and artifact paths, reusable helpers, constants homes, fleet-wide learnings) is
+inherited from `../platform/.claude/fleet-profile.md`; change it there, not here.
 
 > **Onboarding status: partial.** The build, source-control and local-run sections below are
 > filled in from the repo. The Jira-workflow, environment, UAT and Confluence sections are
@@ -67,39 +70,35 @@ the Jira QA status and the tester guides follow from it. Then re-run
 | Full build gate | `cd backend && ./mvnw clean package` (plus `cd frontend && npm run build` if the UI changed) |
 | Run the whole test suite (backend) | `cd backend && ./mvnw test` (unit + Testcontainers integration) |
 | Run a single test class | `cd backend && ./mvnw test -Dtest=<ClassName>` |
-| Frontend unit tests | `cd frontend && npm test` |
+| Frontend unit tests | none — `package.json` has no unit-test runner; `cd frontend && npm run build` (`tsc -b`) is the type check |
 | End-to-end / browser suite | `cd frontend && npx playwright test` |
 
 - **Code-generation rules**: no code generation; **no Lombok** — hand-write getters/setters on entities, DTOs are `record`s.
 - **Test conventions**: JUnit 5 + Testcontainers for backend integration tests.
-- **Regression suite**: `frontend/tests/e2e/` (Playwright) — a ticket adds one spec.
-
-- **What a change owes** (*Test coverage* in `conventions.md`): backend logic → code-level
-  tests; a screen → browser verification plus an e2e spec; **a change touching both owes
-  both**. An e2e spec is not coverage of backend logic, and green unit tests say nothing
-  about whether the screen works.
+- **Regression suite**: `frontend/tests/e2e/specs/` (Playwright; `auth.setup.ts` signs in as the
+  seeded `wcstest` e2e admin) — a ticket adds one spec. Needs the platform + demo compose
+  stacks up.
 
 ## Local run
 
 ```bash
-cd backend  && ./mvnw spring-boot:run
-cd frontend && npm run dev              # http://localhost:5173
+cd backend  && ./mvnw spring-boot:run   # :8092, DB default localhost:5432/demo
+cd frontend && npm run dev              # http://localhost:5175
 
 # Full stack, closer to prod
-docker compose up --build               # frontend :8081, backend :8080, db :5432
+docker compose up --build               # frontend :8085, backend :8092, db :5435
 ```
 
-- **URL**: `http://localhost:5173` (dev) or `http://localhost:8081` (compose).
+- **URL**: `http://localhost:5175` (dev) or `http://localhost:8085` (compose).
 - **Java 21** is required for the backend; **Node 20.19+ / 22+** for the frontend.
-- **Database**: Postgres on `:5432` (see `docker-compose.yml` for db/user/password).
+- **Database**: Postgres — compose publishes `:5435`; the dev datasource defaults to `localhost:5432/demo` (db/user/password `demo`).
 - **Login**: sign-in goes through the central platform IdP (OIDC) — the platform stack must be running alongside this module.
-- ⚠️ **Docker serves a stale jar** unless `./mvnw package` runs before `docker compose up --build`.
 
 ## Environments
 
 | Name | Config | App URL | Database | Deployed by | Constraints |
 |---|---|---|---|---|---|
-| local | see **Local run** | `http://localhost:5173` | local | developer | — |
+| local | see **Local run** | `http://localhost:5175` | local | developer | — |
 
 - **Default environment for UAT test execution**: `TODO (not onboarded)`.
 - **Who deploys the trunk**: `TODO (not onboarded)`.
@@ -119,38 +118,10 @@ docker compose up --build               # frontend :8081, backend :8080, db :543
 
 ## Docs & deliverables
 
-**Everything for a ticket lives in one folder, and an epic's subtickets nest inside the
-epic's folder.** Below, **`<TICKET_DIR>`** means:
+### Exemplar documents
 
-- `docs/tickets/<EPIC>/<TICKET>/` — ticket with an epic parent
-- `docs/tickets/<TICKET>/` — standalone ticket
-
-Create any missing folders. Working `.md` files drop the ticket key (the folder carries it);
-rendered `.docx` keep it, because those get attached to Jira and downloaded where the folder
-name is lost.
-
-| Artifact | Path |
-|---|---|
-| Implementation plan | `<TICKET_DIR>/plan.md` |
-| Epic tracker | `docs/tickets/<EPIC>/epic-plan.md` |
-| Questions & concerns (blockers, decisions taken without you) | `<TICKET_DIR>/questions-concerns.html` |
-| Automation evaluation (for skills) | `<TICKET_DIR>/evaluation.md` |
-| Automation evaluation (human view) | `<TICKET_DIR>/evaluation.html` |
-| Developer handover guide | `<TICKET_DIR>/developer-guide.md` → `<TICKET>-developer-guide.docx` |
-| UAT handover guide | `<TICKET_DIR>/uat-guide.md` → `<TICKET>-uat-guide.docx` |
-| Test plan | `<TICKET_DIR>/testplan.md` |
-| Test doc source + evidence | `<TICKET_DIR>/testdoc.md`, `evidence/` |
-| Customer test document | `<TICKET_DIR>/Test_Doc_<TICKET>Processing.docx` → `...Final.docx` / `...Failed.docx` |
-| Estimate (from a ticket) | `<TICKET_DIR>/estimate.md` → `<TICKET>-estimate.docx` |
-| Estimate (from a document) | `docs/estimates/<NAME>-estimate.md` / `.docx` |
-
-- **Legacy locations — read, never move.** Anything produced before this convention stays put
-  (`docs/plans/`, `docs/testplans/`, loose `docs/<TICKET>-*` files). If a ticket folder is
-  empty, check there before concluding a document does not exist.
-- **Retention**: `docs/plans/` is committed and kept; `docs/gaps/` is scratch and not committed.
-- **Renderer**: pandoc, `--toc --toc-depth=2` for long guides.
-- **Exemplar documents**: none in this repo yet — model on the CSnx repo's exemplars
-  (`C:\software\projects\csnx\docs\`), listed in that repo's workflow profile.
+None in this repo yet — model new documents on the CSnx repo's exemplars
+(`C:\software\projects\csnx\docs\` on this machine), listed in that repo's workflow profile.
 
 ## Standards
 
@@ -165,19 +136,14 @@ Precedence: repo guide > stack file > universal — see *Standards library* in `
 
   | Change kind | Guide |
   |---|---|
-  | Backend conventions | `AGENTS.md` §Conventions |
+  | Backend conventions | `AGENTS.md` §Conventions, then `../platform/docs/module-conventions.md` |
   | Frontend conventions | `AGENTS.md` §Conventions (tightens RCT-06/11) |
-  | Entity / repository | `docs/dao-patterns.md` |
-  | Activity service (incl. the self-invoked @Transactional trap) | `docs/activity-services.md` (tightens SB-06) |
-  | DB migration + undo scripts | `docs/migrations.md` |
+  | Entity / repository | `../platform/docs/dao-patterns.md` (demo's entities are its worked examples) |
+  | Activity service (incl. the self-invoked @Transactional trap) | `../platform/docs/activity-services.md` (tightens SB-06) |
+  | DB migration + undo scripts | `docs/migrations.md` (demo values), then `../platform/docs/migrations.md` |
   | Architecture / decisions | `docs/architecture.md`, `docs/decisions.md` |
 
-- **Reusable helpers** — check before writing a local one: the `BaseEntity`/`BaseRepository`
-  hierarchy and `AbstractCrudActivityBean`/`AbstractCrudActivityService` hooks (see the DAO and
-  activity-service guides above); the shared engine client on the frontend; shadcn primitives
-  in `components/ui/` — install via CLI, never hand-roll (RCT-06).
-- **Constants homes** — single-seam values on the owning entity/service; wire command names
-  lowercase and never engine-reserved (SB-17); user-facing text per UNI-06.
+- *Reusable helpers* and *Constants homes* are inherited from `fleet-profile.md`.
 
 ## Confluence
 
