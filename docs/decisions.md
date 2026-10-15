@@ -284,9 +284,9 @@ retry-with-backoff, method-level metrics — add
 
 ## 18. MCP servers — what's wired and where
 
-- **GitLab** — user-scope (`~/.claude.json`, with PAT). Available
-  automatically in any project. Used for issues, MRs, repo ops on
-  `gitlab.com/WorldwideChainStores/...`.
+- **GitHub** — user-scope (`~/.claude.json`, with PAT). Available
+  automatically in any project. Used for issues, PRs and repo ops on the
+  fleet's GitHub repos; the `gh` CLI does the same from a shell.
 - **Atlassian (Jira / Confluence)** — repo-scoped via `.mcp.json` at the demo
   root (SSE URL only, no secrets). Future modules cloning the demo inherit it.
   Cloud ID: `32b38c14-f87d-48a0-a8f4-43d094f9b637` (worldwidechainstores).

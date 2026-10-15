@@ -116,7 +116,7 @@ code — don't hand-roll (`EngineAppShell`; demo has smart-nav wired: dep +
 
 ## MCP servers
 
-Common set (GitLab, Atlassian, Azure): [../platform/docs/fleet.md](../platform/docs/fleet.md#mcp-servers).
+Common set (GitHub, Atlassian, Azure): [../platform/docs/fleet.md](../platform/docs/fleet.md#mcp-servers).
 Postgres MCP here targets the compose container `demo-postgres-1` via
 `host.docker.internal:5435`, db/user/pass `demo` — the compose stack must be up
 (the one-shot `demo-pg` on 5432 is NOT what it connects to).
