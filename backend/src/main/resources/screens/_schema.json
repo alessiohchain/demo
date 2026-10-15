@@ -177,7 +177,7 @@
         "buttonMetadata": {
             "type": "object",
             "required": ["name"],
-            "description": "Toolbar / navigation button. modelType drives the /api/process payload shape; see docs/engine.md §6.",
+            "description": "Toolbar / navigation button. modelType drives the /api/process payload shape; see platform/docs/engine.md §6.",
             "properties": {
                 "id":              { "type": ["string", "integer"] },
                 "name":            { "type": "string" },

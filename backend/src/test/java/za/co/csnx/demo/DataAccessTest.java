@@ -20,7 +20,7 @@ import za.co.csnx.engine.common.DataAccessScanner;
  *       the query.</li>
  *   <li>JDBC only with a stated reason: JPA repositories are the default, and a class
  *       that needs JDBC says why in a {@code JDBC:} javadoc line
- *       ({@code docs/dao-patterns.md} §"JDBC is the exception").</li>
+ *       ({@code platform/docs/dao-patterns.md} §"JDBC is the exception").</li>
  * </ul>
  */
 class DataAccessTest {
