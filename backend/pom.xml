@@ -242,7 +242,7 @@
 		</repository>
 		<repository>
 			<id>github-csnx</id>
-			<url>https://maven.pkg.github.com/alessiohchain/platform</url>
+			<url>https://maven.pkg.github.com/worldwidechainstores/platform</url>
 		</repository>
 	</repositories>
 

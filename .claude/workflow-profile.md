@@ -49,7 +49,7 @@ the Jira QA status and the tester guides follow from it. Then re-run
 
 ## Source control
 
-- **Host**: GitHub — `github.com/alessiohchain/demo.git`. Use the `mcp__github__*` MCP tools for pull requests.
+- **Host**: GitHub — `github.com/worldwidechainstores/demo.git`. Use the `mcp__github__*` MCP tools for pull requests.
 - **Trunk branch**: `main`.
 - **Feature branch**: cut from trunk, named after the ticket or a short slug:
 
