@@ -39,8 +39,6 @@ test.describe('CSFD — Corporate Shipment Flow Details', () => {
     await selectRowAndDetails(page, 'A1');
     await expect(page).toHaveURL(/\/CSFD$/);
 
-    const initialRowCount = await page.locator('tbody tr').filter({ has: page.locator('input[type="checkbox"]') }).count();
-
     // Open Add dialog
     await clickToolbarButton(page, 'cmd_create');
     const addDialog = page.getByRole('dialog', { name: 'Add' });

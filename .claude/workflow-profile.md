@@ -68,7 +68,7 @@ the Jira QA status and the tester guides follow from it. Then re-run
 |---|---|
 | Compile / fast build (backend) | `cd backend && ./mvnw compile` |
 | Package deployable artifact | `cd backend && ./mvnw clean package` |
-| Full build gate | `cd backend && ./mvnw clean package` (plus `cd frontend && npm run build` if the UI changed) |
+| Full build gate | `cd backend && ./mvnw clean package` (plus `cd frontend && npm run lint && npm run build` if the UI changed) |
 | Run the whole test suite (backend) | `cd backend && ./mvnw test` (unit + Testcontainers integration) |
 | Run a single test class | `cd backend && ./mvnw test -Dtest=<ClassName>` |
 | Frontend unit tests | none — `package.json` has no unit-test runner; `cd frontend && npm run build` (`tsc -b`) is the type check |
@@ -145,6 +145,14 @@ Precedence: repo guide > stack file > universal — see *Standards library* in `
   | Architecture / decisions | `docs/architecture.md`, `docs/decisions.md` |
 
 - *Reusable helpers* and *Constants homes* are inherited from `fleet-profile.md`.
+- **Enforced by** — rules the build fails on here; a review still flags a suppression of them:
+
+  | Rule | Enforced by | Proven | Frozen breaches |
+  |---|---|---|---|
+  | SB-22, one expression only: a literal `.findAll(…)`, `.getResultList()`, `.queryForList(…)` or `.getContent()` (no `{`, `}` or `;` in its arguments) then `.stream()` and, before the next `;`, `filter`/`limit`/`skip`/`findFirst`/`findAny`/`anyMatch`/`noneMatch`/`allMatch`/`count`/`distinct`; or `.findAll(…).subList(…)`. Derived finders (`findAllBy…`, `findBy…`), split statements, loops, `sorted` and `searchForGrid` paging are still reviewed | `backend/src/test/java/za/co/csnx/demo/DataAccessTest.java` `noRowsAreLoadedAndThenReducedInJava` | 2026-10-16 pass/fail/pass | 0 |
+  | SB-23, single-class imports only: `org.springframework.jdbc.<Class>`, `javax.sql.DataSource`, or `java.sql` `Connection`/`Statement`/`PreparedStatement`/`CallableStatement`/`ResultSet`/`DatabaseMetaData`, in a file with no `JDBC:` text. Wildcard imports, other `java.sql` types, fully-qualified use, where the tag sits and whether its reason is on the closed list are still reviewed | same, `everyJdbcUseStatesItsReason` | 2026-10-16 pass/fail/pass | 0 |
+  | RCT-05, rules-of-hooks only (a hook called conditionally, in a loop or outside a component). `exhaustive-deps` is a warning, so missing deps are still reviewed | `frontend/eslint.config.js` `react-hooks/rules-of-hooks` (`npm run lint`, in CI) | 2026-10-16 pass/fail/pass | 0 |
+  | RCT-09, explicit `any`, `@ts-ignore`, `@ts-nocheck` and `@ts-expect-error` without a description only. Whether a description is a real reason, `!` assertions and `as unknown as` casts are still reviewed | same, `@typescript-eslint/no-explicit-any` and `ban-ts-comment` | 2026-10-16 pass/fail/pass | 0 |
 
 ## Confluence
 
