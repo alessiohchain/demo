@@ -68,7 +68,7 @@ the Jira QA status and the tester guides follow from it. Then re-run
 |---|---|
 | Compile / fast build (backend) | `cd backend && ./mvnw compile` |
 | Package deployable artifact | `cd backend && ./mvnw clean package` |
-| Full build gate | `cd backend && ./mvnw clean package` (plus `cd frontend && npm run build` if the UI changed) |
+| Full build gate | `cd backend && ./mvnw clean package` (plus `cd frontend && npm run lint && npm run build` if the UI changed) |
 | Run the whole test suite (backend) | `cd backend && ./mvnw test` (unit + Testcontainers integration) |
 | Run a single test class | `cd backend && ./mvnw test -Dtest=<ClassName>` |
 | Frontend unit tests | none — `package.json` has no unit-test runner; `cd frontend && npm run build` (`tsc -b`) is the type check |
@@ -149,10 +149,10 @@ Precedence: repo guide > stack file > universal — see *Standards library* in `
 
   | Rule | Enforced by | Proven | Frozen breaches |
   |---|---|---|---|
-  | SB-22 | `backend/src/test/java/za/co/csnx/demo/DataAccessTest.java` `noRowsAreLoadedAndThenReducedInJava` | 2026-10-16 pass/fail/pass | 0 |
-  | SB-23 | same, `everyJdbcUseStatesItsReason` | 2026-10-16 pass/fail/pass | 0 |
-  | RCT-05 | `frontend/eslint.config.js` `react-hooks/rules-of-hooks` (CI `npm run lint`); `exhaustive-deps` is only a warning | 2026-10-16 pass/fail/pass | 0 |
-  | RCT-09 | same, `@typescript-eslint/no-explicit-any`; `no-non-null-assertion` is not on | 2026-10-16 pass/fail/pass | 0 |
+  | SB-22, one expression only: `findAll(…)` / `getResultList()` / `queryForList(…)` / `getContent()` then `.stream()` with `filter`/`limit`/`skip`/`findFirst`/`count`/`distinct`, or `findAll(…).subList(…)`. Split statements, loops, `sorted` and `searchForGrid` paging are still reviewed | `backend/src/test/java/za/co/csnx/demo/DataAccessTest.java` `noRowsAreLoadedAndThenReducedInJava` | 2026-10-16 pass/fail/pass | 0 |
+  | SB-23, the import only: a JDBC import in a file with no `JDBC:` text. Where the tag sits and whether its reason is on the closed list are still reviewed | same, `everyJdbcUseStatesItsReason` | 2026-10-16 pass/fail/pass | 0 |
+  | RCT-05, rules-of-hooks only (a hook called conditionally, in a loop or outside a component). `exhaustive-deps` is a warning, so missing deps are still reviewed | `frontend/eslint.config.js` `react-hooks/rules-of-hooks` (`npm run lint`, in CI) | 2026-10-16 pass/fail/pass | 0 |
+  | RCT-09, explicit `any`, `@ts-ignore` and undescribed `@ts-expect-error` only. `!` assertions and `as unknown as` casts are still reviewed | same, `@typescript-eslint/no-explicit-any` and `ban-ts-comment` | 2026-10-16 pass/fail/pass | 0 |
 
 ## Confluence
 
