@@ -2,7 +2,7 @@
 @import 'tw-animate-css';
 
 /* Tailwind must scan the shared engine package for class names. */
-@source '../node_modules/@alessiohchain/csnx-engine/dist';
+@source '../node_modules/@worldwidechainstores/csnx-engine/dist';
 
 @custom-variant dark (&:is(.dark *));
 

@@ -1,4 +1,4 @@
-import { EngineAppShell } from '@alessiohchain/csnx-engine/shell/EngineAppShell';
+import { EngineAppShell } from '@worldwidechainstores/csnx-engine/shell/EngineAppShell';
 import { ThemePicker } from '@/app/theme/ThemePicker';
 
 /**

@@ -8,19 +8,19 @@ import { api, resetInflight, getInflightCount, subscribeInflight } from '@/app/a
 import { verifyCredentials, platformIssuer } from '@/app/auth/platformSso';
 import { readModulesClaim, moduleAccessRedirect, MODULE_CODE } from '@/app/auth/moduleClaim';
 import { CLIENT_SORT_ENABLED, IS_DEVELOPMENT } from '@/app/urlFlags';
-import { EngineRuntimeProvider, type EngineStatics } from '@alessiohchain/csnx-engine';
+import { EngineRuntimeProvider, type EngineStatics } from '@worldwidechainstores/csnx-engine';
 import { ThemeProvider } from '@/app/theme/ThemeProvider';
 import { ThemedToaster } from '@/app/theme/ThemedToaster';
 import { MultiErrorDialog } from '@/app/error/MultiErrorDialog';
 import { CACHE_UI_ENABLED, SHOULD_CLEAR_CACHE } from '@/app/urlFlags';
-import { clearCacheVersion } from '@alessiohchain/csnx-engine/process/cacheVersionStore';
-import { clearGridSnapshots } from '@alessiohchain/csnx-engine/process/parentGridStore';
-import { clearParentUpdates } from '@alessiohchain/csnx-engine/process/parentRowsStore';
-import { clearUIModelStore } from '@alessiohchain/csnx-engine/process/uiModelStore';
-import { clearWorkflowStateStore } from '@alessiohchain/csnx-engine/process/workflowStateStore';
-import { clearBreadcrumbs } from '@alessiohchain/csnx-engine/breadcrumbs/breadcrumbStore';
-import { clearFilterCriteria } from '@alessiohchain/csnx-engine/filter/filterCriteriaStore';
-import { clearSearchCriteria } from '@alessiohchain/csnx-engine/filter/searchCriteriaStore';
+import { clearCacheVersion } from '@worldwidechainstores/csnx-engine/process/cacheVersionStore';
+import { clearGridSnapshots } from '@worldwidechainstores/csnx-engine/process/parentGridStore';
+import { clearParentUpdates } from '@worldwidechainstores/csnx-engine/process/parentRowsStore';
+import { clearUIModelStore } from '@worldwidechainstores/csnx-engine/process/uiModelStore';
+import { clearWorkflowStateStore } from '@worldwidechainstores/csnx-engine/process/workflowStateStore';
+import { clearBreadcrumbs } from '@worldwidechainstores/csnx-engine/breadcrumbs/breadcrumbStore';
+import { clearFilterCriteria } from '@worldwidechainstores/csnx-engine/filter/filterCriteriaStore';
+import { clearSearchCriteria } from '@worldwidechainstores/csnx-engine/filter/searchCriteriaStore';
 import './index.css';
 
 // {@code ?CLEAR_CACHE} — match {@code Csnx.java#load()}'s pre-login

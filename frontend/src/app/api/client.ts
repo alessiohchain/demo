@@ -1,10 +1,10 @@
 import axios, { AxiosError, type AxiosInstance } from 'axios';
 import { toast } from 'sonner';
 import { errorBus } from '@/app/error/errorBus';
-import { getCacheVersion } from '@alessiohchain/csnx-engine/process/cacheVersionStore';
-import { getWorkflowModels, getWorkflowOverride } from '@alessiohchain/csnx-engine/process/workflowStateStore';
-import { getPreviousFastpath } from '@alessiohchain/csnx-engine/process/workflowTracker';
-import { stripInlineErrorMarkup } from '@alessiohchain/csnx-engine/process/errorMessage';
+import { getCacheVersion } from '@worldwidechainstores/csnx-engine/process/cacheVersionStore';
+import { getWorkflowModels, getWorkflowOverride } from '@worldwidechainstores/csnx-engine/process/workflowStateStore';
+import { getPreviousFastpath } from '@worldwidechainstores/csnx-engine/process/workflowTracker';
+import { stripInlineErrorMarkup } from '@worldwidechainstores/csnx-engine/process/errorMessage';
 
 let accessToken: string | null = null;
 let onUnauthorized: (() => void) | null = null;

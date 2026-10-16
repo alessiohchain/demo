@@ -123,7 +123,7 @@ Postgres MCP here targets the compose container `demo-postgres-1` via
 
 ## Engine version
 
-- **Frontend** (`@alessiohchain/csnx-engine`) resolves from **GitHub Packages**
+- **Frontend** (`@worldwidechainstores/csnx-engine`) resolves from **GitHub Packages**
   — a `^` range in `frontend/package.json` plus `.npmrc` (`GH_PACKAGES_TOKEN`;
   the Dockerfile takes it as a BuildKit secret). The old `frontend/vendor/*.tgz`
   tarball is gone; don't reintroduce it.

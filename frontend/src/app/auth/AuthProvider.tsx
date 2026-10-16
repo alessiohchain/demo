@@ -17,15 +17,15 @@ import {
   type PlatformTokens,
 } from '@/app/auth/platformSso';
 import { normalizeLookupMap } from '@/lib/lookup';
-import { clearCacheVersion, setCacheVersion } from '@alessiohchain/csnx-engine/process/cacheVersionStore';
-import { clearWorkflowStateStore } from '@alessiohchain/csnx-engine/process/workflowStateStore';
-import { clearUIModelStore } from '@alessiohchain/csnx-engine/process/uiModelStore';
-import { clearParentUpdates } from '@alessiohchain/csnx-engine/process/parentRowsStore';
-import { clearGridSnapshots } from '@alessiohchain/csnx-engine/process/parentGridStore';
-import { clearBreadcrumbs } from '@alessiohchain/csnx-engine/breadcrumbs/breadcrumbStore';
-import { clearFilterCriteria } from '@alessiohchain/csnx-engine/filter/filterCriteriaStore';
-import { clearSearchCriteria } from '@alessiohchain/csnx-engine/filter/searchCriteriaStore';
-import { clearAllEntityDialogSnapshots } from '@alessiohchain/csnx-engine/dialog/entityDialogStore';
+import { clearCacheVersion, setCacheVersion } from '@worldwidechainstores/csnx-engine/process/cacheVersionStore';
+import { clearWorkflowStateStore } from '@worldwidechainstores/csnx-engine/process/workflowStateStore';
+import { clearUIModelStore } from '@worldwidechainstores/csnx-engine/process/uiModelStore';
+import { clearParentUpdates } from '@worldwidechainstores/csnx-engine/process/parentRowsStore';
+import { clearGridSnapshots } from '@worldwidechainstores/csnx-engine/process/parentGridStore';
+import { clearBreadcrumbs } from '@worldwidechainstores/csnx-engine/breadcrumbs/breadcrumbStore';
+import { clearFilterCriteria } from '@worldwidechainstores/csnx-engine/filter/filterCriteriaStore';
+import { clearSearchCriteria } from '@worldwidechainstores/csnx-engine/filter/searchCriteriaStore';
+import { clearAllEntityDialogSnapshots } from '@worldwidechainstores/csnx-engine/dialog/entityDialogStore';
 
 export interface UserInfo {
   username: string;
