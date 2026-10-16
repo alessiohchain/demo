@@ -5,7 +5,7 @@ import { beginPlatformLogin } from '@/app/auth/platformSso';
 import AuthCallback from '@/pages/AuthCallback';
 import { AppShell } from '@/shell/AppShell';
 import { Landing } from '@/shell/Landing';
-import { DynamicScreen } from '@alessiohchain/csnx-engine/screen/DynamicScreen';
+import { DynamicScreen } from '@worldwidechainstores/csnx-engine/screen/DynamicScreen';
 
 /**
  * Unauthenticated = straight into the OIDC code flow against the central

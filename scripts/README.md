@@ -27,7 +27,7 @@
 Dockerfile COPYs a pre-built `target/*-backend-*.jar`) and auto-resolves a
 Temurin **JDK 21** (the machine default `JAVA_HOME` is JDK 8).
 
-**Shared-engine changes** (the `@alessiohchain/csnx-engine` npm package or the
+**Shared-engine changes** (the `@worldwidechainstores/csnx-engine` npm package or the
 `csnx-engine-spring` / `csnx-engine-ai` maven artifacts) are owned by the
 **platform** repo. Build + propagate them from there first, then redeploy here:
 

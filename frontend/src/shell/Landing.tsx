@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/app/auth/AuthProvider';
-import { clearBreadcrumbs } from '@alessiohchain/csnx-engine/breadcrumbs/breadcrumbStore';
-import { resetWorkflowHistory } from '@alessiohchain/csnx-engine/process/workflowTracker';
-import { startFreshScreenFlow } from '@alessiohchain/csnx-engine/screen/screenFlow';
+import { clearBreadcrumbs } from '@worldwidechainstores/csnx-engine/breadcrumbs/breadcrumbStore';
+import { resetWorkflowHistory } from '@worldwidechainstores/csnx-engine/process/workflowTracker';
+import { startFreshScreenFlow } from '@worldwidechainstores/csnx-engine/screen/screenFlow';
 
 export function Landing() {
   const { user } = useAuth();

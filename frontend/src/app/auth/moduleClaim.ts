@@ -1,4 +1,4 @@
-import type { EngineModuleTile } from '@alessiohchain/csnx-engine';
+import type { EngineModuleTile } from '@worldwidechainstores/csnx-engine';
 import { getAccessToken } from '@/app/api/client';
 import { PORTAL_URL } from '@/app/auth/platformSso';
 
