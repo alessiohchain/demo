@@ -17,7 +17,7 @@ import { test as base, expect, type Page } from '@playwright/test';
  * without re-authenticating.
  */
 export const test = base.extend<{ authedPage: Page }>({
-  authedPage: async ({ page }, use) => {
+  authedPage: async ({ page }, provide) => {
     // Capture the bearer token the SPA attaches to API calls.
     page.on('request', (req) => {
       const auth = req.headers()['authorization'];
@@ -31,7 +31,7 @@ export const test = base.extend<{ authedPage: Page }>({
     // re-runs the OIDC code flow, but the persisted IdP session cookie makes
     // it silent (no /login). Wait for the authenticated shell.
     await expect(page.getByRole('button', { name: /sign out/i })).toBeVisible({ timeout: 15_000 });
-    await use(page);
+    await provide(page);
   },
 });
 

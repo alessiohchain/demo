@@ -145,6 +145,14 @@ Precedence: repo guide > stack file > universal — see *Standards library* in `
   | Architecture / decisions | `docs/architecture.md`, `docs/decisions.md` |
 
 - *Reusable helpers* and *Constants homes* are inherited from `fleet-profile.md`.
+- **Enforced by** — rules the build fails on here; a review still flags a suppression of them:
+
+  | Rule | Enforced by | Proven | Frozen breaches |
+  |---|---|---|---|
+  | SB-22 | `backend/src/test/java/za/co/csnx/demo/DataAccessTest.java` `noRowsAreLoadedAndThenReducedInJava` | 2026-10-16 pass/fail/pass | 0 |
+  | SB-23 | same, `everyJdbcUseStatesItsReason` | 2026-10-16 pass/fail/pass | 0 |
+  | RCT-05 | `frontend/eslint.config.js` `react-hooks/rules-of-hooks` (CI `npm run lint`); `exhaustive-deps` is only a warning | 2026-10-16 pass/fail/pass | 0 |
+  | RCT-09 | same, `@typescript-eslint/no-explicit-any`; `no-non-null-assertion` is not on | 2026-10-16 pass/fail/pass | 0 |
 
 ## Confluence
 
