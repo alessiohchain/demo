@@ -31,12 +31,12 @@ enforced here by `DataAccessTest`.
 Fleet ports registry + run template + the `JAVA_HOME` gotcha:
 [../platform/docs/fleet.md](../platform/docs/fleet.md). This repo: backend
 **8092**, frontend **8085**, compose db **5435**, Vite **5175**; the dev
-datasource default is `localhost:5432/demo`, so the one-shot dev container
-runs on 5432.
+datasource default is `localhost:5435/demo`, so the one-shot dev container
+runs on 5435.
 
 ```powershell
 # Postgres (one-shot, dev)
-docker run --rm -d --name demo-pg -e POSTGRES_DB=demo -e POSTGRES_USER=demo -e POSTGRES_PASSWORD=demo -p 5432:5432 postgres:16-alpine
+docker run --rm -d --name demo-pg -e POSTGRES_DB=demo -e POSTGRES_USER=demo -e POSTGRES_PASSWORD=demo -p 5435:5432 postgres:16-alpine
 
 cd backend ; ./mvnw spring-boot:run     # Java 21; serves on :8092
 cd frontend ; npm run dev               # http://localhost:5175

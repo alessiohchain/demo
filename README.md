@@ -43,7 +43,7 @@ docker-compose.yml
 ```bash
 docker run --rm -d --name demo-pg \
   -e POSTGRES_DB=demo -e POSTGRES_USER=demo -e POSTGRES_PASSWORD=demo \
-  -p 5432:5432 postgres:16-alpine   # the dev datasource default is localhost:5432/demo
+  -p 5435:5432 postgres:16-alpine   # the dev datasource default is localhost:5435/demo
 ```
 
 ### 2. Backend

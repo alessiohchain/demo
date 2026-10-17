@@ -49,7 +49,7 @@ health/info and the temporary `/api/test/**`.
 |---|---|---|
 | Backend | **8092** | container 8080; `server.port` defaults to 8092 outside compose |
 | Frontend | **8085** | nginx :80; Vite dev server **5175** (proxies `/api` to :8092) |
-| Postgres | **5435** | dev datasource default is `localhost:5432/demo` |
+| Postgres | **5435** | dev datasource default is `localhost:5435/demo` |
 | RabbitMQ | 5672 | owned by the platform compose stack, reached via `host.docker.internal` |
 
 Fleet registry: [fleet.md §Fleet ports](../../platform/docs/fleet.md#fleet-ports).

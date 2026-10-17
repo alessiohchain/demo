@@ -83,7 +83,7 @@ the Jira QA status and the tester guides follow from it. Then re-run
 ## Local run
 
 ```bash
-cd backend  && ./mvnw spring-boot:run   # :8092, DB default localhost:5432/demo
+cd backend  && ./mvnw spring-boot:run   # :8092, DB default localhost:5435/demo
 cd frontend && npm run dev              # http://localhost:5175
 
 # Full stack, closer to prod
@@ -92,7 +92,7 @@ docker compose up --build               # frontend :8085, backend :8092, db :543
 
 - **URL**: `http://localhost:5175` (dev) or `http://localhost:8085` (compose).
 - **Java 21** is required for the backend; **Node 20.19+ / 22+** for the frontend.
-- **Database**: Postgres — compose publishes `:5435`; the dev datasource defaults to `localhost:5432/demo` (db/user/password `demo`).
+- **Database**: Postgres — compose publishes `:5435`; the dev datasource defaults to `localhost:5435/demo` (db/user/password `demo`).
 - **Login**: sign-in goes through the central platform IdP (OIDC) — the platform stack must be running alongside this module.
 
 ## Environments
