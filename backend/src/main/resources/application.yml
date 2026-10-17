@@ -10,7 +10,7 @@ spring:
     jdbc:
       initialize-schema: always
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/demo}
+    url: ${DB_URL:jdbc:postgresql://localhost:5435/demo}
     username: ${DB_USER:demo}
     password: ${DB_PASSWORD:demo}
   jpa:

@@ -10,8 +10,10 @@ export default defineConfig({
     },
   },
   server: {
-    // Demo's own dev port so it coexists with POM (5173) + platform (5174).
+    // Demo's registered dev port (~/.claude/ports.md). strictPort, because Vite
+    // otherwise slides to the next free port, which is another app's.
     port: 5175,
+    strictPort: true,
     proxy: {
       "/api": {
         // Honour VITE_API_TARGET so an isolated dev/e2e stack can point the
